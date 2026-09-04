@@ -22,14 +22,14 @@ export const seedServices = [
 ].map(([title,description,tag,icon],i)=>({id:`seed-service-${i}`,title,description,tag,icon,active:true,sort_order:i}));
 
 const reels = [
- ['Sindpetshop-SP','https://www.instagram.com/reel/DV9ULwJkixu/','Campanha / conteúdo institucional','https://mir-s3-cdn-cf.behance.net/projects/404/2dd9e8248486127.Y3JvcCwxMzA5LDEwMjQsMCww.png'],
- ['Sindpetshop-SP','https://www.instagram.com/reel/DcJrWv2SPzd/','Conteúdo para redes sociais','https://mir-s3-cdn-cf.behance.net/projects/404/16449a250101129.Y3JvcCw4OTcsNzAyLDI0LDA.png'],
- ['Sindpetshop-SP','https://www.instagram.com/reel/DaKzFXZCk4R/','Comunicação sindical','https://mir-s3-cdn-cf.behance.net/projects/404/2dd9e8248486127.Y3JvcCwxMzA5LDEwMjQsMCww.png'],
- ['SEON','https://www.instagram.com/reel/C64eNa3gXVK/','Conteúdo de marca',''],['SEON','https://www.instagram.com/reel/C9Qaa-YxRFt/','Conteúdo de marca',''],['SEON','https://www.instagram.com/reel/C6PIE6iumCV/','Conteúdo de marca',''],
- ['MIBIS Dog','https://www.instagram.com/reel/C6XFOgGOJBL/','Conteúdo pet','https://mir-s3-cdn-cf.behance.net/projects/404/6e0912246851585.Y3JvcCwxMDgwLDg0NCwwLDE1Nw.png'],['MIBIS Dog','https://www.instagram.com/reel/DQCq3K4kZ7j/','Conteúdo pet','https://mir-s3-cdn-cf.behance.net/projects/404/2b5ea3246850317.Y3JvcCwxMTgyLDkyNSwzNTQsMA.png'],
- ['Eazy Club','https://www.instagram.com/reel/DYIE58pgeTh/','Conteúdo / evento',''],['Eazy Club','https://www.instagram.com/reel/DYcPiquue3L/','Conteúdo / evento',''],['Eazy Club','https://www.instagram.com/reel/DYZR4p7idCp/','Conteúdo / evento',''],
- ['DJ Pufinho','https://www.instagram.com/reel/DJxNTzKuexw/','Vídeo / performance','https://mir-s3-cdn-cf.behance.net/projects/404/d09fc5196628485.Y3JvcCwzNjQ4LDI4NTMsMCw4ODQ.jpg'],['DJ Pufinho','https://www.instagram.com/reel/DJxNMUjuS7W/','Vídeo / performance','https://mir-s3-cdn-cf.behance.net/projects/404/d09fc5196628485.Y3JvcCwzNjQ4LDI4NTMsMCw4ODQ.jpg'],['DJ Pufinho','https://www.instagram.com/reel/DJxM5WhOZMD/','Vídeo / performance','https://mir-s3-cdn-cf.behance.net/projects/404/d09fc5196628485.Y3JvcCwzNjQ4LDI4NTMsMCw4ODQ.jpg'],
- ['Dicarias Cantor','https://www.instagram.com/reel/DYYO89CxBve/','Vídeo / performance',''],['Dicarias Cantor','https://www.instagram.com/reel/DY2z6PGxctM/','Vídeo / performance',''],['Dicarias Cantor','https://www.instagram.com/reel/DYP3XSGhdSa/','Vídeo / performance','']
+ ['Sindpetshop-SP','https://www.instagram.com/reel/DV9ULwJkixu/','Campanha / conteúdo institucional','/assets/posters/reel-01.jpg'],
+ ['Sindpetshop-SP','https://www.instagram.com/reel/DcJrWv2SPzd/','Conteúdo para redes sociais','/assets/posters/reel-02.jpg'],
+ ['Sindpetshop-SP','https://www.instagram.com/reel/DaKzFXZCk4R/','Comunicação sindical','/assets/posters/reel-03.jpg'],
+ ['SEON','https://www.instagram.com/reel/C64eNa3gXVK/','Conteúdo de marca','/assets/posters/reel-04.jpg'],['SEON','https://www.instagram.com/reel/C9Qaa-YxRFt/','Conteúdo de marca','/assets/posters/reel-05.jpg'],['SEON','https://www.instagram.com/reel/C6PIE6iumCV/','Conteúdo de marca','/assets/posters/reel-06.jpg'],
+ ['MIBIS Dog','https://www.instagram.com/reel/C6XFOgGOJBL/','Conteúdo pet','/assets/posters/reel-07.jpg'],['MIBIS Dog','https://www.instagram.com/reel/DQCq3K4kZ7j/','Conteúdo pet','/assets/posters/reel-08.jpg'],
+ ['Eazy Club','https://www.instagram.com/reel/DYIE58pgeTh/','Conteúdo / evento','/assets/posters/reel-09.jpg'],['Eazy Club','https://www.instagram.com/reel/DYcPiquue3L/','Conteúdo / evento','/assets/posters/reel-10.jpg'],['Eazy Club','https://www.instagram.com/reel/DYZR4p7idCp/','Conteúdo / evento','/assets/posters/reel-11.jpg'],
+ ['DJ Pufinho','https://www.instagram.com/reel/DJxNTzKuexw/','Vídeo / performance','/assets/posters/reel-12.jpg'],['DJ Pufinho','https://www.instagram.com/reel/DJxNMUjuS7W/','Vídeo / performance','/assets/posters/reel-12.jpg'],['DJ Pufinho','https://www.instagram.com/reel/DJxM5WhOZMD/','Vídeo / performance','/assets/posters/reel-12.jpg'],
+ ['Dicarias Cantor','https://www.instagram.com/reel/DYYO89CxBve/','Vídeo / performance','/assets/posters/reel-12.jpg'],['Dicarias Cantor','https://www.instagram.com/reel/DY2z6PGxctM/','Vídeo / performance','/assets/posters/reel-13.jpg'],['Dicarias Cantor','https://www.instagram.com/reel/DYP3XSGhdSa/','Vídeo / performance','/assets/posters/reel-14.jpg']
 ];
 export const seedContents = reels.map(([clientName,url,title,poster_url],i)=>({id:`seed-content-${i}`,client_name:clientName,title,url,poster_url,active:true,featured:i<8,sort_order:i}));
 

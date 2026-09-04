@@ -31,3 +31,21 @@ create policy "authenticated manage services" on public.services for all to auth
 -- Upgrade existing installations
 alter table public.contents add column if not exists poster_url text default '';
 alter table public.projects add column if not exists description text default '';
+
+-- Assets uploaded pelo Admin
+insert into storage.buckets (id, name, public)
+values ('portfolio-assets', 'portfolio-assets', true)
+on conflict (id) do update set public = true;
+
+create policy "Public can view portfolio assets"
+on storage.objects for select
+using (bucket_id = 'portfolio-assets');
+
+create policy "Authenticated admins can upload portfolio assets"
+on storage.objects for insert to authenticated
+with check (bucket_id = 'portfolio-assets');
+
+create policy "Authenticated admins can update portfolio assets"
+on storage.objects for update to authenticated
+using (bucket_id = 'portfolio-assets')
+with check (bucket_id = 'portfolio-assets');
