@@ -1,28 +1,126 @@
-import React,{useEffect,useState} from 'react';
-import {LogOut,Plus,Trash2,Save,Eye,EyeOff,ArrowLeft,Upload,ArrowUp,ArrowDown,ExternalLink} from 'lucide-react';
-import './styles.css';
-import {supabase} from './supabase';
-import {uploadAsset} from './assets';
-import {seedClients,seedServices,seedContents,seedProjects} from './data';
+import React, { useEffect, useMemo, useState } from 'react'
+import { supabase, supabaseEnabled } from './supabase'
 
-const tables={clients:seedClients,contents:seedContents,projects:seedProjects,services:seedServices};
-const labels={clients:'Clientes',contents:'Conteúdos',projects:'Portfólio',services:'Serviços'};
-const empty={clients:{name:'',handle:'',profile_url:'',active:true,sort_order:99},contents:{client_name:'',category:'SOCIAL',title:'',url:'',poster_url:'',active:true,featured:false,sort_order:99},projects:{title:'',category:'',url:'',cover_url:'',description:'',active:true,featured:false,sort_order:99},services:{title:'',description:'',tag:'NEW',icon:'Sparkles',active:true,sort_order:99}};
-
-async function load(table){if(!supabase)return tables[table]||[];const {data}=await supabase.from(table).select('*').order('sort_order',{ascending:true});return data||[]}
-function Admin(){
- const [session,setSession]=useState(null),[tab,setTab]=useState('clients'),[items,setItems]=useState([]),[editing,setEditing]=useState(null),[form,setForm]=useState(empty.clients),[busy,setBusy]=useState(false),[message,setMessage]=useState(''),[uploading,setUploading]=useState(false);
- useEffect(()=>{if(!supabase)return;supabase.auth.getSession().then(({data})=>setSession(data.session));const {data}=supabase.auth.onAuthStateChange((_e,s)=>setSession(s));return()=>data.subscription.unsubscribe()},[]);
- useEffect(()=>{if(session||!supabase){load(tab).then(setItems)}},[tab,session]);
- const selectTab=k=>{setTab(k);setEditing(null);setForm({...empty[k]});setMessage('')};
- const save=async()=>{setBusy(true);setMessage('');try{if(supabase){const payload={...form};delete payload.id;const q=editing?supabase.from(tab).update(payload).eq('id',editing):supabase.from(tab).insert(payload);const {error}=await q;if(error)throw error}setItems(await load(tab));setEditing(null);setForm({...empty[tab]});setMessage('Alterações salvas.')}catch(e){setMessage(e.message||'Não foi possível salvar.')}finally{setBusy(false)}};
- const remove=async id=>{if(!confirm('Remover este item?'))return;if(supabase)await supabase.from(tab).delete().eq('id',id);setItems(await load(tab))};
- const toggle=async item=>{if(supabase)await supabase.from(tab).update({active:!item.active}).eq('id',item.id);setItems(await load(tab))};
- const move=async(index,direction)=>{const target=index+direction;if(target<0||target>=items.length)return;const a=items[index],b=items[target];if(supabase){await supabase.from(tab).update({sort_order:b.sort_order}).eq('id',a.id);await supabase.from(tab).update({sort_order:a.sort_order}).eq('id',b.id)}else{const next=[...items];[next[index],next[target]]=[next[target],next[index]];next.forEach((x,i)=>x.sort_order=i);setItems(next)}};
- const chooseUpload=async(e,field)=>{const file=e.target.files?.[0];if(!file)return;setUploading(true);setMessage('Enviando arquivo...');try{const url=await uploadAsset(file,tab);setForm(f=>({...f,[field]:url}));setMessage('Upload concluído. Salve o item para publicar.')}catch(err){setMessage(err.message||'Falha no upload.')}finally{setUploading(false)}};
- const login=async e=>{e.preventDefault();const email=e.currentTarget.email.value,password=e.currentTarget.password.value;if(!supabase){setMessage('Configure VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY para ativar o login.');return}const {error}=await supabase.auth.signInWithPassword({email,password});if(error)setMessage(error.message)};
- if(!session&&supabase)return <div className="admin-login"><form onSubmit={login}><div className="brand"><span className="brand-mark">V</span><span>SEEVEN<span className="muted">/ADMIN</span></span></div><h1>Painel Seeven</h1><input name="email" type="email" placeholder="E-mail" required/><input name="password" type="password" placeholder="Senha" required/><button className="button primary">Entrar</button>{message&&<p>{message}</p>}</form></div>;
- const isAssetField=tab==='contents'?'poster_url':tab==='projects'?'cover_url':null;
- return <div className="admin"><aside><div className="brand"><span className="brand-mark">V</span><span>SEEVEN<span className="muted">/ADMIN</span></span></div>{Object.keys(labels).map(k=><button className={tab===k?'admin-nav active':'admin-nav'} onClick={()=>selectTab(k)} key={k}>{labels[k]}</button>)}<a href="/" className="admin-back"><ArrowLeft size={15}/> Ver site</a>{supabase&&<button className="admin-logout" onClick={()=>supabase.auth.signOut()}><LogOut size={15}/> Sair</button>}</aside><main className="admin-main"><div className="admin-head"><div><span className="section-label">SEEVEN / ADMIN</span><h1>{labels[tab]}</h1></div><button className="button primary" onClick={()=>{setEditing(null);setForm({...empty[tab]});setMessage('')}}><Plus size={17}/> Novo</button></div>{message&&<div className="admin-message">{message}</div>}<div className="admin-layout"><section className="admin-list">{items.map((item,index)=><article className={'admin-row '+(!item.active?'disabled':'')} key={item.id}><div className="admin-row-copy"><strong>{item.name||item.title}</strong><small>{item.handle||item.category||item.tag||item.url}</small></div><div className="admin-actions"><button title="Subir" onClick={()=>move(index,-1)}><ArrowUp size={14}/></button><button title="Descer" onClick={()=>move(index,1)}><ArrowDown size={14}/></button><button onClick={()=>{setEditing(item.id);setForm({...item})}}>{item.active?<Eye size={16}/>:<EyeOff size={16}/>}</button><button onClick={()=>toggle(item)}>{item.active?'Ocultar':'Mostrar'}</button>{item.url&&<a href={item.url} target="_blank" rel="noreferrer" title="Abrir"><ExternalLink size={14}/></a>}<button onClick={()=>remove(item.id)}><Trash2 size={15}/></button></div></article>)}</section><section className="admin-form"><h2>{editing?'Editar':'Novo'} {labels[tab].slice(0,-1)}</h2>{Object.keys(form).filter(k=>k!=='id').map(k=>typeof form[k]==='boolean'?<label className="check" key={k}><input type="checkbox" checked={form[k]} onChange={e=>setForm({...form,[k]:e.target.checked})}/>{k==='featured'?'Destaque na página':k==='active'?'Publicado na página':k}</label>:<React.Fragment key={k}>{tab==='contents'&&k==='category'?<label>{k}<select value={form[k]??'SOCIAL'} onChange={e=>setForm({...form,[k]:e.target.value})}>{['SOCIAL','CAMPANHA','EVENTO','GASTRONOMIA','PRODUTO','MOTION','PERFORMANCE','3D','OUTROS'].map(v=><option key={v}>{v}</option>)}</select></label>:<label>{k}<input value={form[k]??''} onChange={e=>setForm({...form,[k]:e.target.value})}/></label>}{k===isAssetField&&<label className="upload-box"><span><Upload size={14}/> {uploading?'Enviando...':'Enviar arquivo de capa'}</span><input type="file" accept="image/*" disabled={uploading} onChange={e=>chooseUpload(e,k)}/>{form[k]&&<img src={form[k]} alt="preview"/>}</label>}</React.Fragment>)}<button className="button primary" disabled={busy||uploading} onClick={save}><Save size={16}/> {busy?'Salvando...':'Salvar alterações'}</button></section></div></main></div>
+const emptyByTable = {
+  contents: { client: '', category: '', title: '', url: '', poster: '', featured: false, active: true, order: 0 },
+  projects: { title: '', description: '', cover: '', url: '', active: true, order: 0 },
+  clients: { name: '', handle: '', url: '', active: true, order: 0 },
+  services: { title: '', description: '', active: true, order: 0 }
 }
-export default Admin;
+
+function Login({ onSession }) {
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [status, setStatus] = useState('')
+
+  const submit = async (e) => {
+    e.preventDefault()
+    setStatus('Entrando…')
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+    if (error) return setStatus(error.message)
+    onSession(data.session)
+  }
+
+  return <div className="admin-login">
+    <span className="index-label">SEE7VEN / ADMIN</span>
+    <h1>Conteúdo sem deploy.</h1>
+    <p>Este painel usa o Supabase configurado pelas variáveis <code>VITE_SUPABASE_URL</code> e <code>VITE_SUPABASE_ANON_KEY</code>.</p>
+    <form className="admin-form" onSubmit={submit}>
+      <input type="email" placeholder="E-mail" value={email} onChange={e => setEmail(e.target.value)} required/>
+      <input type="password" placeholder="Senha" value={password} onChange={e => setPassword(e.target.value)} required/>
+      <button type="submit">Entrar</button>
+    </form>
+    {status && <div className="admin-status">{status}</div>}
+  </div>
+}
+
+function Editor({ table, item, onDone }) {
+  const [form, setForm] = useState(item || emptyByTable[table])
+  const [status, setStatus] = useState('')
+
+  useEffect(() => setForm(item || emptyByTable[table]), [item, table])
+
+  const set = (key, value) => setForm(prev => ({ ...prev, [key]: value }))
+  const fields = Object.entries(form).filter(([key]) => !['id', 'created_at', 'updated_at'].includes(key))
+
+  const save = async (e) => {
+    e.preventDefault()
+    setStatus('Salvando…')
+    const payload = { ...form }
+    Object.keys(payload).forEach(k => payload[k] === '' && delete payload[k])
+    const query = item?.id
+      ? supabase.from(table).update(payload).eq('id', item.id)
+      : supabase.from(table).insert(payload)
+    const { error } = await query
+    if (error) return setStatus(error.message)
+    setStatus('Salvo.')
+    onDone()
+  }
+
+  return <form className="admin-editor admin-form" onSubmit={save}>
+    <h2>{item?.id ? 'Editar item' : 'Novo item'} / {table}</h2>
+    <div className="admin-grid">
+      {fields.map(([key, value]) => {
+        const isBool = typeof value === 'boolean'
+        const isLong = ['description'].includes(key)
+        if (isBool) return <label key={key}>{key}<select value={String(value)} onChange={e => set(key, e.target.value === 'true')}><option value="true">true</option><option value="false">false</option></select></label>
+        if (isLong) return <label className="full" key={key}>{key}<textarea rows="4" value={value ?? ''} onChange={e => set(key, e.target.value)}/></label>
+        return <label key={key}>{key}<input type={key === 'order' ? 'number' : 'text'} value={value ?? ''} onChange={e => set(key, key === 'order' ? Number(e.target.value) : e.target.value)}/></label>
+      })}
+    </div>
+    <button type="submit">Salvar</button>
+    {status && <div className="admin-status">{status}</div>}
+  </form>
+}
+
+export default function AdminApp() {
+  const [session, setSession] = useState(null)
+  const [table, setTable] = useState('contents')
+  const [rows, setRows] = useState([])
+  const [selected, setSelected] = useState(null)
+  const [status, setStatus] = useState('')
+
+  useEffect(() => {
+    if (!supabaseEnabled) return
+    supabase.auth.getSession().then(({ data }) => setSession(data.session))
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, next) => setSession(next))
+    return () => listener.subscription.unsubscribe()
+  }, [])
+
+  const load = async () => {
+    if (!session) return
+    setStatus('Carregando…')
+    let query = supabase.from(table).select('*')
+    const { data, error } = await query
+    if (error) { setRows([]); return setStatus(error.message) }
+    setRows((data || []).sort((a,b) => Number(a.order ?? 999) - Number(b.order ?? 999)))
+    setStatus(`${data?.length || 0} itens`)
+  }
+
+  useEffect(() => { setSelected(null); load() }, [table, session])
+
+  const remove = async (id) => {
+    if (!confirm('Remover este item?')) return
+    const { error } = await supabase.from(table).delete().eq('id', id)
+    if (error) setStatus(error.message)
+    else load()
+  }
+
+  if (!supabaseEnabled) return <div className="admin-shell"><div className="admin-card"><div className="admin-body admin-login"><span className="index-label">SEE7VEN / ADMIN</span><h1>Supabase não configurado.</h1><p>Copie <code>.env.example</code> para <code>.env.local</code>, preencha URL e chave pública e reinicie o Vite. O site público continua funcionando com os dados estáticos de <code>src/data.js</code>.</p><a href="/">← Voltar ao site</a></div></div></div>
+
+  if (!session) return <div className="admin-shell"><div className="admin-card"><div className="admin-body"><Login onSession={setSession}/></div></div></div>
+
+  return <div className="admin-shell">
+    <div className="admin-card">
+      <div className="admin-top"><strong>SEE7VEN / ADMIN</strong><div><a href="/">Ver site</a> <button onClick={() => supabase.auth.signOut()}>Sair</button></div></div>
+      <div className="admin-body">
+        <div className="admin-tabs">{Object.keys(emptyByTable).map(name => <button className={table === name ? 'active' : ''} key={name} onClick={() => setTable(name)}>{name}</button>)}</div>
+        <div className="admin-status">{status}</div>
+        <table className="admin-table"><thead><tr><th>ID</th><th>TÍTULO / NOME</th><th>ATIVO</th><th>AÇÕES</th></tr></thead><tbody>
+          {rows.map(row => <tr key={row.id}><td>{String(row.id).slice(0,8)}</td><td>{row.title || row.name || row.client || '—'}</td><td>{String(row.active ?? '—')}</td><td><button onClick={() => setSelected(row)}>Editar</button> <button onClick={() => remove(row.id)}>Excluir</button></td></tr>)}
+        </tbody></table>
+        <Editor table={table} item={selected} onDone={() => { setSelected(null); load() }}/>
+      </div>
+    </div>
+  </div>
+}

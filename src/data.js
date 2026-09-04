@@ -1,67 +1,160 @@
-export const seedClients = [
-  ['Sindpetshop-SP','@sindpetshop_sp','https://www.instagram.com/sindpetshop_sp/'],
-  ['Pizzaria Venâncio','@pizzariavenancio','https://www.instagram.com/pizzariavenancio/'],
-  ['SEON','@seon.co','https://www.instagram.com/seon.co/'],
-  ['CZK Drills','@czkdrills','https://www.instagram.com/czkdrills/'],
-  ['MIBIS Dog','@mibisdog','https://www.instagram.com/mibisdog/'],
-  ['Eventos Publi','@eventospubli','https://www.instagram.com/eventospubli/'],
-  ['Eazy Club','@eazyclubperus_','https://www.instagram.com/eazyclubperus_/'],
-  ['Salseiro Lounge','@salseiro.lounge','https://www.instagram.com/salseiro.lounge/'],
-  ['DJ Pufinho','@djpufinho','https://www.instagram.com/djpufinho/'],
-  ['Sabor do Sul','@sabordosul_marmitaria','https://www.instagram.com/sabordosul_marmitaria/'],
-  ['Dicarias Cantor','@dicariascantor','https://www.instagram.com/dicariascantor/']
-].map(([name,handle,profile_url],i)=>({id:`seed-client-${i}`,name,handle,profile_url,active:true,sort_order:i}));
+export const clients = [
+  { id: 'sindpetshop', name: 'Sindpetshop-SP', handle: '@sindpetshop_sp', category: 'Institucional', accent: '#ff7a1a', url: 'https://www.instagram.com/sindpetshop_sp/' },
+  { id: 'venancio', name: 'Pizzaria Venâncio', handle: '@pizzariavenancio', category: 'Food', accent: '#9c2f35', url: 'https://www.instagram.com/pizzariavenancio/' },
+  { id: 'seon', name: 'SEON', handle: '@seon.co', category: 'Lifestyle', accent: '#b9ff66', url: 'https://www.instagram.com/seon.co/' },
+  { id: 'czk', name: 'CZK Drills', handle: '@czkdrills', category: 'Industrial', accent: '#f4c63d', url: 'https://www.instagram.com/czkdrills/' },
+  { id: 'mibis', name: 'MIBIS Dog', handle: '@mibisdog', category: 'Pet', accent: '#73cfff', url: 'https://www.instagram.com/mibisdog/' },
+  { id: 'eventos', name: 'Eventos Publi', handle: '@eventospubli', category: 'Eventos', accent: '#f2ede5', url: 'https://www.instagram.com/eventospubli/' },
+  { id: 'eazy', name: 'Eazy Club', handle: '@eazyclubperus_', category: 'Nightlife', accent: '#8e5cff', url: 'https://www.instagram.com/eazyclubperus_/' },
+  { id: 'salseiro', name: 'Salseiro Lounge', handle: '@salseiro.lounge', category: 'Nightlife', accent: '#ff4f9a', url: 'https://www.instagram.com/salseiro.lounge/' },
+  { id: 'pufinho', name: 'DJ Pufinho', handle: '@djpufinho', category: 'Music', accent: '#58f5d0', url: 'https://www.instagram.com/djpufinho/' },
+  { id: 'sabor', name: 'Sabor do Sul', handle: '@sabordosul_marmitaria', category: 'Food', accent: '#ffb55f', url: 'https://www.instagram.com/sabordosul_marmitaria/' },
+  { id: 'dicarias', name: 'Dicarias Cantor', handle: '@dicarias', category: 'Music', accent: '#f3d2ff', url: '#' }
+]
 
-export const seedServices = [
- ['Redes sociais','Conteúdo que faz sua marca ser percebida.','SOCIAL','Smartphone'],
- ['Sites & LPs','Experiências digitais pensadas para converter.','WEB','Globe2'],
- ['Cardápios digitais','Apresente seus produtos com muito mais valor.','DIGITAL','Utensils'],
- ['Tráfego pago','Estratégia para colocar sua marca diante das pessoas certas.','ADS','Target'],
- ['Identidade visual','Uma marca que transmite o nível do seu negócio.','BRANDING','Palette'],
- ['Conteúdo & vídeo','Peças visuais que transformam atenção em interesse.','CONTENT','Play']
-].map(([title,description,tag,icon],i)=>({id:`seed-service-${i}`,title,description,tag,icon,active:true,sort_order:i}));
+export const featuredProjects = [
+  {
+    id: 'sindpetshop-ecosystem',
+    client: 'Sindpetshop-SP',
+    label: 'CASE / ECOSSISTEMA',
+    title: 'De comunicação sindical a presença digital completa.',
+    summary: 'Estratégia, identidade, conteúdo, site, campanhas, materiais e jornadas digitais conectadas.',
+    tags: ['Estratégia', 'Social', 'Web', 'Campanhas'],
+    theme: 'orange',
+    size: 'xl',
+    href: '#case-sindpetshop'
+  },
+  {
+    id: 'venancio-social',
+    client: 'Pizzaria Venâncio',
+    label: 'SOCIAL / FOOD',
+    title: 'Produto antes da legenda.',
+    summary: 'Direção visual para transformar desejo em atenção e atenção em pedido.',
+    tags: ['Social', 'Direção de arte', 'Conteúdo'],
+    theme: 'wine',
+    size: 'md',
+    href: '#portfolio'
+  },
+  {
+    id: 'seon-identity',
+    client: 'SEON',
+    label: 'BRAND / CONTENT',
+    title: 'Uma linguagem que parece pertencer à marca.',
+    summary: 'Sistema visual, ritmo e presença digital com identidade reconhecível.',
+    tags: ['Branding', 'Social', 'Motion'],
+    theme: 'acid',
+    size: 'md',
+    href: '#portfolio'
+  },
+  {
+    id: 'eazy-experience',
+    client: 'Eazy Club',
+    label: 'NIGHTLIFE / CAMPAIGN',
+    title: 'Comunicação com pulso.',
+    summary: 'Conteúdo e peças promocionais construídas para o ritmo do público.',
+    tags: ['Campanha', 'Social', 'Vídeo'],
+    theme: 'violet',
+    size: 'lg',
+    href: '#portfolio'
+  },
+  {
+    id: 'czk-industrial',
+    client: 'CZK Drills',
+    label: 'B2B / INDUSTRIAL',
+    title: 'Técnico sem parecer frio.',
+    summary: 'Clareza comercial e direção visual para um produto altamente específico.',
+    tags: ['B2B', 'Conteúdo', 'Design'],
+    theme: 'steel',
+    size: 'sm',
+    href: '#portfolio'
+  },
+  {
+    id: 'mibis-pet',
+    client: 'MIBIS Dog',
+    label: 'PET / SOCIAL',
+    title: 'Afeto com direção.',
+    summary: 'Conteúdo leve sem perder consistência de marca.',
+    tags: ['Social', 'Conteúdo', 'Vídeo'],
+    theme: 'sky',
+    size: 'sm',
+    href: '#portfolio'
+  }
+]
 
-const reels = [
- ['Sindpetshop-SP','https://www.instagram.com/reel/DV9ULwJkixu/','Campanha / conteúdo institucional','/assets/posters/reel-01.jpg'],
- ['Sindpetshop-SP','https://www.instagram.com/reel/DcJrWv2SPzd/','Conteúdo para redes sociais','/assets/posters/reel-02.jpg'],
- ['Sindpetshop-SP','https://www.instagram.com/reel/DaKzFXZCk4R/','Comunicação sindical','/assets/posters/reel-03.jpg'],
- ['SEON','https://www.instagram.com/reel/C64eNa3gXVK/','Conteúdo de marca','/assets/posters/reel-04.jpg'],['SEON','https://www.instagram.com/reel/C9Qaa-YxRFt/','Conteúdo de marca','/assets/posters/reel-05.jpg'],['SEON','https://www.instagram.com/reel/C6PIE6iumCV/','Conteúdo de marca','/assets/posters/reel-06.jpg'],
- ['MIBIS Dog','https://www.instagram.com/reel/C6XFOgGOJBL/','Conteúdo pet','/assets/posters/reel-07.jpg'],['MIBIS Dog','https://www.instagram.com/reel/DQCq3K4kZ7j/','Conteúdo pet','/assets/posters/reel-08.jpg'],
- ['Eazy Club','https://www.instagram.com/reel/DYIE58pgeTh/','Conteúdo / evento','/assets/posters/reel-09.jpg'],['Eazy Club','https://www.instagram.com/reel/DYcPiquue3L/','Conteúdo / evento','/assets/posters/reel-10.jpg'],['Eazy Club','https://www.instagram.com/reel/DYZR4p7idCp/','Conteúdo / evento','/assets/posters/reel-11.jpg'],
- ['DJ Pufinho','https://www.instagram.com/reel/DJxNTzKuexw/','Vídeo / performance','/assets/posters/reel-12.jpg'],['DJ Pufinho','https://www.instagram.com/reel/DJxNMUjuS7W/','Vídeo / performance','/assets/posters/reel-12.jpg'],['DJ Pufinho','https://www.instagram.com/reel/DJxM5WhOZMD/','Vídeo / performance','/assets/posters/reel-12.jpg'],
- ['Dicarias Cantor','https://www.instagram.com/reel/DYYO89CxBve/','Vídeo / performance','/assets/posters/reel-12.jpg'],['Dicarias Cantor','https://www.instagram.com/reel/DY2z6PGxctM/','Vídeo / performance','/assets/posters/reel-13.jpg'],['Dicarias Cantor','https://www.instagram.com/reel/DYP3XSGhdSa/','Vídeo / performance','/assets/posters/reel-14.jpg'],
- ['Pizzaria Venâncio','https://www.instagram.com/reel/DVZecynCVkH/','Conteúdo / pizza / campanha',''],
- ['Pizzaria Venâncio','https://www.instagram.com/reel/DVONgB7F7mZ/','Conteúdo / pizza / campanha',''],
- ['Pizzaria Venâncio','https://www.instagram.com/reel/DVL-uDSDQIj/','Conteúdo / pizza / campanha',''],
- ['CZK Drills','https://www.instagram.com/reel/C7kYGHHOlDI/','Conteúdo de produto',''],
- ['CZK Drills','https://www.instagram.com/reel/C6cM96-AG_z/','Conteúdo de produto',''],
- ['CZK Drills','https://www.instagram.com/reel/C6sMuRvOrTn/','Conteúdo de produto',''],
- ['Eventos Publi','https://www.instagram.com/reel/DIhEvR_OSws/','Vídeo / evento',''],
- ['Eventos Publi','https://www.instagram.com/reel/DJgUcxguik4/','Vídeo / evento',''],
- ['Eventos Publi','https://www.instagram.com/reel/DNQ8T9tJqko/','Vídeo / evento',''],
- ['Salseiro Lounge','https://www.instagram.com/reel/DJ4szeXNEP8/','Conteúdo / evento',''],
- ['Salseiro Lounge','https://www.instagram.com/reel/DLqx76utzBY/','Conteúdo / evento',''],
- ['Salseiro Lounge','https://www.instagram.com/reel/DH0oz19t2d-/','Conteúdo / evento',''],
- ['Sabor do Sul','https://www.instagram.com/reel/DB9vOVPxk4I/','Conteúdo / gastronomia',''],
- ['Sabor do Sul','https://www.instagram.com/reel/DCWpVGJRX_5/','Conteúdo / gastronomia',''],
- ['Sabor do Sul','https://www.instagram.com/reel/DDHk25UxYiJ/','Conteúdo / gastronomia','']
-];
-export const seedContents = reels.map(([clientName,url,title,poster_url],i)=>({id:`seed-content-${i}`,client_name:clientName,title,url,poster_url,category: title.includes('evento') ? 'EVENTO' : title.includes('pizza') || title.includes('gastronomia') ? 'GASTRONOMIA' : title.includes('produto') ? 'PRODUTO' : title.includes('performance') ? 'MOTION' : title.includes('campanha') || title.includes('Campanha') ? 'CAMPANHA' : 'SOCIAL',active:true,featured:i<8,sort_order:i}));
+const reelPlan = [
+  ['sindpetshop', 3], ['seon', 3], ['mibis', 2], ['eazy', 3], ['pufinho', 3],
+  ['dicarias', 3], ['venancio', 3], ['czk', 3], ['eventos', 3], ['salseiro', 3], ['sabor', 3]
+]
 
-export const seedProjects = [
- ['Sindpetshop-SP ( Mês das Mulheres )','SOCIAL / CAMPAIGN','https://www.behance.net/gallery/246850123/Sindpetshop-SP-(-Mes-das-Mulheres-)','https://mir-s3-cdn-cf.behance.net/projects/404/1534ef246850123.Y3JvcCwxMDgwLDg0NCwwLDE2OA.png','Campanha visual desenvolvida para o Sindpetshop-SP.'],
- ['Campanha Maio Lilás — Consciência Jovem','CAMPAIGN / SOCIAL','https://www.behance.net/gallery/248486127/Campanha-Maio-Lilas-Consciencia-Jovem','https://mir-s3-cdn-cf.behance.net/projects/404/2dd9e8248486127.Y3JvcCwxMzA5LDEwMjQsMCww.png','Planejamento de campanha, direção visual e peças para comunicação sindical.'],
- ['Sindpetshop-SP ( Nova identidade visual )','BRANDING','https://www.behance.net/gallery/246851585/Sindpetshop-SP-(-Nova-identidade-visual-)','https://mir-s3-cdn-cf.behance.net/projects/404/6e0912246851585.Y3JvcCwxMDgwLDg0NCwwLDE1Nw.png','Exploração de identidade e linguagem visual para a marca.'],
- ['CAJAMAR FEST','EVENT / DESIGN','https://www.behance.net/gallery/196628485/CAJAMAR-FEST','https://mir-s3-cdn-cf.behance.net/projects/404/d09fc5196628485.Y3JvcCwzNjQ4LDI4NTMsMCw4ODQ.jpg','Direção visual para comunicação de evento.'],
- ['Treino demonstrativo de modelagem 3D','3D','https://www.behance.net/gallery/252638325/Treino-demonstrativo-de-modelagem-3D','https://mir-s3-cdn-cf.behance.net/projects/404/296feb252638325.Y3JvcCwxMDA3LDc4OCw3NCww.png','Estudo prático de modelagem 3D, composição e integração digital.'],
- ['Campanha de junho - Sindpetshop-SP','CAMPAIGN','https://www.behance.net/gallery/250101129/Campanha-de-junho-Sindpetshop-SP','https://mir-s3-cdn-cf.behance.net/projects/404/16449a250101129.Y3JvcCw4OTcsNzAyLDI0LDA.png','Campanha de conteúdo para redes sociais.'],
- ['Sindpetshop-SP','SOCIAL / DESIGN','https://www.behance.net/gallery/246850317/Sindpetshop-SP','https://mir-s3-cdn-cf.behance.net/projects/404/2b5ea3246850317.Y3JvcCwxMTgyLDkyNSwzNTQsMA.png','Peças e comunicação digital para a marca.'],
- ['Sindpetshop-SP ( Abril verde )','CAMPAIGN','https://www.behance.net/gallery/246847939/Sindpetshop-SP-(-Abril-verde-)','https://mir-s3-cdn-cf.behance.net/projects/404/a3dfb0246847939.Y3JvcCwxMDQ1LDgxNywwLDM1Ng.png','Campanha temática desenvolvida para comunicação digital.']
-].map(([title,category,url,cover_url,description],i)=>({id:`seed-project-${i}`,title,category,url,cover_url,description,active:true,featured:i<4,sort_order:i}));
+export const reels = reelPlan.flatMap(([clientId, count]) => {
+  const client = clients.find(c => c.id === clientId)
+  return Array.from({ length: count }, (_, index) => ({
+    id: `${clientId}-${index + 1}`,
+    clientId,
+    client: client?.name || clientId,
+    title: `Reel ${String(index + 1).padStart(2, '0')}`,
+    poster: '',
+    video: '',
+    url: client?.url || '#',
+    accent: client?.accent || '#8b5cf6'
+  }))
+})
 
-export const seedStats = [
- {value:'22,2',suffix:'K',label:'VISUALIZAÇÕES',delta:'+45,9%'},
- {value:'5,1',suffix:'K',label:'PESSOAS ALCANÇADAS',delta:'+41,7%'},
- {value:'600',suffix:'',label:'INTERAÇÕES',delta:'+12,4%'},
- {value:'16',suffix:'%',label:'DE NOVOS PÚBLICOS',delta:'VISUALIZAÇÕES DE NÃO SEGUIDORES'}
-];
+export const solutions = [
+  {
+    problem: 'Quero vender mais.',
+    answer: 'Estratégia de aquisição, conteúdo, mídia e uma página que transforme interesse em ação.',
+    stack: ['Tráfego', 'Conteúdo', 'Landing page']
+  },
+  {
+    problem: 'Minha marca está ultrapassada.',
+    answer: 'Reposicionamento visual para que a percepção acompanhe a qualidade do que você entrega.',
+    stack: ['Estratégia', 'Identidade', 'Direção visual']
+  },
+  {
+    problem: 'Ninguém entende o que eu faço.',
+    answer: 'Clareza de mensagem, hierarquia e uma experiência que explica sem cansar.',
+    stack: ['Posicionamento', 'Copy', 'Site']
+  },
+  {
+    problem: 'Preciso parecer maior.',
+    answer: 'Consistência entre os pontos de contato para que a empresa pareça uma marca, não um conjunto de peças.',
+    stack: ['Branding', 'Digital', 'Materiais']
+  },
+  {
+    problem: 'Preciso chamar atenção.',
+    answer: 'Conceito criativo, vídeo, motion e campanha pensados para interromper o automático.',
+    stack: ['Campanha', 'Vídeo', 'Social']
+  }
+]
+
+export const touchpoints = [
+  'Instagram', 'Site', 'Google', 'WhatsApp', 'Campanha', 'Evento', 'Embalagem', 'Uniforme', 'Impresso', 'Vídeo'
+]
+
+export const process = [
+  ['01', 'Problema', 'Antes de desenhar, entendemos o que precisa mudar.'],
+  ['02', 'Estratégia', 'Definimos a ideia que organiza decisões.'],
+  ['03', 'Direção', 'Transformamos estratégia em linguagem.'],
+  ['04', 'Criação', 'Construímos as peças e experiências.'],
+  ['05', 'Distribuição', 'Levamos a marca aos pontos certos.'],
+  ['06', 'Evolução', 'Observamos, aprendemos e refinamos.']
+]
+
+export const sindpetshopStats = [
+  { value: '22,2 mil', label: 'visualizações', delta: '+45,9%' },
+  { value: '5,1 mil', label: 'de alcance', delta: '+41,7%' },
+  { value: '600', label: 'interações', delta: '+12,4%' },
+  { value: '+127', label: 'seguidores em um recorte', delta: 'agosto / 2026' }
+]
+
+export const behanceProjects = [
+  ['Mês das Mulheres', 'Sindpetshop-SP', 'editorial'],
+  ['Maio Lilás', 'Consciência Jovem', 'lilac'],
+  ['Nova identidade visual', 'Sindpetshop-SP', 'orange'],
+  ['Cajamar Fest', 'Evento', 'festival'],
+  ['Modelagem 3D', 'Seeven Lab', 'chrome'],
+  ['Campanha de Junho', 'Sindpetshop-SP', 'blue'],
+  ['Sistema institucional', 'Sindpetshop-SP', 'mono'],
+  ['Abril Verde', 'Sindpetshop-SP', 'green']
+].map(([title, client, theme], index) => ({ id: index + 1, title, client, theme, url: '#' }))
