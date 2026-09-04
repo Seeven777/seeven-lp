@@ -1,141 +1,127 @@
-# Auditoria estratégica — Seeven Presence V6
+# Auditoria estratégica — SEE7VEN Presence System V7.2
 
-## 1. Diagnóstico do projeto
+## Diagnóstico da V6.1
 
-O briefing tem uma tese comercial melhor do que a estrutura pública atual: a Seeven não deve vender “posts, sites e tráfego” como itens independentes. Deve vender **presença de marca** e provar capacidade através da própria experiência.
+A identidade visual já tinha força, mas quatro problemas criavam a sensação de página “bugada” ou “pela metade”:
 
-O site precisa funcionar principalmente depois de uma abordagem fria curta. Isso muda o papel da home: menos explicação institucional, mais impacto, repertório e prova.
+1. **mídia sem fonte real:** os 32 slots existiam, mas sem os 32 posters/permalinks individuais;
+2. **CMS parcialmente migrado:** poucos registros do Supabase podiam substituir listas estáticas inteiras;
+3. **composição pesada em página longa:** fixed layers + blend modes aumentavam risco de glitches em captura/mobile;
+4. **narrativa interrompida:** alguns blocos chegavam ao conceito e pulavam direto para a conclusão.
 
-## 2. Padrões observados em agências fortes
+## Decisão de produto
 
-### Ana Couto
-- Posicionamento ligado a transformação de negócio, não apenas entrega criativa.
-- Cases conectam disciplina + resultado.
-- Método aparece como prova de pensamento estratégico.
+A V7.2 não tenta resolver essas lacunas adicionando apenas mais efeitos. A regra agora é:
 
-**Aplicação Seeven:** falar primeiro do problema e da transformação; serviços aparecem como consequência.
+**ESTABILIDADE → CONTEÚDO REAL → PROVA → INTERAÇÃO → CONVERSÃO**
 
-### Tátil
-- O craft do próprio site funciona como portfólio.
-- Trabalhos aparecem cedo e com categorização objetiva.
-- Estratégia, design e tecnologia coexistem sem “seis cards de serviços”.
+O site passa a atuar como:
 
-**Aplicação Seeven:** o site precisa demonstrar direção, motion, UI e sistema enquanto o usuário navega.
+- portfólio;
+- sistema de cases;
+- arquivo audiovisual;
+- showreel;
+- capability map;
+- ferramenta de prospecção;
+- mini-brief;
+- CMS de mídia.
 
-### FutureBrand
-- Projetos são apresentados como histórias com uma ideia editorial curta.
-- A capa do trabalho carrega mais peso que textos institucionais extensos.
-- Portfólio pode ser filtrado sem perder impacto visual.
+## Correções da captura longa
 
-**Aplicação Seeven:** projetos com títulos narrativos (“Técnico sem parecer frio”, “Afeto com direção”) em vez de apenas nome do cliente.
+O código anterior continha elementos fixed com blend/compositing durante uma página muito extensa. Isso não significava necessariamente que o React estivesse duplicando seções, mas era uma fonte plausível de artefatos em long screenshots e certos browsers.
 
-### GUT
-- Work é protagonista.
-- CTA de novos negócios é simples e aparece depois de prova suficiente.
-- Cases são associados a cliente, escritório e contexto.
+V7.2:
 
-**Aplicação Seeven:** deixar o contato muito fácil, sem colocar formulários e justificativas antes do trabalho.
+- remove o blend do header;
+- troca o noise global fixed por camada do documento;
+- usa detecção explícita de fase clara/escura;
+- cria Motion Lite em dispositivos menos adequados a efeitos pesados.
 
-### AlmapBBDO
-- Grande quantidade de trabalho organizada por cliente e pesquisa/filtros.
-- A marca institucional não tenta disputar atenção com os cases.
+## Reels / capas
 
-**Aplicação Seeven:** usar o arquivo de 32 Reels como evidência de volume/repertório, com filtro por cliente.
+A correção central é separar **slot de conteúdo** de **mídia real**.
 
-### Africa Creative
-- Uma frase proprietária forte carrega o posicionamento.
-- Visual institucional com confiança e pouco ruído textual.
+Cada Reel pode ter:
 
-**Aplicação Seeven:** “Fazemos marcas pararem” deve ser tratado como tese, não como headline entre várias.
+- poster;
+- arquivo de vídeo;
+- permalink;
+- cliente;
+- categoria;
+- título;
+- featured;
+- ordem.
 
-## 3. Decisões de redesign
+Enquanto o asset real não existe, o visitante vê a identidade da marca e não um retângulo vazio.
 
-### Hero
-**Antes:** comunicação genérica de marketing/design/tecnologia.  
-**V6:** “FAZEMOS / MARCAS / PARAREM.” com objeto visual proprietário e texto de apoio mínimo.
+Isso não substitui as capas originais. É um fallback temporário deliberado.
 
-### Manifesto
-Cria lógica para “presença” e introduz a ideia de que a marca continua existindo fora da tela.
+## CMS híbrido
 
-### Portfolio
-Não usa cards idênticos. A grade tem hierarquia e formatos diferentes; o Sindpetshop domina a primeira entrada por ser o case mais completo.
+A migração de conteúdo não precisa mais acontecer toda de uma vez.
 
-### Reels
-Os 32 itens deixam de ser uma lista escondida e passam a funcionar como “motion archive”. O filtro reforça que a Seeven adapta linguagem a diferentes clientes.
+V7.1 preserva o portfólio seeded e sobrepõe os dados do Supabase progressivamente. Esse detalhe é importante porque evita a situação em que cadastrar 3 Reels no banco faz os outros 29 desaparecerem.
 
-### Sindpetshop
-Transformado em história:
+## Cases
 
-**Estratégia → Identidade → Conteúdo → Site → Campanhas → Performance → Presença**
+Selected Work deixa de ser apenas uma grade que joga o visitante para Instagram.
 
-As métricas entram como evidência, não como o case inteiro.
+A camada de case responde:
 
-### Do pixel ao papel
-Mesa de direção de arte com peças físicas e digitais para tornar tangível o conceito de presença integrada.
+1. qual era o problema;
+2. qual decisão organizou o trabalho;
+3. o que foi executado;
+4. qual foi o resultado;
+5. qual presença pública pode ser consultada.
 
-### Serviços
-Substituídos por problemas comerciais:
-- Quero vender mais.
-- Minha marca está ultrapassada.
-- Ninguém entende o que eu faço.
-- Preciso parecer maior.
-- Preciso chamar atenção.
+Isso é especialmente importante no Sindpetshop, onde o valor do trabalho está na integração de diferentes jornadas e não em uma única peça.
 
-### Processo
-Explicita que estética é consequência:
+## Reelful / Capability OS
 
-**Problema → Estratégia → Direção → Criação → Distribuição → Evolução**
+O projeto Reelful foi analisado como referência de **linguagem de produto**: módulos, hierarquia, estados e fluxo. A Seeven adapta essa lógica para apresentar repertório técnico.
 
-### Lab
-Mantém espaço experimental sem misturar conceito não comercial com cases de cliente.
+Por isso o visitante não recebe “20 logos de programas”. Ele pode navegar por capacidades e entender como Photoshop, After Effects, Blender, React, Supabase, Codex etc. entram em entregas diferentes.
 
-### Pessoas
-Karen e Gustavo aparecem como operação real, reduzindo percepção de “agência abstrata”.
+## As 20 funções
 
-### CTA
-“Seu projeto poderia estar aqui.” encerra a mesma história iniciada no hero.
+As 20 funções propostas foram transformadas em recursos ativos ou infraestrutura concreta. O único bloqueio relevante que permanece é conteúdo proprietário que ainda não foi fornecido, sobretudo os 32 Reels/capas exatos.
 
-## 4. Direção visual
+Ver tabela de status no `README.md`.
 
-- Início editorial claro, quase impresso.
-- Transição gradual para cinza/chumbo.
-- Parte de prova e cases em preto.
-- Roxo como assinatura, não como cor preenchendo tudo.
-- Laranja aparece no case Sindpetshop, respeitando a identidade do projeto.
-- Tipografia em grande escala; elementos menores carregam metadados e sensação de direção de arte.
-- Grid, ruído, objetos e microtipografia criam caráter tecnológico sem virar “site cyberpunk”.
+## Próximo salto qualitativo
 
-## 5. O que ainda depende de material real
+A partir daqui, a maior evolução não virá de mais JavaScript. Virá de **substituir fallbacks por provas reais**:
 
-A estrutura V6 está pronta para receber prova visual real. O maior ganho futuro virá da troca dos fallbacks por:
+- 32 capas;
+- 32 permalinks/arquivos;
+- screenshots de sites;
+- mockups físicos reais;
+- 3–5 cases com processo e métricas documentadas.
 
-1. capas dos 32 Reels;
-2. vídeos originais;
-3. capas/imagens Behance;
-4. screenshots reais do Sindpetshop;
-5. mockups físicos reais;
-6. retratos de Karen e Gustavo.
+Com isso, a mesma arquitetura deixa de apenas parecer avançada e passa a carregar evidência suficiente para sustentar a promessa comercial.
 
-Nenhum efeito adicional terá impacto comparável a essa substituição.
 
-## 6. Atualização V6.1 — mídia, destaques e pesquisa pública
+## NEXTSTEP / case study como produto
 
-A primeira avaliação visual mostrou que o conceito estava funcionando, porém o arquivo de motion ainda parecia abstrato: sem capas, o visitante enxergava volume, mas não conseguia reconhecer imediatamente os clientes.
+A referência NEXTSTEP reforça uma lacuna que ainda existia: portfólios fortes de UI/UX não tratam pesquisa, público e decisão como bastidores descartáveis. Eles fazem isso virar parte da própria apresentação. O projeto público é categorizado no Behance com **user persona, research e Case Study**, além de landing page, Web Design, UI/UX e Mobile app.
 
-A V6.1 resolve isso com uma hierarquia de mídia:
+A V7.2 traduz esse princípio para uma agência multidisciplinar por meio do **Project Intelligence / Strategy OS**. O visitante consegue alternar projetos e percorrer:
 
-**capa real do Reel → mídia pública verificada da marca → fallback editorial local**.
+**Contexto → Público → Insight → Decisão → Sistema → Resultado**
 
-Também foi criado um bloco de destaques antes dos 32 itens. A intenção é fazer o visitante reconhecer marcas e repertório antes de entrar no arquivo completo.
+A intenção é resolver a sensação de “informação pela metade”: em vez de mostrar uma estética forte e pular direto para o resultado, a página revela a lógica que conectou problema e execução.
 
-Quando o permalink exato de Instagram estiver cadastrado, o modal passa a usar o embed público. Quando houver `.mp4/.webm`, usa reprodução nativa. Nenhum permalink individual foi inventado: eles não estavam presentes no material recebido.
+O mesmo raciocínio entra dentro dos cases e no Admin 2.3, para que novos projetos possam receber esse nível de profundidade sem alteração de código.
 
-A pesquisa pública também revelou uma oportunidade narrativa: algumas marcas têm contexto comercial suficientemente claro para que a Seeven deixe de descrevê-las com frases genéricas. Exemplos incorporados à V6.1:
+## V7.2 — correção adicional do Motion Archive
 
-- Eventos Publi: experiência, cenografia, estruturas, iluminação e execução técnica;
-- Sabor do Sul: produto, oferta e conversão para delivery;
-- MIBIS Dog: produto visual e delivery;
-- projetos musicais: capa, motion e presença precisam acompanhar o lançamento;
-- Sindpetshop-SP: o case passa a mostrar também a escala pública da organização, explicitamente separada das métricas de campanha.
+O fallback anterior podia usar a mesma mídia pública de um cliente em vários slots e dar a impressão de que aquela imagem era a capa específica de cada Reel. Isso foi corrigido.
 
-Para marcas em que a pesquisa pública não permitiu identificar com segurança o perfil correto, nenhuma informação externa foi adicionada. Isso evita construir portfólio em cima de entidades homônimas ou dados errados.
+Agora:
+
+- `poster` = capa específica do Reel;
+- `video` = arquivo próprio;
+- `permalink` = URL pública específica;
+- ausência de poster = **capa editorial claramente marcada como pendente**, usando a identidade da marca apenas como apoio visual.
+
+Essa distinção é menos “mágica”, porém comercialmente e tecnicamente mais correta.

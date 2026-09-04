@@ -1,7 +1,7 @@
 {
-  "name": "seeven-presence-v6-1",
+  "name": "seeven-presence-v7-2",
   "private": true,
-  "version": "6.1.0",
+  "version": "7.2.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -16,5 +16,8 @@
   "devDependencies": {
     "@vitejs/plugin-react": "^5.0.2",
     "vite": "^7.1.5"
+  },
+  "engines": {
+    "node": ">=22.12.0"
   }
 }
