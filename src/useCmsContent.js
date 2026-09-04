@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from './supabase'
 import { clients as fallbackClients, featuredProjects as fallbackProjects, reels as fallbackReels } from './data'
 
-const projectThemes = ['orange', 'wine', 'acid', 'violet', 'steel', 'sky']
+const projectThemes = ['orange', 'wine', 'acid', 'violet', 'steel', 'sky', 'event', 'music', 'food']
 const projectSizes = ['xl', 'md', 'md', 'lg', 'sm', 'sm']
 
 function normalizeClientName(value) {
@@ -32,9 +32,10 @@ export function useCmsContent() {
         if (active.length) {
           projects = active
             .sort((a,b) => Number(a.order ?? 999) - Number(b.order ?? 999))
-            .slice(0, 8)
+            .slice(0, 12)
             .map((item, index) => ({
               id: item.id,
+              clientId: fallbackClients.find(c => c.name === item.client || c.id === item.client)?.id || '',
               client: item.client || item.title || 'Projeto Seeven',
               label: item.category || 'PROJECT / SEE7VEN',
               title: item.title || 'Projeto',
@@ -67,7 +68,9 @@ export function useCmsContent() {
                 poster: item.poster || '',
                 video: /\.mp4|\.webm/i.test(String(item.url || '')) ? item.url : '',
                 url: item.url || client?.url || '#',
-                accent: client?.accent || '#8b5cf6'
+                accent: client?.accent || '#8b5cf6',
+                featured: Boolean(item.featured),
+                publicContext: client?.publicProof || ''
               }
             })
         }

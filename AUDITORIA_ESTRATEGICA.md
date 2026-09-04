@@ -117,3 +117,25 @@ A estrutura V6 está pronta para receber prova visual real. O maior ganho futuro
 6. retratos de Karen e Gustavo.
 
 Nenhum efeito adicional terá impacto comparável a essa substituição.
+
+## 6. Atualização V6.1 — mídia, destaques e pesquisa pública
+
+A primeira avaliação visual mostrou que o conceito estava funcionando, porém o arquivo de motion ainda parecia abstrato: sem capas, o visitante enxergava volume, mas não conseguia reconhecer imediatamente os clientes.
+
+A V6.1 resolve isso com uma hierarquia de mídia:
+
+**capa real do Reel → mídia pública verificada da marca → fallback editorial local**.
+
+Também foi criado um bloco de destaques antes dos 32 itens. A intenção é fazer o visitante reconhecer marcas e repertório antes de entrar no arquivo completo.
+
+Quando o permalink exato de Instagram estiver cadastrado, o modal passa a usar o embed público. Quando houver `.mp4/.webm`, usa reprodução nativa. Nenhum permalink individual foi inventado: eles não estavam presentes no material recebido.
+
+A pesquisa pública também revelou uma oportunidade narrativa: algumas marcas têm contexto comercial suficientemente claro para que a Seeven deixe de descrevê-las com frases genéricas. Exemplos incorporados à V6.1:
+
+- Eventos Publi: experiência, cenografia, estruturas, iluminação e execução técnica;
+- Sabor do Sul: produto, oferta e conversão para delivery;
+- MIBIS Dog: produto visual e delivery;
+- projetos musicais: capa, motion e presença precisam acompanhar o lançamento;
+- Sindpetshop-SP: o case passa a mostrar também a escala pública da organização, explicitamente separada das métricas de campanha.
+
+Para marcas em que a pesquisa pública não permitiu identificar com segurança o perfil correto, nenhuma informação externa foi adicionada. Isso evita construir portfólio em cima de entidades homônimas ou dados errados.

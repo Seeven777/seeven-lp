@@ -5,6 +5,7 @@ import {
   featuredProjects,
   process,
   reels,
+  sindpetshopScale,
   sindpetshopStats,
   solutions,
   touchpoints
@@ -178,9 +179,19 @@ function Manifesto() {
 }
 
 function ProjectVisual({ project, compact = false }) {
+  const client = clients.find(c => c.id === project.clientId || c.name === project.client)
+  const brandPreview = client?.publicCover || client?.brandPoster || ''
+  const [cover, setCover] = useState(project.cover || '')
+  const [brandImage, setBrandImage] = useState(brandPreview)
+
+  useEffect(() => {
+    setCover(project.cover || '')
+    setBrandImage(brandPreview)
+  }, [project.cover, brandPreview])
+
   return (
     <div className={`project-visual visual-${project.theme} ${compact ? 'compact' : ''}`}>
-      {project.cover && <img className="real-project-cover" src={project.cover} alt=""/>}
+      {cover && <img className="real-project-cover" src={cover} alt={`Prévia pública de ${project.client}`} onError={() => setCover('')}/>}
       <div className="visual-grid-lines"/>
       <div className="visual-noise"/>
       {project.theme === 'orange' && <>
@@ -197,6 +208,7 @@ function ProjectVisual({ project, compact = false }) {
       {project.theme === 'violet' && <><div className="club-light club-a"/><div className="club-light club-b"/><div className="club-type">EAZY<small>NIGHT / MOTION</small></div></>}
       {project.theme === 'steel' && <><div className="drill-circle"/><div className="industrial-type">CZK<span>DRILLS</span></div><div className="industrial-meta">PRECISION / CONTENT / B2B</div></>}
       {project.theme === 'sky' && <><div className="pet-face"><span>•</span><span>•</span><b>⌣</b></div><div className="pet-type">MIBIS<br/>DOG</div></>}
+      {!cover && brandImage && <div className="project-brand-preview"><img src={brandImage} alt={`Marca ${project.client}`} onError={() => setBrandImage(client?.brandPoster || '')}/><span>{client?.handle || 'PUBLIC PRESENCE'}</span></div>}
       <div className="visual-corner">SEEVEN / {project.client}</div>
     </div>
   )
@@ -213,7 +225,7 @@ function Work({ projects = featuredProjects }) {
 
       <div className="project-grid">
         {projects.map((project, index) => (
-          <a key={project.id} href={project.href} className={`project-card project-${project.size}`} data-reveal style={{ '--delay': `${index * 35}ms` }}>
+          <a key={project.id} href={project.href} target={project.href?.startsWith('http') ? '_blank' : undefined} rel={project.href?.startsWith('http') ? 'noreferrer' : undefined} className={`project-card project-${project.size}`} data-reveal style={{ '--delay': `${index * 35}ms` }}>
             <ProjectVisual project={project}/>
             <div className="project-meta">
               <div><span>{project.label}</span><strong>{project.client}</strong></div>
@@ -232,19 +244,38 @@ function Work({ projects = featuredProjects }) {
   )
 }
 
+function instagramEmbedUrl(url = '') {
+  if (!/instagram\.com\/(reel|p|tv)\//i.test(url)) return ''
+  const clean = url.split('?')[0].replace(/\/+$/, '')
+  return `${clean}/embed/`
+}
+
+function ReelPoster({ reel, index, large = false }) {
+  const client = clients.find(c => c.id === reel.clientId)
+  const initial = reel.poster || client?.publicCover || client?.brandPoster || ''
+  const [src, setSrc] = useState(initial)
+  const fallback = client?.brandPoster || ''
+  const sourceType = reel.poster ? 'CAPA DO REEL' : client?.publicCover ? 'MÍDIA PÚBLICA' : 'IDENTIDADE DA MARCA'
+  const mediaFit = reel.poster ? 'cover' : (client?.publicCoverFit || 'cover')
+
+  useEffect(() => setSrc(reel.poster || client?.publicCover || client?.brandPoster || ''), [reel.poster, client?.publicCover, client?.brandPoster])
+
+  return <div className={`reel-frame ${large ? 'is-large' : ''}`}>
+    {src ? <img className="reel-poster" src={src} alt={`Capa de ${reel.client}`} loading="lazy" style={{ objectFit: mediaFit, background: mediaFit === 'contain' ? '#f4f2ee' : undefined }} onError={() => src !== fallback ? setSrc(fallback) : setSrc('')}/> : <div className="reel-background"/>}
+    <div className="reel-poster-shade"/>
+    <div className="reel-source-badge">{sourceType}</div>
+    <div className="reel-index">{String(index + 1).padStart(2, '0')}</div>
+    <div className="reel-brand-label"><strong>{reel.client}</strong><span>{client?.handle}</span></div>
+    <div className="reel-play">▶</div>
+  </div>
+}
+
 function ReelCard({ reel, index, onOpen }) {
   const client = clients.find(c => c.id === reel.clientId)
   return (
     <button className={`reel-card reel-${reel.clientId}`} onClick={() => onOpen(reel)} data-reveal style={{ '--reel-accent': reel.accent, '--delay': `${(index % 8) * 24}ms` }}>
-      <div className="reel-frame">
-        {reel.poster ? <img src={reel.poster} alt=""/> : <>
-          <div className="reel-background"/>
-          <div className="reel-monogram">{client?.name?.split(' ').map(w => w[0]).join('').slice(0,2)}</div>
-          <div className="reel-index">{String(index + 1).padStart(2, '0')}</div>
-          <div className="reel-play">▶</div>
-        </>}
-      </div>
-      <div className="reel-meta"><strong>{reel.client}</strong><span>{reel.title}</span></div>
+      <ReelPoster reel={reel} index={index}/>
+      <div className="reel-meta"><strong>{reel.client}</strong><span>{reel.title} · {client?.category}</span></div>
     </button>
   )
 }
@@ -254,6 +285,12 @@ function Reels({ items = reels }) {
   const [active, setActive] = useState(null)
   const filters = ['all', ...new Set(items.map(r => r.clientId))]
   const visible = filter === 'all' ? items : items.filter(r => r.clientId === filter)
+  const explicitFeatured = items.filter(item => item.featured)
+  const fallbackFeatured = Array.from(new Map(items.map(item => [item.clientId, item])).values()).slice(0, 5)
+  const featured = (explicitFeatured.length ? explicitFeatured : fallbackFeatured).slice(0, 5)
+  const activeClient = active ? clients.find(c => c.id === active.clientId) : null
+  const embed = active ? instagramEmbedUrl(active.url) : ''
+  const activePoster = active?.poster || activeClient?.publicCover || activeClient?.brandPoster || ''
 
   return (
     <section id="reels" className="reels-section dark-phase section-shell">
@@ -261,6 +298,16 @@ function Reels({ items = reels }) {
         <div><div className="index-label" data-reveal>03 — MOTION ARCHIVE</div><h2 data-reveal>32 REELS.<br/><span>11 LINGUAGENS.</span></h2></div>
         <p data-reveal>O mesmo formato. Marcas completamente diferentes. A linguagem deve servir ao projeto — nunca o contrário.</p>
       </div>
+
+      {featured.length > 0 && <div className="motion-highlights" data-reveal>
+        <div className="motion-highlights-top"><span>DESTAQUES / CAPAS VISÍVEIS</span><p>Os destaques usam a capa real cadastrada; quando ela ainda não existe, exibem mídia pública da marca ou um fallback editorial identificado.</p></div>
+        <div className="motion-highlights-grid">
+          {featured.map((reel, index) => <button key={reel.id} className="motion-highlight-card" onClick={() => setActive(reel)} style={{ '--reel-accent': reel.accent }}>
+            <ReelPoster reel={reel} index={index} large/>
+            <div className="motion-highlight-copy"><span>{clients.find(c => c.id === reel.clientId)?.category}</span><strong>{reel.client}</strong><p>{reel.publicContext || 'Direção visual adaptada à linguagem e ao público da marca.'}</p></div>
+          </button>)}
+        </div>
+      </div>}
 
       <div className="filter-row" data-reveal>
         {filters.map(id => {
@@ -272,15 +319,17 @@ function Reels({ items = reels }) {
       <div className="reel-grid">
         {visible.map((reel, index) => <ReelCard key={reel.id} reel={reel} index={index} onOpen={setActive}/>) }
       </div>
-      <p className="asset-note" data-reveal><span>NOTA DE PRODUÇÃO</span> Os slots já estão preparados para <code>poster</code> e <code>video</code>. Ao inserir os arquivos reais em <code>/public/portfolio</code>, o fallback editorial desaparece automaticamente.</p>
+      <p className="asset-note" data-reveal><span>MÍDIA EM CAMADAS</span> A ordem agora é: <code>poster do Reel</code> → <code>mídia pública da marca</code> → <code>capa editorial local</code>. Se a URL cadastrada for de um Reel/post público do Instagram, o modal tenta carregar o embed automaticamente.</p>
 
       {active && <div className="reel-modal" onMouseDown={() => setActive(null)}>
         <div className="reel-modal-card" onMouseDown={e => e.stopPropagation()}>
           <button className="modal-close" onClick={() => setActive(null)}>FECHAR ×</button>
           <div className="modal-media">
-            {active.video ? <video src={active.video} controls autoPlay playsInline poster={active.poster}/> : <div className="modal-placeholder" style={{ '--reel-accent': active.accent }}><b>{active.client}</b><span>Adicione o vídeo real deste Reel em src/data.js</span></div>}
+            {active.video ? <video src={active.video} controls autoPlay playsInline poster={activePoster}/> : embed ? <iframe className="instagram-embed-frame" src={embed} title={`${active.client} — ${active.title}`} allow="autoplay; clipboard-write; encrypted-media; picture-in-picture" loading="lazy"/> : <div className="modal-cover-preview" style={{ '--reel-accent': active.accent }}>
+              {activePoster && <img src={activePoster} alt={`Capa de ${active.client}`} style={{ objectFit: active?.poster ? 'cover' : (activeClient?.publicCoverFit || 'cover'), background: activeClient?.publicCoverFit === 'contain' ? '#f4f2ee' : undefined }}/>}<div className="modal-cover-overlay"><b>{active.client}</b><span>{activeClient?.handle}</span><p>Este item ainda aponta para o perfil da marca. Ao cadastrar a URL exata de um Reel público ou um arquivo de vídeo, ele passa a abrir aqui.</p></div>
+            </div>}
           </div>
-          <div className="modal-bottom"><div><span>REEL / {active.id.toUpperCase()}</span><strong>{active.client}</strong></div><a href={active.url} target="_blank" rel="noreferrer">Abrir perfil {externalArrow}</a></div>
+          <div className="modal-bottom"><div><span>REEL / {String(active.id).toUpperCase()}</span><strong>{active.client}</strong></div><a href={active.url || activeClient?.url} target="_blank" rel="noreferrer">Abrir fonte pública {externalArrow}</a></div>
         </div>
       </div>}
     </section>
@@ -299,6 +348,17 @@ function CaseSindpetshop() {
 
       <div className="case-journey" data-reveal>
         {['Estratégia','Identidade','Conteúdo','Site','Campanhas','Performance','Presença'].map((item, i) => <div key={item}><span>0{i+1}</span><strong>{item}</strong></div>)}
+      </div>
+
+      <div className="case-scale" data-reveal>
+        <div className="case-scale-copy">
+          <span>CONTEXTO PÚBLICO DO CLIENTE</span>
+          <strong>COMUNICAÇÃO PARA UMA OPERAÇÃO DE ESCALA ESTADUAL.</strong>
+          <p>Esses números são dados institucionais públicos do próprio Sindpetshop-SP. Eles contextualizam a complexidade do projeto e não são apresentados como resultado de campanha da Seeven.</p>
+        </div>
+        <div className="case-scale-grid">
+          {sindpetshopScale.map(item => <div key={item.label}><strong>{item.value}</strong><span>{item.label}</span></div>)}
+        </div>
       </div>
 
       <div className="case-showcase">

@@ -67,6 +67,9 @@ function Editor({ table, item, onDone }) {
         if (isLong) return <label className="full" key={key}>{key}<textarea rows="4" value={value ?? ''} onChange={e => set(key, e.target.value)}/></label>
         return <label key={key}>{key}<input type={key === 'order' ? 'number' : 'text'} value={value ?? ''} onChange={e => set(key, key === 'order' ? Number(e.target.value) : e.target.value)}/></label>
       })}
+      {table === 'contents' && <div className="admin-media-help"><b>Vídeos e destaques:</b> cole em <code>url</code> a URL exata do Reel público do Instagram (<code>/reel/...</code>) ou um arquivo <code>.mp4/.webm</code>. Em <code>poster</code>, informe a capa. Marque <code>featured=true</code> para aparecer no bloco de Destaques. Se a capa estiver vazia, o site usa a mídia pública/fallback da marca.</div>}
+      {table === 'projects' && <div className="admin-media-help"><b>Capa do projeto:</b> use <code>cover</code> para a imagem principal. Se ficar vazio, o card mantém a direção de arte e exibe a identificação visual da marca como apoio.</div>}
+      {(form.poster || form.cover) && <div className="admin-media-preview"><img src={form.poster || form.cover} alt="Prévia da mídia"/><div><b>Prévia da capa</b><br/>Esta é a mídia que será priorizada no site. URLs públicas funcionam, mas arquivos próprios em Storage/CDN são mais estáveis para produção.</div></div>}
     </div>
     <button type="submit">Salvar</button>
     {status && <div className="admin-status">{status}</div>}
