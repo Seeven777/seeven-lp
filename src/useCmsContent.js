@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { supabase } from './supabase'
-import { clients as fallbackClients, featuredProjects as fallbackProjects, reels as fallbackReels } from './data'
+import { clients as fallbackClients, featuredProjects as fallbackProjects, reels as fallbackReels, behanceProjects as fallbackBehance } from './data'
 
 const projectThemes = ['orange', 'wine', 'acid', 'violet', 'steel', 'sky', 'event', 'music', 'food']
 const projectSizes = ['xl', 'md', 'md', 'lg', 'sm', 'sm']
@@ -192,27 +192,53 @@ function mergeReels(rows, clientList) {
   return result.map(({ _rawId, _slug, ...item }) => item)
 }
 
+
+function normalizeBehance(item, index) {
+  return {
+    id: item.id || `behance-${index + 1}`,
+    title: item.title || `Projeto Behance ${index + 1}`,
+    client: item.client || 'Seeven Projects',
+    theme: item.theme || 'editorial',
+    url: item.url || item.source_url || '#',
+    cover: item.cover || item.poster || '',
+    tools: parseList(item.tools),
+    active: item.active !== false,
+    order: Number(item.order ?? index)
+  }
+}
+
+function mergeBehance(rows = []) {
+  const active = rows.filter(item => item.active !== false).sort((a,b) => Number(a.order ?? 999) - Number(b.order ?? 999))
+  if (!active.length) return fallbackBehance
+  const dynamic = active.map(normalizeBehance)
+  const byUrl = new Map(fallbackBehance.map(item => [item.url, item]))
+  dynamic.forEach(item => byUrl.set(item.url || `cms-${item.id}`, { ...(byUrl.get(item.url) || {}), ...item }))
+  return [...byUrl.values()].sort((a,b) => Number(a.order ?? 999) - Number(b.order ?? 999))
+}
+
 export function useCmsContent() {
-  const [content, setContent] = useState({ clients: fallbackClients, projects: fallbackProjects, reels: fallbackReels, source: 'static' })
+  const [content, setContent] = useState({ clients: fallbackClients, projects: fallbackProjects, reels: fallbackReels, behance: fallbackBehance, source: 'static' })
 
   useEffect(() => {
     if (!supabase) return
     let cancelled = false
 
     const load = async () => {
-      const [clientResult, projectResult, contentResult] = await Promise.all([
+      const [clientResult, projectResult, contentResult, behanceResult] = await Promise.all([
         supabase.from('clients').select('*'),
         supabase.from('projects').select('*'),
-        supabase.from('contents').select('*')
+        supabase.from('contents').select('*'),
+        supabase.from('behance_items').select('*')
       ])
       if (cancelled) return
 
       const clientList = !clientResult.error ? mergeClients(clientResult.data || []) : fallbackClients
       const projects = !projectResult.error ? mergeProjects(projectResult.data || [], clientList) : fallbackProjects
       const reelItems = !contentResult.error ? mergeReels(contentResult.data || [], clientList) : fallbackReels
-      const anyCms = [clientResult, projectResult, contentResult].some(result => !result.error && result.data?.length)
+      const behance = !behanceResult.error ? mergeBehance(behanceResult.data || []) : fallbackBehance
+      const anyCms = [clientResult, projectResult, contentResult, behanceResult].some(result => !result.error && result.data?.length)
 
-      setContent({ clients: clientList, projects, reels: reelItems, source: anyCms ? 'supabase+fallback' : 'static' })
+      setContent({ clients: clientList, projects, reels: reelItems, behance, source: anyCms ? 'supabase+fallback' : 'static' })
     }
 
     load().catch(() => {})

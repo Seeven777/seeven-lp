@@ -1,4 +1,4 @@
-# V7.3 — deploy checklist
+# V7.4 — deploy checklist
 
 ## 1. Local validation
 
@@ -22,7 +22,7 @@ Create `.env.local` locally and configure the same values in Vercel:
 
 ```env
 VITE_SUPABASE_URL=
-VITE_SUPABASE_ANON_KEY=
+VITE_SUPABASE_PUBLISHABLE_KEY=
 VITE_KAREN_WHATSAPP=5511XXXXXXXXX
 VITE_GUSTAVO_WHATSAPP=5511XXXXXXXXX
 ```
@@ -31,9 +31,9 @@ Do not commit `.env.local`.
 
 ## 3. Supabase
 
-If the current schema does not have the V7.3 fields, review and execute:
+Execute/review once in Supabase SQL Editor:
 
-`SUPABASE_V7_MIGRATION.sql`
+`SUPABASE_V7_4_SETUP.sql`
 
 Then confirm:
 
@@ -82,14 +82,14 @@ If GTM/GA4 is present, map the `dataLayer` events documented in README. Test at 
 
 ```bash
 git add .
-git commit -m "feat: Seeven Presence System V7.3"
+git commit -m "feat: Seeven Presence System V7.4"
 git push
 ```
 
 Vercel’s rewrite already routes clean paths such as `/work/...` back to `index.html`.
 
 
-## Verificação visual V7.3
+## Verificação visual V7.4
 
 Após o deploy, conferir especialmente:
 

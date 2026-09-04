@@ -41,3 +41,9 @@ Uso na V7.2: referência conceitual para **estrutura de case study**, pesquisa, 
 https://www.behance.net/gallery/253975015/Reelful-AI-Powered-Social-Video-Creator-App-UIUX
 
 Uso na V7+: referência conceitual para interfaces modulares e apresentação de capability/workflow. Nenhum asset de terceiros incluído.
+
+## Seeven Projects / Behance — verificação V7.4
+- Perfil: https://www.behance.net/wedeseeven
+- Verificado em 2026-09-04.
+- No momento da verificação pública, o perfil expunha 8 projetos na seção Work: Mês das Mulheres, Campanha Maio Lilás, Nova identidade visual, Cajamar Fest, Modelagem 3D, Campanha de Junho, Sistema/Sindpetshop-SP e Abril Verde.
+- Projetos novos publicados depois dessa verificação podem ser adicionados pela nova tabela/aba `behance_items` sem editar o front-end.

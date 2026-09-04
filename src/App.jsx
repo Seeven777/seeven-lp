@@ -274,6 +274,15 @@ function Hero({ whatsapp, pitch, prospect }) {
   )
 }
 
+function MobileActionBar({ whatsapp }) {
+  return (
+    <div className="mobile-action-bar" aria-label="Ações rápidas">
+      <a href="#work" onClick={() => track('mobile_quick_action', { action: 'work' })}><span>VER</span><b>TRABALHOS</b></a>
+      <a href={whatsapp} target="_blank" rel="noreferrer" onClick={() => track('mobile_quick_action', { action: 'whatsapp' })}><span>FALAR</span><b>SOBRE UM PROJETO ↗</b></a>
+    </div>
+  )
+}
+
 function Manifesto() {
   return (
     <section className="manifesto light-phase section-shell">
@@ -343,7 +352,7 @@ function BeforeAfterStory({ study }) {
         <div className="ba-layer ba-before"><span>{study.before.title}</span><strong>PEÇAS<br/>SOLTAS</strong><p>{study.before.text}</p></div>
         <div className="ba-layer ba-after"><span>{study.after.title}</span><strong>SISTEMA<br/>CONECTADO</strong><p>{study.after.text}</p></div>
         <div className="ba-divider"><i>↔</i></div>
-        <input aria-label="Comparar antes e depois" type="range" min="10" max="90" value={position} onChange={e => setPosition(Number(e.target.value))}/>
+        <input aria-label="Comparar antes e depois" type="range" min="0" max="100" step="1" value={position} onChange={e => setPosition(Number(e.target.value))}/>
       </div>
       <div className="ba-caption"><span>ANTES / DEPOIS</span><p>Arraste para comparar a lógica anterior com o sistema que o projeto passou a construir.</p></div>
     </div>
@@ -413,7 +422,9 @@ function Work({ projects = featuredProjects, clientList = clients }) {
 
   const filtered = useMemo(() => {
     const option = portfolioFilterOptions.find(item => item.id === filter)
-    if (!option?.match?.length) return projects
+    if (!option || option.id === 'all') return projects
+    if (option.ids?.length) return option.ids.map(id => projects.find(project => project.id === id)).filter(Boolean)
+    if (!option.match?.length) return projects
     return projects.filter(project => {
       const haystack = [project.label, project.title, project.summary, ...(project.tags || [])].join(' ').toLowerCase()
       return option.match.some(term => haystack.includes(term.toLowerCase()))
@@ -465,6 +476,10 @@ function Work({ projects = featuredProjects, clientList = clients }) {
     return () => removeEventListener('popstate', onPop)
   }, [])
 
+  const activeFilter = portfolioFilterOptions.find(option => option.id === filter) || portfolioFilterOptions[0]
+  const filterSizes = ['xl', 'md', 'md', 'lg', 'sm', 'sm', 'md', 'md']
+  const curated = filter === 'all' ? filtered : filtered.map((project, index) => ({ ...project, size: filterSizes[index % filterSizes.length] }))
+
   return (
     <section id="work" className="work-section transition-phase section-shell">
       <div className="work-heading">
@@ -473,10 +488,17 @@ function Work({ projects = featuredProjects, clientList = clients }) {
         <p data-reveal>Uma marca não deveria precisar de uma legenda para parecer boa.</p>
       </div>
 
-      <div className="work-filter" data-reveal>{portfolioFilterOptions.map(option => <button key={option.id} className={filter === option.id ? 'active' : ''} onClick={() => { setFilter(option.id); track('work_filter', { filter: option.id }) }}>{option.label}<span>{option.id === 'all' ? projects.length : ''}</span></button>)}</div>
+      <div className="work-filter" data-reveal>{portfolioFilterOptions.map(option => {
+        const count = option.id === 'all' ? projects.length : option.ids?.length ? option.ids.filter(id => projects.some(project => project.id === id)).length : projects.filter(project => {
+          const haystack = [project.label, project.title, project.summary, ...(project.tags || [])].join(' ').toLowerCase()
+          return option.match?.some(term => haystack.includes(term.toLowerCase()))
+        }).length
+        return <button key={option.id} className={filter === option.id ? 'active' : ''} onClick={() => { setFilter(option.id); track('work_filter', { filter: option.id }) }}>{option.label}<span>{count}</span></button>
+      })}</div>
+      <div className="work-filter-context" key={filter} data-reveal><span>CURADORIA ATIVA / {activeFilter.label.toUpperCase()}</span><p>{activeFilter.description}</p><b>{curated.length} {curated.length === 1 ? 'PROJETO' : 'PROJETOS'}</b></div>
 
-      <div className="project-grid">
-        {filtered.map((project, index) => (
+      <div className={`project-grid project-grid-${filter}`} key={`grid-${filter}`}>
+        {curated.map((project, index) => (
           <button key={project.id} type="button" className={`project-card project-${project.size}`} data-reveal style={{ '--delay': `${index * 35}ms` }} onClick={() => openCase(project)} aria-label={`Abrir case ${project.client}`}>
             <ProjectVisual project={project} clientList={clientList}/>
             <div className="project-meta">
@@ -486,7 +508,7 @@ function Work({ projects = featuredProjects, clientList = clients }) {
             </div>
           </button>
         ))}
-        {!filtered.length && <div className="work-empty"><span>NENHUM CASE NESTE FILTRO.</span><button onClick={() => setFilter('all')}>VER TODOS →</button></div>}
+        {!curated.length && <div className="work-empty"><span>NENHUM CASE NESTE FILTRO.</span><button onClick={() => setFilter('all')}>VER TODOS →</button></div>}
       </div>
 
       <div className="work-principle" data-reveal>
@@ -955,16 +977,16 @@ function Process() {
   )
 }
 
-function BehanceWall() {
+function BehanceWall({ projects = behanceProjects }) {
   return (
     <section className="archive-section dark-phase section-shell">
-      <div className="archive-heading"><div className="index-label" data-reveal>11 — VISUAL ARCHIVE</div><h2 data-reveal>PROJETOS QUE<br/><span>PEDEM TELA CHEIA.</span></h2><p data-reveal>Arquivo real do perfil público da Seeven no Behance. Capas e links foram conectados diretamente aos projetos publicados.</p></div>
+      <div className="archive-heading"><div className="index-label" data-reveal>11 — VISUAL ARCHIVE</div><h2 data-reveal>PROJETOS QUE<br/><span>PEDEM TELA CHEIA.</span></h2><p data-reveal>Arquivo do Behance conectado ao CMS. Novos projetos podem entrar pelo Admin sem alterar código. <b>{projects.length} projetos na curadoria atual.</b></p></div>
       <div className="archive-wall">
-        {behanceProjects.map((project, index) => <a href={project.url} target="_blank" rel="noreferrer" className={`archive-tile archive-${project.theme} ${project.cover ? 'has-cover' : ''}`} key={project.id} data-reveal style={{ '--delay': `${index * 30}ms` }} onClick={() => track('behance_project_open', { project: project.title })}>
+        {projects.map((project, index) => <a href={project.url} target="_blank" rel="noreferrer" className={`archive-tile archive-${project.theme} ${project.cover ? 'has-cover' : ''}`} key={project.id} data-reveal style={{ '--delay': `${index * 30}ms` }} onClick={() => track('behance_project_open', { project: project.title })}>
           <div className="archive-art">
             {project.cover && <img src={project.cover} alt={`Capa de ${project.title}`} loading="lazy" onError={e => { e.currentTarget.style.display = 'none' }}/>} 
             <div className="archive-overlay"/>
-            <span>{String(project.id).padStart(2,'0')}</span><b>{project.title.split(' ').slice(0,3).join(' ')}</b><i>SEEVEN / BEHANCE</i>
+            <span>{String(index + 1).padStart(2,'0')}</span><b>{project.title.split(' ').slice(0,3).join(' ')}</b><i>SEEVEN / BEHANCE</i>
           </div>
           <div className="archive-meta"><div><strong>{project.title}</strong><span>{project.client}</span></div><div className="archive-tools">{project.tools?.slice(0,3).map(tool => <small key={tool}>{tool}</small>)}</div><span>{externalArrow}</span></div>
         </a>)}
@@ -1078,6 +1100,7 @@ export default function App() {
       <Header menuOpen={menuOpen} setMenuOpen={setMenuOpen} setPaletteOpen={setPaletteOpen} whatsapp={karenWhatsapp}/>
       <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} whatsapp={karenWhatsapp} projects={pitchProjects}/>
       <LeadBrief open={briefOpen} onClose={() => setBriefOpen(false)} whatsappNumber={karenNumber}/>
+      <MobileActionBar whatsapp={karenWhatsapp}/>
       <main>
         <Hero whatsapp={karenWhatsapp} pitch={pitch} prospect={prospect}/>
         <Manifesto/>
@@ -1090,7 +1113,7 @@ export default function App() {
         <Toolchain/>
         <Solutions/>
         <Process/>
-        <BehanceWall/>
+        <BehanceWall projects={cms.behance}/>
         <Lab/>
         <People/>
         <Contact karenWhatsapp={karenWhatsapp} gustavoWhatsapp={gustavoWhatsapp} onBrief={() => { track('brief_started'); setBriefOpen(true) }}/>

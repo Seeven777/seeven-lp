@@ -1,11 +1,13 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import { supabase, supabaseEnabled } from './supabase'
+import { supabase, supabaseEnabled, supabaseDiagnostics } from './supabase'
+import { behanceProjects as seededBehance } from './data'
 
 const emptyByTable = {
   contents: { slug: '', client: '', category: 'reel', title: '', description: '', permalink: '', video: '', url: '', poster: '', featured: false, active: true, order: 0 },
   projects: { slug: '', client: '', label: '', title: '', description: '', category: '', tags: '', theme: '', size: '', cover: '', url: '', eyebrow: '', headline: '', case_intro: '', challenge: '', strategy: '', execution: '', result: '', proof: '', before_title: '', before_text: '', after_title: '', after_text: '', source_url: '', research_context: '', audience: '', objective: '', constraint_text: '', insight: '', decision_text: '', system_map: '', focus: '', channels: '', signal: '', active: true, order: 0 },
   clients: { slug: '', name: '', handle: '', category: '', accent: '', url: '', website: '', brand_poster: '', public_cover: '', public_cover_fit: 'cover', public_proof: '', active: true, order: 0 },
-  services: { title: '', description: '', active: true, order: 0 }
+  services: { title: '', description: '', active: true, order: 0 },
+  behance_items: { title: '', client: '', url: '', cover: '', tools: '', theme: 'editorial', active: true, order: 0 }
 }
 
 function Login({ onSession }) {
@@ -24,7 +26,7 @@ function Login({ onSession }) {
   return <div className="admin-login">
     <span className="index-label">SEE7VEN / ADMIN</span>
     <h1>Conteúdo sem deploy.</h1>
-    <p>Este painel usa o Supabase configurado pelas variáveis <code>VITE_SUPABASE_URL</code> e <code>VITE_SUPABASE_ANON_KEY</code>.</p>
+    <p>Este painel usa o Supabase configurado pelas variáveis <code>VITE_SUPABASE_URL</code> e <code>VITE_SUPABASE_PUBLISHABLE_KEY</code>.</p>
     <form className="admin-form" onSubmit={submit}>
       <input type="email" placeholder="E-mail" value={email} onChange={e => setEmail(e.target.value)} required/>
       <input type="password" placeholder="Senha" value={password} onChange={e => setPassword(e.target.value)} required/>
@@ -46,7 +48,7 @@ function Editor({ table, item, onDone }) {
   const fieldLabels = {
     slug: 'Slug estável', client: 'Cliente / slug', category: 'Categoria', title: 'Título', description: 'Descrição', permalink: 'Permalink do Reel / Instagram', video: 'Arquivo de vídeo / URL .mp4', url: 'URL legado / fonte', poster: 'Poster / capa', featured: 'Destaque', active: 'Publicado', order: 'Ordem',
     label: 'Label editorial', tags: 'Tags (vírgula)', theme: 'Tema visual', size: 'Tamanho do card', cover: 'Capa do projeto', eyebrow: 'Case / eyebrow', headline: 'Case / headline', case_intro: 'Case / introdução', challenge: 'Case / desafio', strategy: 'Case / estratégia', execution: 'Case / execução (vírgula)', result: 'Case / resultado', proof: 'Case / provas (vírgula)', before_title: 'Before / título', before_text: 'Before / texto', after_title: 'After / título', after_text: 'After / texto', source_url: 'Fonte pública do case', research_context: 'Project Intelligence / contexto', audience: 'Project Intelligence / público', objective: 'Project Intelligence / objetivo', constraint_text: 'Project Intelligence / restrição', insight: 'Project Intelligence / insight', decision_text: 'Project Intelligence / decisão', system_map: 'Project Intelligence / sistema', focus: 'Project Intelligence / focos (vírgula)', channels: 'Project Intelligence / canais (vírgula)', signal: 'Project Intelligence / signal 0-100 (vírgula)',
-    name: 'Nome', handle: 'Perfil / handle', accent: 'Cor de assinatura', website: 'Website', brand_poster: 'Brand poster', public_cover: 'Capa pública / própria', public_cover_fit: 'Ajuste da capa', public_proof: 'Contexto público'
+    name: 'Nome', handle: 'Perfil / handle', accent: 'Cor de assinatura', website: 'Website', brand_poster: 'Brand poster', public_cover: 'Capa pública / própria', public_cover_fit: 'Ajuste da capa', public_proof: 'Contexto público', tools: 'Ferramentas (vírgula)'
   }
 
   const makeVideoPoster = (file) => new Promise((resolve) => {
@@ -74,7 +76,7 @@ function Editor({ table, item, onDone }) {
 
   const uploadMedia = async (file) => {
     if (!file) return
-    const targetField = table === 'contents' ? (file.type.startsWith('video/') ? 'video' : 'poster') : table === 'projects' ? 'cover' : null
+    const targetField = table === 'contents' ? (file.type.startsWith('video/') ? 'video' : 'poster') : (table === 'projects' || table === 'behance_items') ? 'cover' : null
     if (!targetField) return setStatus('Upload direto disponível para conteúdos e projetos.')
     setUploading(true)
     setStatus('Enviando mídia…')
@@ -136,15 +138,74 @@ function Editor({ table, item, onDone }) {
         else control = <label>{fieldLabels[key] || key}<input type={key === 'order' ? 'number' : 'text'} value={value ?? ''} onChange={e => set(key, key === 'order' ? Number(e.target.value) : e.target.value)}/></label>
         return <React.Fragment key={key}>{section}{control}</React.Fragment>
       })}
-      {(table === 'contents' || table === 'projects') && <label className="admin-upload full" onDragOver={e => e.preventDefault()} onDrop={onDrop}><span><b>MEDIA VAULT</b> Arraste ou selecione imagem/vídeo para enviar ao bucket <code>portfolio-assets</code>.</span><input type="file" accept="image/*,video/mp4,video/webm" disabled={uploading} onChange={e => uploadMedia(e.target.files?.[0])}/><i>{uploading ? 'ENVIANDO…' : 'ESCOLHER ARQUIVO'}</i></label>}
+      {(table === 'contents' || table === 'projects' || table === 'behance_items') && <label className="admin-upload full" onDragOver={e => e.preventDefault()} onDrop={onDrop}><span><b>MEDIA VAULT</b> Arraste ou selecione imagem/vídeo para enviar ao bucket <code>portfolio-assets</code>.</span><input type="file" accept="image/*,video/mp4,video/webm" disabled={uploading} onChange={e => uploadMedia(e.target.files?.[0])}/><i>{uploading ? 'ENVIANDO…' : 'ESCOLHER ARQUIVO'}</i></label>}
       {table === 'contents' && <div className="admin-media-help"><b>Vídeos e destaques:</b> use <code>permalink</code> para a URL exata do Reel do Instagram e <code>video</code> para o arquivo próprio <code>.mp4/.webm</code>. O Media Vault preenche <code>video</code> e tenta gerar <code>poster</code> automaticamente. Marque <code>featured=true</code> para entrar nos Destaques. <code>url</code> continua disponível apenas para compatibilidade com registros antigos.</div>}
       {table === 'projects' && <div className="admin-media-help"><b>Capa do projeto:</b> use <code>cover</code> para a imagem principal. <code>slug</code> pode reaproveitar um case estrutural existente (ex.: <code>sindpetshop-ecosystem</code>). <code>tags</code>, <code>execution</code> e <code>proof</code> aceitam valores separados por vírgula. Preencha desafio/estratégia/resultado para criar um case compartilhável em <code>/work/slug</code>. Se a capa ficar vazia, o card mantém a direção de arte e exibe a identidade da marca como apoio.</div>}
+      {table === 'behance_items' && <div className="admin-media-help"><b>Behance / arquivo visual:</b> cadastre o link público do projeto, uma capa própria ou pública, cliente, ferramentas e ordem. Itens publicados aqui entram na parede VISUAL ARCHIVE sem editar <code>src/data.js</code>.</div>}
       {table === 'clients' && <div className="admin-media-help"><b>Cliente / identidade:</b> use um <code>slug</code> estável (ex.: <code>venancio</code>), cor em <code>accent</code> e, quando possível, envie a arte própria para <code>brand_poster</code>/<code>public_cover</code>. O front-end preserva os IDs seeded durante a migração para não quebrar Reels e cases.</div>}
       {(form.poster || form.cover) && <div className="admin-media-preview"><img src={form.poster || form.cover} alt="Prévia da mídia"/><div><b>Prévia da capa</b><br/>Esta é a mídia que será priorizada no site. URLs públicas funcionam, mas arquivos próprios em Storage/CDN são mais estáveis para produção.</div></div>}
     </div>
     <button type="submit">Salvar</button>
     {status && <div className="admin-status">{status}</div>}
   </form>
+}
+
+
+function BehanceSync({ rows, onImported }) {
+  const [projects, setProjects] = useState([])
+  const [status, setStatus] = useState('')
+  const [busyUrl, setBusyUrl] = useState('')
+
+  const normalize = value => String(value || '').replace(/\/$/, '')
+  const known = new Set([...seededBehance.map(item => normalize(item.url)), ...rows.map(row => normalize(row.url))])
+  const missing = projects.filter(project => !known.has(normalize(project.url)))
+
+  const scan = async () => {
+    setStatus('Verificando perfil público…')
+    try {
+      const response = await fetch('/api/behance-profile')
+      const data = await response.json()
+      if (!response.ok) throw new Error(data?.message || data?.error || 'Falha ao consultar Behance')
+      setProjects(data.projects || [])
+      const next = (data.projects || []).filter(project => !known.has(normalize(project.url)))
+      setStatus(next.length ? `${next.length} projeto(s) novo(s) detectado(s).` : 'Nenhum projeto novo detectado no perfil público.')
+    } catch (error) {
+      setStatus(`Não foi possível verificar automaticamente: ${error.message}`)
+    }
+  }
+
+  const importOne = async (project) => {
+    setBusyUrl(project.url)
+    setStatus('Importando metadados…')
+    try {
+      const metaResponse = await fetch(`/api/behance-meta?url=${encodeURIComponent(project.url)}`)
+      const meta = await metaResponse.json()
+      const payload = {
+        title: meta.title || project.title || 'Projeto Behance',
+        client: 'Seeven Projects',
+        url: project.url,
+        cover: meta.image || '',
+        tools: '',
+        theme: 'editorial',
+        active: true,
+        order: rows.length + 1
+      }
+      const { error } = await supabase.from('behance_items').insert(payload)
+      if (error) throw error
+      setStatus('Projeto importado. Revise cliente, ferramentas e capa se necessário.')
+      onImported?.()
+    } catch (error) {
+      setStatus(`Falha ao importar: ${error.message}`)
+    } finally {
+      setBusyUrl('')
+    }
+  }
+
+  return <section className="admin-behance-sync">
+    <div className="admin-behance-head"><div><b>BEHANCE WATCH</b><span>Compara o perfil público da Seeven com os itens já cadastrados no CMS.</span></div><button onClick={scan}>VERIFICAR NOVIDADES</button></div>
+    {status && <div className="admin-status">{status}</div>}
+    {!!missing.length && <div className="admin-behance-found">{missing.map(project => <article key={project.url}><div><span>NOVO / BEHANCE</span><strong>{project.title}</strong><a href={project.url} target="_blank" rel="noreferrer">Abrir projeto ↗</a></div><button disabled={busyUrl === project.url} onClick={() => importOne(project)}>{busyUrl === project.url ? 'IMPORTANDO…' : 'IMPORTAR PARA O CMS'}</button></article>)}</div>}
+  </section>
 }
 
 function PitchLinkBuilder() {
@@ -249,20 +310,21 @@ export default function AdminApp() {
       if (row.poster) return ['CAPA', 'mid']
       return ['FALLBACK', 'low']
     }
-    if (table === 'projects') return row.cover ? ['CAPA', 'ok'] : ['SEM CAPA', 'low']
+    if (table === 'projects' || table === 'behance_items') return row.cover ? ['CAPA', 'ok'] : ['SEM CAPA', 'low']
     return [row.active === false ? 'RASCUNHO' : 'ATIVO', row.active === false ? 'mid' : 'ok']
   }
 
-  if (!supabaseEnabled) return <div className="admin-shell"><div className="admin-card"><div className="admin-body admin-login"><span className="index-label">SEE7VEN / ADMIN</span><h1>Supabase não configurado.</h1><p>Copie <code>.env.example</code> para <code>.env.local</code>, preencha URL e chave pública e reinicie o Vite. O site público continua funcionando com os dados estáticos de <code>src/data.js</code>.</p><a href="/">← Voltar ao site</a></div></div></div>
+  if (!supabaseEnabled) return <div className="admin-shell"><div className="admin-card admin-setup-card"><div className="admin-body admin-setup"><span className="index-label">SEE7VEN / ADMIN 2.4 · SETUP</span><h1>Falta conectar o painel.</h1><p>O <code>/admin</code> está funcionando, mas o deploy não recebeu as variáveis do Supabase. A V7.4 aceita a chave <b>publishable</b> atual e mantém compatibilidade com a antiga <code>anon</code>.</p><div className="admin-diagnostic-grid"><div className={supabaseDiagnostics.hasUrl ? 'ok' : 'missing'}><span>01</span><b>VITE_SUPABASE_URL</b><small>{supabaseDiagnostics.hasUrl ? 'DETECTADA' : 'AUSENTE'}</small></div><div className={supabaseDiagnostics.hasKey ? 'ok' : 'missing'}><span>02</span><b>VITE_SUPABASE_PUBLISHABLE_KEY</b><small>{supabaseDiagnostics.hasKey ? `DETECTADA / ${supabaseDiagnostics.keyMode}` : 'AUSENTE'}</small></div></div><div className="admin-setup-steps"><article><span>PASSO 1</span><strong>Supabase</strong><p>No projeto Supabase, abra <b>Connect</b> ou <b>Settings → API Keys</b>. Copie a Project URL e a chave <b>Publishable</b>.</p></article><article><span>PASSO 2</span><strong>Vercel</strong><p>Project → Settings → Environment Variables. Crie as duas variáveis acima para Production e Preview.</p></article><article><span>PASSO 3</span><strong>Redeploy</strong><p>Faça um novo deploy. Variáveis Vite são incorporadas no build, então apenas salvar sem redeploy não basta.</p></article><article><span>PASSO 4</span><strong>Banco</strong><p>Execute <code>SUPABASE_V7_4_SETUP.sql</code> no SQL Editor uma vez e crie seu usuário em Authentication.</p></article></div><div className="admin-setup-actions"><a href="https://supabase.com/dashboard" target="_blank" rel="noreferrer">ABRIR SUPABASE ↗</a><a href="https://vercel.com/dashboard" target="_blank" rel="noreferrer">ABRIR VERCEL ↗</a><a href="/">← VOLTAR AO SITE</a></div></div></div></div>
 
   if (!session) return <div className="admin-shell"><div className="admin-card"><div className="admin-body"><Login onSession={setSession}/></div></div></div>
 
   return <div className="admin-shell">
     <div className="admin-card">
-      <div className="admin-top"><strong>SEE7VEN / ADMIN 2.3</strong><div><a href="/">Ver site</a> <button onClick={exportJson}>Exportar JSON</button> <button onClick={() => supabase.auth.signOut()}>Sair</button></div></div>
+      <div className="admin-top"><strong>SEE7VEN / ADMIN 2.4</strong><div><a href="/">Ver site</a> <a href="https://www.behance.net/wedeseeven" target="_blank" rel="noreferrer">Behance ↗</a> <button onClick={exportJson}>Exportar JSON</button> <button onClick={() => supabase.auth.signOut()}>Sair</button></div></div>
       <div className="admin-body">
-        <div className="admin-tabs">{Object.keys(emptyByTable).map(name => <button className={table === name ? 'active' : ''} key={name} onClick={() => setTable(name)}>{name}</button>)}</div>
+        <div className="admin-tabs">{Object.keys(emptyByTable).map(name => <button className={table === name ? 'active' : ''} key={name} onClick={() => setTable(name)}>{name === 'behance_items' ? 'behance' : name}</button>)}</div>
         <PitchLinkBuilder/>
+        {table === 'behance_items' && <BehanceSync rows={rows} onImported={load}/>}
         <div className="admin-toolbar"><div className="admin-status">{status}</div><input aria-label="Buscar itens" placeholder={`Buscar em ${table}…`} value={queryText} onChange={e => setQueryText(e.target.value)}/><button onClick={() => setSelected(null)}>+ Novo item</button></div>
         <div className="admin-table-wrap"><table className="admin-table"><thead><tr><th>ORDEM</th><th>MÍDIA</th><th>TÍTULO / NOME</th><th>STATUS</th><th>AÇÕES</th></tr></thead><tbody>
           {filteredRows.map(row => { const [label,tone] = readiness(row); return <tr key={row.id}>

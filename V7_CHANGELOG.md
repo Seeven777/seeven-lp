@@ -118,3 +118,18 @@ A aplicação está preparada, mas V7.1 não inventa:
 - Motion Archive aumentado visualmente.
 - Case Sindpetshop refinado.
 - Bootstrap sem StrictMode para preview mais previsível.
+
+## V7.4 — Commercial Clarity / Admin Recovery
+
+- contraste do manifesto corrigido;
+- filtros passam a exibir curadoria, contagem, descrição e nova composição;
+- Before/After expandido para 0–100;
+- escala tipográfica revisada;
+- Brand Ecosystem reorganizado e redesenhado no mobile;
+- Selected Work em coluna única no mobile;
+- CTA comercial fixo no mobile;
+- suporte a `VITE_SUPABASE_PUBLISHABLE_KEY`;
+- diagnóstico guiado quando o Supabase não estiver conectado;
+- `behance_items` adicionado ao CMS;
+- Visual Archive passa a aceitar projetos do Behance via Supabase;
+- novo `SUPABASE_V7_4_SETUP.sql` para bootstrap completo.

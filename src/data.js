@@ -119,6 +119,14 @@ export const featuredProjects = [
     title: 'A atmosfera precisa chegar antes da noite.',
     summary: 'Conteúdo e direção visual para uma marca de nightlife em que clima, recorrência e percepção precisam trabalhar juntos.',
     tags: ['Nightlife', 'Social', 'Motion'], theme: 'violet', size: 'md', href: 'https://www.instagram.com/salseiro.lounge/'
+  },
+  {
+    id: 'cajamar-fest', clientId: '', client: 'Cajamar Fest', label: 'EVENT / VISUAL SYSTEM',
+    title: 'Um evento precisa ser reconhecido antes de começar.',
+    summary: 'Identidade e comunicação visual aplicadas a uma experiência pública, conectando campanha, ambiente e presença.',
+    tags: ['Eventos', 'Físico', 'Campanha', 'Branding'], theme: 'event', size: 'md',
+    href: 'https://www.behance.net/gallery/196628485/CAJAMAR-FEST',
+    cover: 'https://mir-s3-cdn-cf.behance.net/project_modules/max_3840_webp/642b63196628485.6622bbe1949a2.jpg'
   }
 ]
 
@@ -386,13 +394,13 @@ export const caseStudies = {
 }
 
 export const portfolioFilterOptions = [
-  { id: 'all', label: 'Tudo' },
-  { id: 'strategy', label: 'Estratégia', match: ['Estratégia','Institucional','B2B'] },
-  { id: 'brand', label: 'Branding', match: ['Branding','Brand','Identidade','Direção de arte','Design'] },
-  { id: 'social', label: 'Social', match: ['Social','Conteúdo'] },
-  { id: 'video', label: 'Vídeo / Motion', match: ['Vídeo','Motion','Música'] },
-  { id: 'web', label: 'Web', match: ['Web','Site','Landing page'] },
-  { id: 'physical', label: 'Físico / Eventos', match: ['Eventos','Impresso','Materiais'] }
+  { id: 'all', label: 'Tudo', description: 'Uma visão ampla do repertório: estratégia, marca, conteúdo, digital e experiências.' },
+  { id: 'strategy', label: 'Estratégia', ids: ['sindpetshop-ecosystem','czk-industrial','eventos-experience','seon-identity'], description: 'Projetos em que o principal trabalho foi organizar mensagem, prioridade, posicionamento e sistema.' },
+  { id: 'brand', label: 'Branding', ids: ['seon-identity','sindpetshop-ecosystem','venancio-social','czk-industrial','dicarias-music'], description: 'Identidade, direção visual e sistemas capazes de tornar a marca reconhecível antes mesmo da assinatura.' },
+  { id: 'social', label: 'Social', ids: ['venancio-social','eazy-experience','mibis-food','sabor-conversion','salseiro-nightlife','sindpetshop-ecosystem'], description: 'Conteúdo pensado para frequência, reconhecimento, desejo e leitura rápida em ambientes sociais.' },
+  { id: 'video', label: 'Vídeo / Motion', ids: ['eazy-experience','pufinho-music','dicarias-music','salseiro-nightlife','seon-identity','mibis-food'], description: 'Ritmo, narrativa, movimento e audiovisual para transformar poucos segundos em presença.' },
+  { id: 'web', label: 'Web', ids: ['sindpetshop-ecosystem','eventos-experience'], description: 'Sites, landing pages e jornadas digitais onde clareza e conversão precisam coexistir.' },
+  { id: 'physical', label: 'Físico / Eventos', ids: ['cajamar-fest','eventos-experience','sindpetshop-ecosystem'], description: 'Quando a marca sai da tela e continua em espaço, evento, impresso, uniforme e materiais.' }
 ]
 
 export const pitchCopy = {

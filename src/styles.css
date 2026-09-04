@@ -583,3 +583,115 @@ html[data-motion="lite"] .pixel-paper .phone-piece{
 /* One more compositor safeguard for long pages. */
 .cursor-glow{mix-blend-mode:normal!important;opacity:.72}
 html[data-motion="lite"] .contact-strip span{animation:none!important}
+
+/* ========================================================================== 
+   V7.4 — COMMERCIAL CLARITY / MOBILE / ADMIN SETUP
+   ========================================================================== */
+
+/* 1. Manifesto contrast: emphasis must remain readable on the light phase. */
+.manifesto-copy{color:#0b0b0d;font-size:clamp(2.65rem,4.9vw,5.8rem);max-width:13ch}
+.manifesto-copy p{color:#0b0b0d}
+.manifesto-copy em{
+  color:#5d3daf!important;
+  -webkit-text-stroke:0!important;
+  opacity:1!important;
+  background:rgba(139,92,246,.10);
+  padding:0 .08em .04em;
+  box-decoration-break:clone;
+  -webkit-box-decoration-break:clone;
+}
+.manifesto-accent{color:#6542b9!important}
+
+/* 2. Filters now communicate a different curatorial state, not just a button state. */
+.work-filter-context{
+  margin:-.8rem 0 2rem;
+  border-top:1px solid rgba(11,11,13,.14);
+  border-bottom:1px solid rgba(11,11,13,.14);
+  padding:1rem 0;
+  display:grid;
+  grid-template-columns:minmax(180px,.6fr) minmax(0,1.5fr) auto;
+  gap:1.2rem;
+  align-items:center;
+  animation:seevenFilterIn .32s ease both;
+}
+.work-filter-context span{font-size:.54rem;letter-spacing:.13em;font-weight:800;color:#5d3daf}
+.work-filter-context p{margin:0;max-width:66ch;font-size:.72rem;line-height:1.5;color:rgba(11,11,13,.58)}
+.work-filter-context b{font-size:.54rem;letter-spacing:.12em;white-space:nowrap}
+.project-grid{animation:seevenFilterIn .38s ease both}
+@keyframes seevenFilterIn{from{opacity:.35;transform:translateY(7px)}to{opacity:1;transform:none}}
+
+/* 3. Before/after can truly reach both ends while keeping the handle visible. */
+.ba-divider{left:clamp(22px,var(--ba-position),calc(100% - 22px))}
+.ba-layer{overflow:hidden}
+.ba-layer strong{font-size:clamp(2.8rem,7.2vw,8.2rem);max-width:8ch;line-height:.78}
+.ba-layer p{max-width:32ch}
+.ba-before{padding-right:12%}
+.ba-after{padding-right:7%}
+
+/* 5. Ecosystem labels: safer desktop spacing. */
+.touch-7{top:61%;left:0}
+.touch-8{top:27%;left:5%}
+.touch-9{top:11%;left:20%}
+.touch-10{top:43%;left:9%}
+
+/* 6. Editorial type ceilings — still bold, less fragile. */
+.work-heading h2{font-size:clamp(3rem,5.8vw,6.5rem)}
+.reel-heading h2{font-size:clamp(3.4rem,6.5vw,7rem)}
+.strategy-heading h2{font-size:clamp(3.2rem,6.2vw,7rem)}
+.solutions-heading h2{font-size:clamp(3.2rem,6.2vw,7rem)}
+.process-title h2{font-size:clamp(3.4rem,6.6vw,7.4rem)}
+.archive-heading h2{font-size:clamp(3.2rem,6.1vw,6.8rem)}
+.contact-section h2{font-size:clamp(3.8rem,8vw,9rem)}
+
+/* Admin setup assistant */
+.admin-setup-card{max-width:1180px;margin:auto}
+.admin-setup{max-width:920px;margin:auto;padding:clamp(2rem,5vw,5rem)}
+.admin-setup>h1{font-size:clamp(2.8rem,5vw,5.4rem);line-height:.92;letter-spacing:-.055em;margin:1.3rem 0}
+.admin-setup>p{max-width:62ch;color:rgba(255,255,255,.62);line-height:1.6}
+.admin-diagnostic-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:rgba(255,255,255,.12);margin:2.4rem 0}
+.admin-diagnostic-grid>div{background:#0b0b0f;padding:1.1rem;display:grid;grid-template-columns:auto 1fr auto;gap:.8rem;align-items:center;min-height:78px}
+.admin-diagnostic-grid span{font-size:.5rem;opacity:.35}.admin-diagnostic-grid b{font-size:.72rem}.admin-diagnostic-grid small{font-size:.5rem;letter-spacing:.1em}
+.admin-diagnostic-grid .ok small{color:#64ef9b}.admin-diagnostic-grid .missing small{color:#ff8a5d}
+.admin-setup-steps{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid rgba(255,255,255,.12);border-left:1px solid rgba(255,255,255,.12)}
+.admin-setup-steps article{padding:1.25rem;min-height:180px;border-right:1px solid rgba(255,255,255,.12);border-bottom:1px solid rgba(255,255,255,.12)}
+.admin-setup-steps span{font-size:.5rem;letter-spacing:.12em;color:#b99bff}.admin-setup-steps strong{display:block;font-size:1.25rem;margin:.7rem 0}.admin-setup-steps p{font-size:.72rem;line-height:1.55;color:rgba(255,255,255,.52);margin:0}
+.admin-setup-actions{display:flex;gap:.55rem;flex-wrap:wrap;margin-top:1.5rem}.admin-setup-actions a{border:1px solid rgba(255,255,255,.16);padding:.75rem .9rem;font-size:.58rem;letter-spacing:.08em}.admin-setup-actions a:hover{background:white;color:#0b0b0d}
+
+/* 7. Mobile = a guided commercial experience, not a scaled-down desktop. */
+@media(max-width:760px){
+  .hero{min-height:auto;padding-top:104px;padding-bottom:76px}
+  .hero-copy{width:100%;padding-top:8vh}.hero h1{font-size:clamp(4rem,18vw,6.2rem);line-height:.79}.hero-outline{padding-left:0}
+  .hero-bottomline{margin-left:0;margin-top:2rem;grid-template-columns:1fr}.hero-bottomline p{font-size:.92rem;max-width:34ch}
+  .hero-object{opacity:.42;right:-52vw;top:17vh}
+  .manifesto-grid{margin-top:3.8rem}.manifesto-copy{font-size:clamp(2.45rem,11vw,4.15rem);max-width:100%;line-height:.94}.manifesto-aside{font-size:.76rem}
+  .work-heading{grid-template-columns:1fr;gap:1rem;margin-bottom:3.2rem}.work-heading h2{font-size:clamp(2.8rem,12vw,4.5rem)}.work-heading p{margin:0;max-width:30ch}
+  .work-filter{margin-top:0}.work-filter-context{grid-template-columns:1fr;gap:.55rem;margin-top:.25rem}.work-filter-context b{justify-self:start}
+  .project-grid{display:grid!important;grid-template-columns:1fr!important;gap:1.35rem!important}.project-xl,.project-lg,.project-md,.project-sm{grid-column:1/-1!important}.project-visual,.project-xl .project-visual{aspect-ratio:1.25/1}.project-meta p{font-size:.82rem;line-height:1.35}
+  .reel-heading{grid-template-columns:1fr;gap:1.3rem}.reel-heading h2{font-size:clamp(3rem,13vw,4.8rem)}
+  .case-drawer-copy h3{font-size:clamp(3rem,13vw,4.8rem)}
+  .ba-stage{height:62vh;min-height:440px}.ba-layer{padding:1.2rem}.ba-layer strong{font-size:clamp(3rem,14vw,5.1rem)}.ba-layer p{font-size:.68rem;max-width:24ch}.ba-caption{font-size:.65rem}
+  .ecosystem-copy h2{font-size:clamp(3rem,12vw,4.8rem)}
+  .ecosystem-orbit{height:auto!important;transform:none!important;margin:1.8rem 0 0!important;display:grid!important;grid-template-columns:1fr 1fr;gap:.55rem;place-items:stretch}
+  .ecosystem-core,.ecosystem-ring{display:none!important}
+  .ecosystem-orbit button.touchpoint{position:static!important;transform:none!important;text-align:left;border:1px solid rgba(255,255,255,.13)!important;background:#0d0d11!important;padding:.9rem!important;min-height:54px;font-size:.68rem!important;display:flex;align-items:center;justify-content:space-between}
+  .ecosystem-orbit button.touchpoint::after{content:'→';opacity:.35}.ecosystem-orbit button.touchpoint.is-active{border-color:var(--purple-2)!important;color:white!important;background:rgba(139,92,246,.12)!important}
+  .ecosystem-detail{margin-top:.7rem!important;min-height:220px;padding:1.15rem}.ecosystem-detail>strong{font-size:clamp(2.5rem,12vw,4rem)}
+  .toolchain-heading h2,.solutions-heading h2,.process-title h2,.archive-heading h2,.lab-copy h2,.contact-section h2{font-size:clamp(2.8rem,12vw,4.8rem)!important;line-height:.88!important}
+  .process-title{grid-template-columns:1fr;gap:1rem}.process-track{grid-template-columns:1fr 1fr;margin-top:3rem}.process-step{min-height:180px}
+  .archive-wall{grid-template-columns:1fr!important;margin-top:3.5rem}.archive-tile,.archive-tile:nth-child(n){grid-column:1/-1!important}.archive-art{aspect-ratio:1.15}
+  .lab-section{grid-template-columns:1fr;padding-top:8rem;padding-bottom:8rem}.lab-stage{height:440px}
+  .contact-section{min-height:auto;padding-top:8rem;padding-bottom:8rem}.contact-section>p{margin-left:0}.contact-signature{display:none}
+  .admin-diagnostic-grid,.admin-setup-steps{grid-template-columns:1fr}.admin-diagnostic-grid>div{grid-template-columns:auto 1fr}.admin-diagnostic-grid small{grid-column:2}
+}
+
+.mobile-action-bar{display:none}
+@media(max-width:760px){
+  body{padding-bottom:68px}
+  .mobile-action-bar{position:fixed;z-index:120;left:10px;right:10px;bottom:10px;height:56px;display:grid;grid-template-columns:.72fr 1.28fr;border:1px solid rgba(255,255,255,.17);background:rgba(8,8,10,.92);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:0 16px 50px rgba(0,0,0,.35)}
+  .mobile-action-bar a{color:white;display:flex;align-items:center;justify-content:center;gap:.4rem;padding:.65rem;border-right:1px solid rgba(255,255,255,.12);font-size:.58rem;letter-spacing:.04em}
+  .mobile-action-bar a:last-child{border-right:0;background:#8b5cf6;color:white}.mobile-action-bar span{opacity:.48}.mobile-action-bar b{font-weight:800}
+}
+
+.admin-behance-sync{border:1px solid rgba(255,255,255,.12);background:#0b0b0f;margin:1.1rem 0;padding:1rem}
+.admin-behance-head{display:flex;justify-content:space-between;align-items:center;gap:1rem}.admin-behance-head>div{display:flex;flex-direction:column;gap:.25rem}.admin-behance-head b{font-size:.58rem;letter-spacing:.12em;color:#b99bff}.admin-behance-head span{font-size:.68rem;color:rgba(255,255,255,.5)}.admin-behance-head button,.admin-behance-found button{border:1px solid rgba(255,255,255,.18);background:transparent;color:white;padding:.7rem .85rem;font-size:.55rem;letter-spacing:.08em;cursor:pointer}.admin-behance-head button:hover,.admin-behance-found button:hover{background:white;color:#0b0b0d}.admin-behance-found{display:grid;gap:1px;background:rgba(255,255,255,.1);margin-top:.8rem}.admin-behance-found article{background:#0d0d11;padding:.9rem;display:flex;align-items:center;justify-content:space-between;gap:1rem}.admin-behance-found article>div{display:grid;gap:.2rem}.admin-behance-found span{font-size:.48rem;letter-spacing:.1em;color:#ff9b60}.admin-behance-found strong{font-size:.85rem}.admin-behance-found a{font-size:.55rem;opacity:.52;width:max-content}
+@media(max-width:760px){.admin-behance-head,.admin-behance-found article{align-items:flex-start;flex-direction:column}.admin-behance-head button,.admin-behance-found button{width:100%}}

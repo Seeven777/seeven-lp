@@ -1,4 +1,4 @@
-# SEE7VEN — Presence System V7.3
+# SEE7VEN — Presence System V7.4
 
 V7.3 transforma o portfólio em uma experiência comercial + sistema de mídia + CMS, mantendo o conceito central:
 
@@ -35,7 +35,7 @@ A direção LIGHT → DARK continua, mas a arquitetura foi endurecida para corri
 
 ### Project Intelligence / Strategy OS
 
-A V7.3 ganhou uma camada de case study inspirada no que funciona em portfólios de produto/UI avançados: o visitante não vê só o resultado, mas **contexto → público → insight → decisão → sistema → resultado**.
+A V7.4 mantém uma camada de case study inspirada no que funciona em portfólios de produto/UI avançados: o visitante não vê só o resultado, mas **contexto → público → insight → decisão → sistema → resultado**.
 
 - seletor de projetos dentro de uma interface tipo produto;
 - objetivo e restrição visíveis antes da solução;
@@ -100,7 +100,7 @@ Grupos atuais:
 
 A referência do Reelful foi usada somente como princípio de apresentação de capacidade por módulos, estados e workflow. Nenhum asset do projeto de terceiros é incluído no repositório.
 
-## As 20 funções da V7.3
+## As 20 funções da V7.4
 
 | # | Função | Estado |
 |---|---|---|
@@ -212,7 +212,7 @@ O bucket esperado é:
 portfolio-assets
 ```
 
-Se seu schema atual ainda não tiver os campos V7.3, revise e execute:
+Se seu schema atual ainda não tiver os campos V7.4, revise e execute:
 
 ```text
 SUPABASE_V7_MIGRATION.sql
@@ -222,7 +222,7 @@ A migration adiciona campos sem apagar os existentes e configura o bucket/polici
 
 ## Como cadastrar os 32 Reels reais
 
-O briefing informa a distribuição dos 32 vídeos, mas não inclui os 32 permalinks/arquivos exatos. V7.3 não associa publicações aleatórias à Seeven.
+O briefing informa a distribuição dos 32 vídeos, mas não inclui os 32 permalinks/arquivos exatos. V7.4 não associa publicações aleatórias à Seeven.
 
 Para cada item real, use o Admin:
 
@@ -240,7 +240,7 @@ Ou suba um `.mp4/.webm`: o Admin salva o arquivo e tenta gerar a capa automatica
 
 ## CMS híbrido durante a migração
 
-V6.1 podia substituir toda a lista estática assim que encontrasse poucos registros no Supabase. V7.3 usa um merge progressivo:
+V6.1 podia substituir toda a lista estática assim que encontrasse poucos registros no Supabase. V7.4 usa um merge progressivo:
 
 - cliente CMS sobrepõe o cliente seeded correspondente;
 - projeto CMS sobrepõe o slot seeded do mesmo cliente quando aplicável;
@@ -323,7 +323,7 @@ Copie `.env.example` para `.env.local`:
 
 ```env
 VITE_SUPABASE_URL=
-VITE_SUPABASE_ANON_KEY=
+VITE_SUPABASE_PUBLISHABLE_KEY=
 VITE_KAREN_WHATSAPP=5511XXXXXXXXX
 VITE_GUSTAVO_WHATSAPP=5511XXXXXXXXX
 ```
@@ -345,7 +345,7 @@ npm run build
 
 ```bash
 git add .
-git commit -m "feat: Seeven Presence System V7.3"
+git commit -m "feat: Seeven Presence System V7.4"
 git push
 ```
 
@@ -373,3 +373,88 @@ Antes do push, siga `DEPLOY_CHECKLIST.md`.
 - Strategy OS permanece legível mesmo em captura full-page.
 - Case Sindpetshop recebeu ajuste de ritmo, escala tipográfica e fechamento.
 - React StrictMode removido do bootstrap para evitar efeitos duplicados durante preview de desenvolvimento.
+
+---
+
+# V7.4 — Commercial Clarity + Admin Recovery
+
+Esta revisão corrige os pontos observados na validação visual da V7.3 e torna o `/admin` mais fácil de configurar.
+
+## Admin: por que aparecia “Supabase não configurado”
+
+O painel depende de duas variáveis Vite no deploy. V7.4 aceita a chave moderna **Publishable** do Supabase e mantém compatibilidade com a antiga `anon`:
+
+```env
+VITE_SUPABASE_URL=https://SEU-PROJETO.supabase.co
+VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
+```
+
+Fallback legado ainda aceito:
+
+```env
+VITE_SUPABASE_ANON_KEY=...
+```
+
+No Vercel:
+
+1. Project → Settings → Environment Variables;
+2. adicione `VITE_SUPABASE_URL`;
+3. adicione `VITE_SUPABASE_PUBLISHABLE_KEY`;
+4. aplique em Production e Preview;
+5. faça **Redeploy**.
+
+Depois execute uma vez no SQL Editor do Supabase:
+
+```text
+SUPABASE_V7_4_SETUP.sql
+```
+
+O script cria/atualiza `clients`, `projects`, `contents`, `services`, `behance_items`, o bucket `portfolio-assets` e as policies necessárias para leitura pública + edição autenticada.
+
+Crie também o usuário que vai entrar no painel em **Supabase → Authentication → Users**.
+
+## Novo: Behance editável pelo Admin
+
+V7.4 possui a aba:
+
+```text
+/admin → behance
+```
+
+Ela alimenta `behance_items` e permite cadastrar:
+
+- título;
+- cliente;
+- link público do Behance;
+- capa;
+- ferramentas;
+- tema;
+- ativo/rascunho;
+- ordem.
+
+Quando o Supabase ainda está vazio, a parede mantém os projetos definidos em `src/data.js` como fallback. Portanto a migração pode ser feita gradualmente.
+
+## Correções da interface
+
+- contraste do manifesto corrigido;
+- filtros agora alteram seleção, composição e contexto editorial;
+- contagem de projetos por filtro;
+- Before/After vai de 0% a 100%;
+- textos do comparador ganharam limites tipográficos mais seguros;
+- `Vídeo` e `Embalagem` foram afastados no Brand Ecosystem;
+- no mobile o Ecosystem vira uma grade de pontos de contato tocáveis, em vez de uma órbita comprimida;
+- Selected Work vira uma coluna clara no mobile;
+- títulos principais receberam tetos tipográficos para evitar explosões de escala;
+- Visual Archive vira uma coluna no mobile;
+- CTA comercial fixo no mobile: `VER TRABALHOS` + `FALAR SOBRE UM PROJETO`;
+- `/admin` sem variáveis agora mostra um diagnóstico passo a passo em vez de apenas bloquear o usuário.
+
+## Behance / atualização contínua
+
+O perfil público usado como referência é:
+
+```text
+https://www.behance.net/wedeseeven
+```
+
+A V7.4 não tenta raspar o Behance no navegador, porque isso seria frágil e dependente de CORS/markup de terceiros. A abordagem estável é: detectar/publicar a novidade, cadastrar no Admin e manter a capa no próprio Storage quando possível.
