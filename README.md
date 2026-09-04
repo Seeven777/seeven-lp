@@ -1,36 +1,50 @@
-# Seeven LP + Portfolio + Admin v2
+# Seeven LP / Portfolio v2.1
 
-Esta pasta contém a evolução da LP para funcionar como **landing page + portfólio vivo + mini CMS**.
+Landing page + portfolio showcase + admin CMS foundation.
 
-## O que entrou
-- Showcase de Reels por cliente, com filtros e modal.
-- Portfólio Behance integrado como seção própria.
-- Conteúdo inicial com os 17 Reels fornecidos e os projetos atualmente publicados no Behance da Seeven.
-- `/admin` para gerenciar clientes, conteúdos, projetos e serviços.
-- Supabase opcional: sem configuração, a LP usa os dados iniciais; com Supabase, o conteúdo passa a ser persistente e editável pelo painel.
-- Login do painel via Supabase Auth.
-- Layout mobile-first.
+## O que entrou nesta versão
 
-## Instalação
-1. Substitua os arquivos de `src/` e `index.html` pelos desta pasta.
-2. Atualize `package.json` e rode `npm install`.
-3. Crie um projeto no Supabase.
-4. Execute `supabase/schema.sql` no SQL Editor.
-5. Crie o usuário administrador em Authentication > Users.
-6. Copie `.env.example` para `.env.local` e preencha as duas variáveis.
-7. Rode `npm run dev`.
-8. Teste `/` e `/admin`.
-9. Faça `npm run build` antes do deploy.
+- Showcase com 17 Reels cadastrados.
+- Posters configuráveis por conteúdo (`poster_url`).
+- Modal para assistir cada Reel dentro da LP.
+- Portfólio com capas reais dos projetos do Behance.
+- Modal de projeto com capa, categoria, descrição e botão para abrir o Behance.
+- `/admin` para clientes, conteúdos, portfólio e serviços.
+- Campos de capa de projeto, poster de Reel e descrição de projeto.
+- Supabase opcional para persistência e autenticação.
+- Fallback local: o site funciona mesmo antes de configurar o Supabase.
+- Layout responsivo e mobile-first.
 
-## Vercel
-Adicione no projeto Vercel:
-- `VITE_SUPABASE_URL`
-- `VITE_SUPABASE_ANON_KEY`
+## Rodar
 
-Não coloque a Service Role Key no frontend.
+```bash
+npm install
+npm run dev
+```
 
-## Observação sobre Instagram
-Os Reels são carregados somente quando o visitante abre um conteúdo, evitando 17 iframes simultâneos e deixando a página mais leve.
+## Admin
 
-## Próxima evolução recomendada
-Adicionar upload de capas para Reels/projetos via Supabase Storage. O painel já possui `cover_url` para projetos e pode evoluir para upload sem alterar a estrutura pública.
+Abra `/admin`.
+
+Sem Supabase, o painel funciona em modo local apenas para visualização/estrutura; para salvar alterações permanentemente, configure o Supabase.
+
+## Supabase
+
+1. Crie um projeto no Supabase.
+2. Execute `supabase/schema.sql` no SQL Editor.
+3. Crie um usuário de autenticação para o administrador.
+4. Copie `.env.example` para `.env`.
+5. Preencha:
+
+```env
+VITE_SUPABASE_URL=...
+VITE_SUPABASE_ANON_KEY=...
+```
+
+6. Na Vercel, adicione as mesmas variáveis em Project Settings > Environment Variables.
+
+Nunca coloque a `service_role` key no frontend.
+
+## WhatsApp
+
+O número atual no `src/main.jsx` é `5511971493985`. Altere se necessário antes da publicação.

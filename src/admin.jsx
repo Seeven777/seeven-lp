@@ -6,7 +6,7 @@ import {seedClients,seedServices,seedContents,seedProjects} from './data';
 
 const tables={clients:seedClients,contents:seedContents,projects:seedProjects,services:seedServices};
 const labels={clients:'Clientes',contents:'Conteúdos',projects:'Portfólio',services:'Serviços'};
-const empty={clients:{name:'',handle:'',profile_url:'',active:true,sort_order:99},contents:{client_name:'',title:'',url:'',active:true,featured:false,sort_order:99},projects:{title:'',category:'',url:'',cover_url:'',active:true,featured:false,sort_order:99},services:{title:'',description:'',tag:'NEW',icon:'Sparkles',active:true,sort_order:99}};
+const empty={clients:{name:'',handle:'',profile_url:'',active:true,sort_order:99},contents:{client_name:'',title:'',url:'',poster_url:'',active:true,featured:false,sort_order:99},projects:{title:'',category:'',url:'',cover_url:'',description:'',active:true,featured:false,sort_order:99},services:{title:'',description:'',tag:'NEW',icon:'Sparkles',active:true,sort_order:99}};
 
 async function load(table){if(!supabase)return tables[table]||[];const {data}=await supabase.from(table).select('*').order('sort_order');return data||[]}
 function Admin(){
