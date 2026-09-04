@@ -107,3 +107,14 @@ A aplicação está preparada, mas V7.1 não inventa:
 - header desktop deixa definitivamente de usar `mix-blend-mode` / `filter` e passa a responder ao phase detector;
 - pesquisa/estratégia passam a ser tratadas como parte do portfólio, não como texto auxiliar;
 - referência NEXTSTEP registrada apenas como inspiração de estrutura de case study e produto — sem copiar layout ou assets.
+
+
+## V7.3 — Stability & Visual Polish
+
+- Reveal passou de mecanismo de visibilidade para enhancement de animação.
+- Corrigidos vazios aparentes no Manifesto e Project Intelligence em capturas longas.
+- Removido blend/invert do header e blend fixo do noise global.
+- Grid Selected Work densificado e tamanhos reequilibrados.
+- Motion Archive aumentado visualmente.
+- Case Sindpetshop refinado.
+- Bootstrap sem StrictMode para preview mais previsível.

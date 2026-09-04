@@ -450,3 +450,136 @@ html[data-phase="dark"] .command-trigger,html[data-phase="dark"] .menu-toggle{co
 }
 .showreel-trigger:disabled{cursor:not-allowed;opacity:.38;background:transparent;color:rgba(255,255,255,.58)}.showreel-trigger:disabled:hover{background:transparent;color:rgba(255,255,255,.58)}
 .tool-evidence.is-public{cursor:pointer}.tool-evidence.is-public b{margin-left:auto;font-size:.7rem;font-weight:500}.tool-evidence.is-public:hover{color:white}
+
+
+/* ==========================================================================\n   V7.3 — STABILITY + VISUAL POLISH PATCH\n   The page must remain complete even when IntersectionObserver/full-page\n   screenshot tools do not advance the scroll position. Motion is enhancement,\n   never a dependency for content visibility.\n   ========================================================================== */
+
+/* Avoid fixed blended layers over a very tall document: these are a common
+   source of compositing/stitching artefacts in mobile browsers and full-page
+   screenshot tools. */
+.global-noise{
+  position:absolute;
+  mix-blend-mode:normal;
+  opacity:.032;
+}
+
+/* Content is always readable. When it enters the viewport we add a lightweight
+   entrance animation instead of hiding it until JS decides to reveal it. */
+[data-reveal]{
+  opacity:1!important;
+  transform:none!important;
+  transition:none!important;
+  will-change:auto!important;
+}
+html[data-motion="full"] [data-reveal].is-visible{
+  animation:seevenReveal .62s cubic-bezier(.2,.72,.2,1) both;
+  animation-delay:var(--delay,0ms);
+}
+@keyframes seevenReveal{
+  from{transform:translateY(18px)}
+  to{transform:translateY(0)}
+}
+@media (prefers-reduced-motion:reduce){
+  html[data-motion="full"] [data-reveal].is-visible{animation:none!important}
+}
+
+/* Stable header colors replace difference/invert blending. */
+.site-header{
+  mix-blend-mode:normal!important;
+  filter:none!important;
+  color:var(--ink);
+  background:rgba(247,245,241,.72);
+  border-bottom:1px solid rgba(11,11,13,.06);
+  backdrop-filter:blur(14px) saturate(1.05);
+  -webkit-backdrop-filter:blur(14px) saturate(1.05);
+  transition:color .25s ease,background .25s ease,border-color .25s ease,backdrop-filter .25s ease;
+}
+html[data-phase="dark"] .site-header{
+  color:#f7f5f1;
+  background:rgba(7,7,8,.72);
+  border-bottom-color:rgba(255,255,255,.08);
+}
+html[data-phase="light"] .site-header{
+  color:var(--ink);
+  background:rgba(247,245,241,.72);
+  border-bottom-color:rgba(11,11,13,.06);
+}
+
+/* Clip visual overflow without creating the same legacy scrolling/compositing
+   behavior as overflow:hidden on every section. */
+.section-shell{overflow:clip}
+
+/* Selected work: intentionally close every editorial row. */
+.project-grid{grid-auto-flow:dense;align-items:start}
+.project-card{min-width:0}
+.work-section{padding-bottom:9rem}
+.work-principle{margin-top:8rem}
+.work-principle strong{max-width:10ch;text-align:right}
+
+/* The Strategy OS is an important part of the story, so keep its spacing
+   deliberate instead of creating a large black void if motion is unavailable. */
+.strategy-section{padding-top:9rem;padding-bottom:9rem}
+.strategy-heading{margin-bottom:3.4rem}
+.strategy-console{position:relative;z-index:2}
+.strategy-principle{margin-top:4rem}
+
+/* Motion archive should read as work, not as a contact sheet of tiny icons. */
+.reel-grid{grid-template-columns:repeat(6,minmax(0,1fr));gap:1rem}
+.reel-frame{border-radius:2px}
+.reel-meta strong{font-size:.72rem}
+.reel-meta span{font-size:.58rem;line-height:1.35}
+
+/* Case typography had too much visual collision at the transition. */
+.case-section{padding-top:10rem}
+.case-super{
+  font-size:clamp(5rem,11.5vw,12.5rem);
+  line-height:.72;
+  margin:3.2rem 0 3.6rem;
+  color:rgba(255,255,255,.105);
+}
+.case-intro h2{max-width:13ch}
+.case-closing{
+  margin-top:8rem;
+  display:grid;
+  grid-template-columns:minmax(180px,.65fr) minmax(0,1.35fr);
+  gap:4vw;
+  align-items:end;
+  text-align:left;
+}
+.case-closing span{margin:0;max-width:26ch}
+.case-closing strong{max-width:11ch;justify-self:end;text-align:right}
+
+/* Reduce expensive continuous scroll transforms on medium/coarse devices. */
+html[data-motion="lite"] .hero-object,
+html[data-motion="lite"] .pixel-paper .poster-piece,
+html[data-motion="lite"] .pixel-paper .card-piece,
+html[data-motion="lite"] .pixel-paper .badge-piece,
+html[data-motion="lite"] .pixel-paper .phone-piece{
+  transform:none!important;
+}
+
+@media (max-width:1180px){
+  .reel-grid{grid-template-columns:repeat(5,minmax(0,1fr))}
+}
+@media (max-width:900px){
+  .site-header{background:rgba(247,245,241,.88)}
+  html[data-phase="dark"] .site-header{background:rgba(7,7,8,.88);color:#fff;border-bottom-color:rgba(255,255,255,.08)}
+  .reel-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .work-principle strong{text-align:left;max-width:none}
+  .case-closing{grid-template-columns:1fr;gap:1.5rem}
+  .case-closing strong{justify-self:start;text-align:left;max-width:12ch}
+}
+@media (max-width:620px){
+  .section-shell{padding-left:18px;padding-right:18px}
+  .reel-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:.8rem}
+  .reel-meta{padding-top:.55rem}
+  .reel-meta strong{font-size:.76rem}
+  .work-section,.strategy-section,.reels-section,.case-section{padding-top:7.5rem}
+  .work-principle{margin-top:5.5rem}
+  .case-super{font-size:18vw;margin:2.4rem 0 2.8rem}
+  .case-closing{margin-top:6rem}
+}
+
+/* One more compositor safeguard for long pages. */
+.cursor-glow{mix-blend-mode:normal!important;opacity:.72}
+html[data-motion="lite"] .contact-strip span{animation:none!important}

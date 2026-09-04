@@ -1,4 +1,4 @@
-# V7.2 — deploy checklist
+# V7.3 — deploy checklist
 
 ## 1. Local validation
 
@@ -31,7 +31,7 @@ Do not commit `.env.local`.
 
 ## 3. Supabase
 
-If the current schema does not have the V7.2 fields, review and execute:
+If the current schema does not have the V7.3 fields, review and execute:
 
 `SUPABASE_V7_MIGRATION.sql`
 
@@ -82,8 +82,20 @@ If GTM/GA4 is present, map the `dataLayer` events documented in README. Test at 
 
 ```bash
 git add .
-git commit -m "feat: Seeven Presence System V7.2"
+git commit -m "feat: Seeven Presence System V7.3"
 git push
 ```
 
 Vercel’s rewrite already routes clean paths such as `/work/...` back to `index.html`.
+
+
+## Verificação visual V7.3
+
+Após o deploy, conferir especialmente:
+
+- Manifesto aparece sem precisar “forçar” scroll.
+- Project Intelligence não cria vazio preto.
+- Header troca corretamente entre tema claro/escuro.
+- Selected Work fecha as linhas sem card órfão.
+- Reels ficam legíveis em desktop e 2 por linha no celular.
+- Captura de página inteira não repete grandes trechos.

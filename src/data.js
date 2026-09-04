@@ -94,7 +94,7 @@ export const featuredProjects = [
     id: 'eventos-experience', clientId: 'eventos', client: 'Eventos Publi', label: 'EVENTS / EXPERIENCE',
     title: 'Estrutura também comunica.',
     summary: 'Uma empresa que atua com estruturas, cenografia, iluminação e experiências precisa parecer capaz de operar em escala.',
-    tags: ['Eventos', 'Site', 'Conteúdo'], theme: 'event', size: 'md', href: 'https://www.eventospubli.com.br/'
+    tags: ['Eventos', 'Site', 'Conteúdo'], theme: 'event', size: 'lg', href: 'https://www.eventospubli.com.br/'
   },
   {
     id: 'dicarias-music', clientId: 'dicarias', client: 'DiCárias', label: 'MUSIC / CONTENT',
@@ -106,19 +106,19 @@ export const featuredProjects = [
     id: 'sabor-conversion', clientId: 'sabor', client: 'Sabor do Sul', label: 'FOOD / CONVERSION',
     title: 'A comunicação termina no pedido.',
     summary: 'Produto, oferta e leitura rápida para uma operação de marmitaria e delivery em que desejo e conversão precisam coexistir.',
-    tags: ['Food', 'Conteúdo', 'Conversão'], theme: 'food', size: 'sm', href: 'https://menu.brendi.com.br/sabor-do-sul-delivery',
+    tags: ['Food', 'Conteúdo', 'Conversão'], theme: 'food', size: 'md', href: 'https://menu.brendi.com.br/sabor-do-sul-delivery',
   },
   {
     id: 'pufinho-music', clientId: 'pufinho', client: 'DJ Pufinho', label: 'MUSIC / MOTION',
     title: 'Quando a peça precisa ter ritmo antes do play.',
     summary: 'Direção para entretenimento: presença visual, movimento e reconhecimento trabalhando junto do conteúdo musical.',
-    tags: ['Música', 'Motion', 'Social'], theme: 'music', size: 'sm', href: 'https://www.instagram.com/djpufinho/',
+    tags: ['Música', 'Motion', 'Social'], theme: 'music', size: 'md', href: 'https://www.instagram.com/djpufinho/',
   },
   {
     id: 'salseiro-nightlife', clientId: 'salseiro', client: 'Salseiro Lounge', label: 'NIGHTLIFE / SOCIAL',
     title: 'A atmosfera precisa chegar antes da noite.',
     summary: 'Conteúdo e direção visual para uma marca de nightlife em que clima, recorrência e percepção precisam trabalhar juntos.',
-    tags: ['Nightlife', 'Social', 'Motion'], theme: 'violet', size: 'sm', href: 'https://www.instagram.com/salseiro.lounge/'
+    tags: ['Nightlife', 'Social', 'Motion'], theme: 'violet', size: 'md', href: 'https://www.instagram.com/salseiro.lounge/'
   }
 ]
 

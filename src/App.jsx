@@ -104,7 +104,7 @@ function useExperience() {
           reveal.unobserve(entry.target)
         }
       })
-    }, { threshold: 0.08, rootMargin: '0px 0px -4% 0px' })
+    }, { threshold: 0.02, rootMargin: '18% 0px 18% 0px' })
 
     const observeReveals = (scope = document) => {
       scope.querySelectorAll?.('[data-reveal]').forEach(el => {
@@ -490,8 +490,8 @@ function Work({ projects = featuredProjects, clientList = clients }) {
       </div>
 
       <div className="work-principle" data-reveal>
-        <span>PORTFÓLIO NÃO É UMA LISTA.</span>
-        <strong>É PROVA.</strong>
+        <span>PORTFÓLIO NÃO É UMA LISTA DE LOGOS.</span>
+        <strong>É PROVA DE REPERTÓRIO.</strong>
       </div>
       <CaseDrawer study={activeStudy} project={activeProject} clientList={clientList} onClose={closeCase} onNext={() => moveCase(1)} onPrevious={() => moveCase(-1)}/>
     </section>

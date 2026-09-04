@@ -1,6 +1,6 @@
-# SEE7VEN — Presence System V7.2
+# SEE7VEN — Presence System V7.3
 
-V7.2 transforma o portfólio em uma experiência comercial + sistema de mídia + CMS, mantendo o conceito central:
+V7.3 transforma o portfólio em uma experiência comercial + sistema de mídia + CMS, mantendo o conceito central:
 
 **FAZEMOS MARCAS PARAREM.**  
 **Construímos presença.**  
@@ -35,7 +35,7 @@ A direção LIGHT → DARK continua, mas a arquitetura foi endurecida para corri
 
 ### Project Intelligence / Strategy OS
 
-A V7.2 ganhou uma camada de case study inspirada no que funciona em portfólios de produto/UI avançados: o visitante não vê só o resultado, mas **contexto → público → insight → decisão → sistema → resultado**.
+A V7.3 ganhou uma camada de case study inspirada no que funciona em portfólios de produto/UI avançados: o visitante não vê só o resultado, mas **contexto → público → insight → decisão → sistema → resultado**.
 
 - seletor de projetos dentro de uma interface tipo produto;
 - objetivo e restrição visíveis antes da solução;
@@ -44,7 +44,7 @@ A V7.2 ganhou uma camada de case study inspirada no que funciona em portfólios 
 - touchpoints por projeto;
 - bloco `Project Intelligence` dentro do Case Drawer;
 - campos equivalentes no Admin/Supabase para que essa camada possa ser editada sem deploy;
-- referência conceitual: estudos como NEXTSTEP usam pesquisa, user persona e case study como parte central da apresentação do produto. A V7.2 adapta esse princípio ao portfólio Seeven sem copiar layout, marca ou assets.
+- referência conceitual: estudos como NEXTSTEP usam pesquisa, user persona e case study como parte central da apresentação do produto. A V7.3 adapta esse princípio ao portfólio Seeven sem copiar layout, marca ou assets.
 
 ### Reels / separação de origem e arquivo
 
@@ -100,7 +100,7 @@ Grupos atuais:
 
 A referência do Reelful foi usada somente como princípio de apresentação de capacidade por módulos, estados e workflow. Nenhum asset do projeto de terceiros é incluído no repositório.
 
-## As 20 funções da V7.2
+## As 20 funções da V7.3
 
 | # | Função | Estado |
 |---|---|---|
@@ -132,7 +132,7 @@ A referência do Reelful foi usada somente como princípio de apresentação de 
 - noise deixa de ser camada `fixed` com blend, reduzindo artefatos em páginas/capturas longas;
 - `IntersectionObserver` também observa conteúdo inserido depois pelo Supabase;
 - `prefers-reduced-motion`, pointer coarse e dispositivos de menor recurso ativam Motion Lite;
-- CMS parcial **não apaga** automaticamente o portfólio estático: V7.2 mescla registros do Supabase com os fallbacks;
+- CMS parcial **não apaga** automaticamente o portfólio estático: V7.3 mescla registros do Supabase com os fallbacks;
 - IDs seeded dos clientes são preservados durante a migração, evitando quebrar relações entre cliente, Reel e case;
 - filtros sem resultado exibem estado vazio em vez de um bloco aparentemente quebrado.
 
@@ -212,7 +212,7 @@ O bucket esperado é:
 portfolio-assets
 ```
 
-Se seu schema atual ainda não tiver os campos V7.2, revise e execute:
+Se seu schema atual ainda não tiver os campos V7.3, revise e execute:
 
 ```text
 SUPABASE_V7_MIGRATION.sql
@@ -222,7 +222,7 @@ A migration adiciona campos sem apagar os existentes e configura o bucket/polici
 
 ## Como cadastrar os 32 Reels reais
 
-O briefing informa a distribuição dos 32 vídeos, mas não inclui os 32 permalinks/arquivos exatos. V7.2 não associa publicações aleatórias à Seeven.
+O briefing informa a distribuição dos 32 vídeos, mas não inclui os 32 permalinks/arquivos exatos. V7.3 não associa publicações aleatórias à Seeven.
 
 Para cada item real, use o Admin:
 
@@ -240,7 +240,7 @@ Ou suba um `.mp4/.webm`: o Admin salva o arquivo e tenta gerar a capa automatica
 
 ## CMS híbrido durante a migração
 
-V6.1 podia substituir toda a lista estática assim que encontrasse poucos registros no Supabase. V7.2 usa um merge progressivo:
+V6.1 podia substituir toda a lista estática assim que encontrasse poucos registros no Supabase. V7.3 usa um merge progressivo:
 
 - cliente CMS sobrepõe o cliente seeded correspondente;
 - projeto CMS sobrepõe o slot seeded do mesmo cliente quando aplicável;
@@ -292,7 +292,7 @@ case_share
 ## Estrutura
 
 ```text
-seeven-presence-v7.2/
+seeven-presence-v7.3/
 ├── public/
 │   └── portfolio/
 │       ├── brands/
@@ -345,7 +345,7 @@ npm run build
 
 ```bash
 git add .
-git commit -m "feat: Seeven Presence System V7.2"
+git commit -m "feat: Seeven Presence System V7.3"
 git push
 ```
 
@@ -361,3 +361,15 @@ Antes do push, siga `DEPLOY_CHECKLIST.md`.
 4. cadastrar screenshots desktop/mobile dos sites;
 5. adicionar métricas verificáveis aos demais cases;
 6. transformar 3–5 cases em narrativas ainda mais longas quando houver material suficiente.
+
+
+## V7.3 — correções visuais da captura longa
+
+- Conteúdo `data-reveal` nunca mais fica invisível se o navegador não disparar IntersectionObserver.
+- Header sem `mix-blend-mode:difference` / `filter:invert`, reduzindo glitches de composição.
+- Noise global deixou de ser uma camada fixa blendada sobre todo o documento.
+- Grid de Selected Work rebalanceado para eliminar órfãos e vazios.
+- Motion Archive ampliado para 6 colunas no desktop e 2 no mobile.
+- Strategy OS permanece legível mesmo em captura full-page.
+- Case Sindpetshop recebeu ajuste de ritmo, escala tipográfica e fechamento.
+- React StrictMode removido do bootstrap para evitar efeitos duplicados durante preview de desenvolvimento.
