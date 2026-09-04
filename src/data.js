@@ -38,9 +38,15 @@ const reels = [
  ['CZK Drills','https://www.instagram.com/reel/C6sMuRvOrTn/','Conteúdo de produto',''],
  ['Eventos Publi','https://www.instagram.com/reel/DIhEvR_OSws/','Vídeo / evento',''],
  ['Eventos Publi','https://www.instagram.com/reel/DJgUcxguik4/','Vídeo / evento',''],
- ['Eventos Publi','https://www.instagram.com/reel/DNQ8T9tJqko/','Vídeo / evento','']
+ ['Eventos Publi','https://www.instagram.com/reel/DNQ8T9tJqko/','Vídeo / evento',''],
+ ['Salseiro Lounge','https://www.instagram.com/reel/DJ4szeXNEP8/','Conteúdo / evento',''],
+ ['Salseiro Lounge','https://www.instagram.com/reel/DLqx76utzBY/','Conteúdo / evento',''],
+ ['Salseiro Lounge','https://www.instagram.com/reel/DH0oz19t2d-/','Conteúdo / evento',''],
+ ['Sabor do Sul','https://www.instagram.com/reel/DB9vOVPxk4I/','Conteúdo / gastronomia',''],
+ ['Sabor do Sul','https://www.instagram.com/reel/DCWpVGJRX_5/','Conteúdo / gastronomia',''],
+ ['Sabor do Sul','https://www.instagram.com/reel/DDHk25UxYiJ/','Conteúdo / gastronomia','']
 ];
-export const seedContents = reels.map(([clientName,url,title,poster_url],i)=>({id:`seed-content-${i}`,client_name:clientName,title,url,poster_url,active:true,featured:i<8,sort_order:i}));
+export const seedContents = reels.map(([clientName,url,title,poster_url],i)=>({id:`seed-content-${i}`,client_name:clientName,title,url,poster_url,category: title.includes('evento') ? 'EVENTO' : title.includes('pizza') || title.includes('gastronomia') ? 'GASTRONOMIA' : title.includes('produto') ? 'PRODUTO' : title.includes('performance') ? 'MOTION' : title.includes('campanha') || title.includes('Campanha') ? 'CAMPANHA' : 'SOCIAL',active:true,featured:i<8,sort_order:i}));
 
 export const seedProjects = [
  ['Sindpetshop-SP ( Mês das Mulheres )','SOCIAL / CAMPAIGN','https://www.behance.net/gallery/246850123/Sindpetshop-SP-(-Mes-das-Mulheres-)','https://mir-s3-cdn-cf.behance.net/projects/404/1534ef246850123.Y3JvcCwxMDgwLDg0NCwwLDE2OA.png','Campanha visual desenvolvida para o Sindpetshop-SP.'],

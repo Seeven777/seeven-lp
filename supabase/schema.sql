@@ -4,7 +4,7 @@ create table if not exists public.clients (
  id uuid primary key default gen_random_uuid(), name text not null, handle text default '', profile_url text default '', avatar_url text default '', active boolean default true, sort_order integer default 0, created_at timestamptz default now()
 );
 create table if not exists public.contents (
- id uuid primary key default gen_random_uuid(), client_name text not null, title text not null, url text not null, poster_url text default '', active boolean default true, featured boolean default false, sort_order integer default 0, created_at timestamptz default now()
+ id uuid primary key default gen_random_uuid(), client_name text not null, category text default 'SOCIAL', title text not null, url text not null, poster_url text default '', active boolean default true, featured boolean default false, sort_order integer default 0, created_at timestamptz default now()
 );
 create table if not exists public.projects (
  id uuid primary key default gen_random_uuid(), title text not null, category text default '', url text not null, cover_url text default '', description text default '', active boolean default true, featured boolean default false, sort_order integer default 0, created_at timestamptz default now()
@@ -30,6 +30,7 @@ create policy "authenticated manage services" on public.services for all to auth
 
 -- Upgrade existing installations
 alter table public.contents add column if not exists poster_url text default '';
+alter table public.contents add column if not exists category text default 'SOCIAL';
 alter table public.projects add column if not exists description text default '';
 
 -- Assets uploaded pelo Admin
