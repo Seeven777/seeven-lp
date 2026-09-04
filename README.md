@@ -38,3 +38,7 @@ Sem Supabase, o painel abre em modo local apenas para pré-visualização; alter
 3. Faça deploy.
 4. Crie o usuário administrador no Supabase Auth.
 5. No Admin, substitua as capas editoriais iniciais pelas capas reais dos Reels.
+
+
+### Conteúdos adicionados
+A base inicial agora inclui 26 Reels, incluindo Pizzaria Venâncio (3), CZK Drills (3) e Eventos Publi (3). As novas entradas ficam sem `poster_url` para não inventar uma capa que não corresponda ao vídeo; elas podem receber a capa real pelo Admin.

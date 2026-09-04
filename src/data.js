@@ -29,7 +29,16 @@ const reels = [
  ['MIBIS Dog','https://www.instagram.com/reel/C6XFOgGOJBL/','Conteúdo pet','/assets/posters/reel-07.jpg'],['MIBIS Dog','https://www.instagram.com/reel/DQCq3K4kZ7j/','Conteúdo pet','/assets/posters/reel-08.jpg'],
  ['Eazy Club','https://www.instagram.com/reel/DYIE58pgeTh/','Conteúdo / evento','/assets/posters/reel-09.jpg'],['Eazy Club','https://www.instagram.com/reel/DYcPiquue3L/','Conteúdo / evento','/assets/posters/reel-10.jpg'],['Eazy Club','https://www.instagram.com/reel/DYZR4p7idCp/','Conteúdo / evento','/assets/posters/reel-11.jpg'],
  ['DJ Pufinho','https://www.instagram.com/reel/DJxNTzKuexw/','Vídeo / performance','/assets/posters/reel-12.jpg'],['DJ Pufinho','https://www.instagram.com/reel/DJxNMUjuS7W/','Vídeo / performance','/assets/posters/reel-12.jpg'],['DJ Pufinho','https://www.instagram.com/reel/DJxM5WhOZMD/','Vídeo / performance','/assets/posters/reel-12.jpg'],
- ['Dicarias Cantor','https://www.instagram.com/reel/DYYO89CxBve/','Vídeo / performance','/assets/posters/reel-12.jpg'],['Dicarias Cantor','https://www.instagram.com/reel/DY2z6PGxctM/','Vídeo / performance','/assets/posters/reel-13.jpg'],['Dicarias Cantor','https://www.instagram.com/reel/DYP3XSGhdSa/','Vídeo / performance','/assets/posters/reel-14.jpg']
+ ['Dicarias Cantor','https://www.instagram.com/reel/DYYO89CxBve/','Vídeo / performance','/assets/posters/reel-12.jpg'],['Dicarias Cantor','https://www.instagram.com/reel/DY2z6PGxctM/','Vídeo / performance','/assets/posters/reel-13.jpg'],['Dicarias Cantor','https://www.instagram.com/reel/DYP3XSGhdSa/','Vídeo / performance','/assets/posters/reel-14.jpg'],
+ ['Pizzaria Venâncio','https://www.instagram.com/reel/DVZecynCVkH/','Conteúdo / pizza / campanha',''],
+ ['Pizzaria Venâncio','https://www.instagram.com/reel/DVONgB7F7mZ/','Conteúdo / pizza / campanha',''],
+ ['Pizzaria Venâncio','https://www.instagram.com/reel/DVL-uDSDQIj/','Conteúdo / pizza / campanha',''],
+ ['CZK Drills','https://www.instagram.com/reel/C7kYGHHOlDI/','Conteúdo de produto',''],
+ ['CZK Drills','https://www.instagram.com/reel/C6cM96-AG_z/','Conteúdo de produto',''],
+ ['CZK Drills','https://www.instagram.com/reel/C6sMuRvOrTn/','Conteúdo de produto',''],
+ ['Eventos Publi','https://www.instagram.com/reel/DIhEvR_OSws/','Vídeo / evento',''],
+ ['Eventos Publi','https://www.instagram.com/reel/DJgUcxguik4/','Vídeo / evento',''],
+ ['Eventos Publi','https://www.instagram.com/reel/DNQ8T9tJqko/','Vídeo / evento','']
 ];
 export const seedContents = reels.map(([clientName,url,title,poster_url],i)=>({id:`seed-content-${i}`,client_name:clientName,title,url,poster_url,active:true,featured:i<8,sort_order:i}));
 
