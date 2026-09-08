@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { supabase, supabaseEnabled, supabaseDiagnostics } from './supabase'
-import { behanceProjects as seededBehance, clients as seededClients, featuredProjects as seededProjects, solutions as seededSolutions } from './data'
+import { behanceProjects as seededBehance, clients as seededClients, featuredProjects as seededProjects, solutions as seededSolutions, partners as seededPartners } from './data'
 
 const TABLES = {
   dashboard: { label: 'Visão geral', eyebrow: 'CONTROL ROOM' },
@@ -8,6 +8,7 @@ const TABLES = {
   projects: { label: 'Projetos & cases', eyebrow: 'SELECTED WORK' },
   clients: { label: 'Marcas & clientes', eyebrow: 'CLIENT SYSTEM' },
   services: { label: 'Soluções', eyebrow: 'COMMERCIAL LAYER' },
+  partners: { label: 'Parceiros', eyebrow: 'CREATIVE NETWORK' },
   behance_items: { label: 'Behance', eyebrow: 'VISUAL ARCHIVE' }
 }
 
@@ -16,6 +17,7 @@ const EMPTY = {
   projects: { slug: '', client: '', label: '', title: '', description: '', category: '', tags: '', theme: '', size: '', cover: '', url: '', eyebrow: '', headline: '', case_intro: '', challenge: '', strategy: '', execution: '', result: '', proof: '', before_title: '', before_text: '', after_title: '', after_text: '', source_url: '', research_context: '', audience: '', objective: '', constraint_text: '', insight: '', decision_text: '', system_map: '', focus: '', channels: '', signal: '', active: true, order: 0 },
   clients: { slug: '', name: '', handle: '', category: '', accent: '', url: '', website: '', brand_poster: '', public_cover: '', public_cover_fit: 'cover', public_proof: '', active: true, order: 0 },
   services: { title: '', description: '', stack: '', active: true, order: 0 },
+  partners: { slug: '', client: '', category: 'partner', title: '', description: '', permalink: '', poster: '', featured: false, active: true, order: 0 },
   behance_items: { title: '', client: '', url: '', cover: '', tools: '', theme: 'editorial', active: true, order: 0 }
 }
 
@@ -31,6 +33,7 @@ const ADMIN_TABS = {
   projects: { 'Geral': ['slug','client','label','title','description','category','tags','theme','size','url'], 'Mídia': ['cover','source_url','before_title','before_text','after_title','after_text'], 'Case': ['eyebrow','headline','case_intro','challenge','strategy','execution','result','proof'], 'Intelligence': ['research_context','audience','objective','constraint_text','insight','decision_text','system_map','focus','channels','signal'], 'Publicação': ['active','order'] },
   clients: { 'Geral': ['slug','name','handle','category','accent'], 'Presença': ['url','website','brand_poster','public_cover','public_cover_fit','public_proof'], 'Publicação': ['active','order'] },
   services: { 'Geral': ['title','description','stack'], 'Publicação': ['active','order'] },
+  partners: { 'Geral': ['slug','title','client','description'], 'Presença': ['permalink','poster','featured'], 'Publicação': ['active','order'] },
   behance_items: { 'Geral': ['title','client','url','cover','tools','theme'], 'Publicação': ['active','order'] }
 }
 
@@ -40,6 +43,8 @@ function slugify(value='') {
 const isReelUrl = value => /instagram\.com\/(reel|p|tv)\//i.test(String(value || ''))
 const isVideoUrl = value => /\.(mp4|webm)(\?|#|$)/i.test(String(value || ''))
 const cleanPayload = form => Object.fromEntries(Object.entries(form).filter(([key]) => !['id','created_at','updated_at'].includes(key)).map(([key,value]) => [key, typeof value === 'string' && value.trim() === '' ? null : value]))
+const sourceTable = table => table === 'partners' ? 'contents' : table
+const isPartnerRow = row => /^(partner|parceiro|partners|parceiros)$/i.test(String(row?.category || ''))
 
 const normalizeUrl = value => String(value || '').trim().replace(/\?.*$/, '').replace(/\/$/, '').toLowerCase()
 function friendlyAuthError(error) {
@@ -188,11 +193,12 @@ function EditorDrawer({ table, item, clients, defaultOrder = 0, onClose, onSaved
     if (file.size > max) return setStatus(`Arquivo muito grande. Limite: ${video?'80 MB para vídeo':'12 MB para imagem'}.`)
     let target = null
     if (table==='contents') target=video?'video':'poster'
+    else if (table==='partners') target='poster'
     else if (table==='projects'||table==='behance_items') target='cover'
     else if (table==='clients') target='brand_poster'
     if (!target) return setStatus('Este tipo de conteúdo não possui upload de mídia.')
     setUploading(true); setStatus('Enviando para o Media Vault…')
-    const safe=file.name.toLowerCase().replace(/[^a-z0-9._-]+/g,'-'); const path=`${table}/${Date.now()}-${safe}`
+    const safe=file.name.toLowerCase().replace(/[^a-z0-9._-]+/g,'-'); const path=`${sourceTable(table)}/${Date.now()}-${safe}`
     const { error } = await supabase.storage.from('portfolio-assets').upload(path,file,{cacheControl:'31536000',upsert:false,contentType:file.type})
     if (error) { setUploading(false); return setStatus(friendlyDbError(error)) }
     uploadedPaths.current.push(path)
@@ -207,24 +213,28 @@ function EditorDrawer({ table, item, clients, defaultOrder = 0, onClose, onSaved
 
   const save = async event => {
     event.preventDefault()
-    const required = { contents: ['client','title'], projects: ['title'], clients: ['name'], services: ['title'], behance_items: ['title','url'] }[table] || []
+    const required = { contents: ['client','title'], projects: ['title'], clients: ['name'], services: ['title'], partners: ['title','client','permalink'], behance_items: ['title','url'] }[table] || []
     const missing = required.find(key => !String(form[key] || '').trim())
     if (missing) { setStatus(`Preencha “${LABELS[missing] || missing}” antes de salvar.`); return }
     if (table === 'contents' && form.permalink && !isReelUrl(form.permalink)) { setStatus('O permalink deve ser a URL exata de um Reel/post do Instagram.'); setTab('Mídia'); return }
+    if (table === 'partners' && form.permalink && !/instagram\.com\//i.test(form.permalink)) { setStatus('Use o link público do perfil no Instagram.'); setTab('Presença'); return }
     setStatus('Salvando…')
     const payload=cleanPayload(form)
+    if (table === 'partners') payload.category = 'partner'
     if ('slug' in payload && !payload.slug) payload.slug=slugify(payload.title||payload.name||payload.client||'item') || null
     if (!item?.id && (payload.order === null || payload.order === undefined)) payload.order = defaultOrder
-    const query=item?.id ? supabase.from(table).update(payload).eq('id',item.id) : supabase.from(table).insert(payload)
+    const targetTable=sourceTable(table)
+    const query=item?.id ? supabase.from(targetTable).update(payload).eq('id',item.id) : supabase.from(targetTable).insert(payload)
     const { error }=await query
     if(error) return setStatus(friendlyDbError(error))
     uploadedPaths.current=[]; setDirty(false); setStatus('Salvo.'); await onSaved(); onClose()
   }
 
   const currentFields=ADMIN_TABS[table][tab] || []
-  const canUpload=['contents','projects','behance_items','clients'].includes(table) && ['Mídia','Presença','Geral'].includes(tab)
+  const canUpload=['contents','partners','projects','behance_items','clients'].includes(table) && ['Mídia','Presença','Geral'].includes(tab)
   const renderField = key => {
     const value=form[key]
+    if (key==='client' && table==='partners') return <label key={key}>Instagram / @handle <input value={value??''} onChange={e=>set(key,e.target.value)} placeholder="@usuario"/></label>
     if (key==='client' && table==='behance_items') return <label key={key}>{LABELS[key]}<input value={value??''} onChange={e=>set(key,e.target.value)} placeholder="Ex.: Seeven Projects"/></label>
     if (key==='client') { const requiredClient=table==='contents'; return <label key={key}>{LABELS[key]} {requiredClient&&<em className="admin-required">OBRIGATÓRIO</em>}<select value={value??''} onChange={e=>set(key,e.target.value)}><option value="">{requiredClient?'Selecionar…':'Projeto sem cliente específico / Seeven'}</option>{clients.map(client=><option key={client.slug||client.id} value={client.slug}>{client.name||client.slug}</option>)}</select></label> }
     if (typeof value==='boolean') return <label key={key}>{LABELS[key]}<select value={String(value)} onChange={e=>set(key,e.target.value==='true')}><option value="true">Sim</option><option value="false">Não</option></select></label>
@@ -241,6 +251,7 @@ function EditorDrawer({ table, item, clients, defaultOrder = 0, onClose, onSaved
     <div className="admin-editor-tabs">{Object.keys(ADMIN_TABS[table]).map(name=><button type="button" key={name} className={tab===name?'active':''} onClick={()=>setTab(name)}>{name}</button>)}</div>
     <div className="admin-editor-body"><div className="admin-form-grid">
       {table==='contents'&&tab==='Mídia'&&<div className="admin-media-help full"><b>COMO CADASTRAR UM REEL</b><br/>Cole em <b>Link exato do Reel</b> a URL aberta no Instagram, como <code>instagram.com/reel/ABC...</code>. A capa pode ser enviada abaixo. Se você tiver o MP4/WebM, envie-o também: o painel gera um poster automaticamente.</div>}
+      {table==='partners'&&tab==='Presença'&&<div className="admin-media-help full"><b>PARCEIRO / REDE</b><br/>Use o link público do Instagram e, se quiser, envie uma foto/capa própria. Não invente especialidade: descreva apenas o que estiver confirmado.</div>}
       {table==='projects'&&tab==='Case'&&<div className="admin-media-help full"><b>CASE QUE VENDE</b><br/>Conte o problema antes da solução. Desafio → decisão estratégica → execução → evidência. Não use métricas sem fonte.</div>}
       {currentFields.map(renderField)}
       {canUpload&&<label className="admin-dropzone" onDragOver={e=>e.preventDefault()} onDrop={e=>{e.preventDefault();uploadMedia(e.dataTransfer?.files?.[0])}} onClick={()=>fileRef.current?.click()}><input ref={fileRef} type="file" accept="image/*,video/mp4,video/webm" onChange={e=>uploadMedia(e.target.files?.[0])}/><b>{uploading?'ENVIANDO…':'MEDIA VAULT'}</b><br/>Arraste uma imagem/vídeo ou clique para selecionar.</label>}
@@ -288,13 +299,36 @@ function QuickReel({ clients, rows, onSaved }) {
   return <section className="admin-quick-reel"><div><span>QUICK ADD / REEL</span><b>Tem o link? Publique em poucos segundos.</b><p>Instagram → abra o Reel → compartilhar/copiar link → cole abaixo. Depois você pode editar capa, vídeo próprio e destaque.</p></div><div className="admin-quick-reel-form"><select value={client} onChange={e=>setClient(e.target.value)}><option value="">Selecionar marca…</option>{clients.map(item=><option key={item.slug} value={item.slug}>{item.name}</option>)}</select><input value={permalink} onChange={e=>setPermalink(e.target.value)} placeholder="https://www.instagram.com/reel/..."/><input value={title} onChange={e=>setTitle(e.target.value)} placeholder="Título opcional"/><button disabled={busy} onClick={save}>{busy?'SALVANDO…':'ADICIONAR REEL →'}</button></div>{status&&<small role="status" aria-live="polite">{status}</small>}</section>
 }
 
+function QuickPartner({ rows, onSaved }) {
+  const [handle,setHandle]=useState('')
+  const [url,setUrl]=useState('')
+  const [status,setStatus]=useState('')
+  const [busy,setBusy]=useState(false)
+  const save=async()=>{
+    const cleanHandle=handle.trim().replace(/^@/,'')
+    if(!cleanHandle)return setStatus('Informe o @ do parceiro.')
+    const finalUrl=(url.trim()||`https://www.instagram.com/${cleanHandle}`).replace(/\?.*$/,'')
+    if(!/instagram\.com\//i.test(finalUrl))return setStatus('Use um perfil público do Instagram.')
+    if(rows.some(row=>normalizeUrl(row.permalink||row.url)===normalizeUrl(finalUrl)))return setStatus('Este parceiro já está cadastrado.')
+    setBusy(true);setStatus('Adicionando parceiro…')
+    const maxOrder=Math.max(-1,...rows.map(row=>Number(row.order??-1)))+1
+    const {error}=await supabase.from('contents').insert({slug:slugify(cleanHandle),client:`@${cleanHandle}`,category:'partner',title:`@${cleanHandle}`,description:'Parceiro Seeven',permalink:finalUrl,featured:false,active:true,order:maxOrder})
+    setBusy(false)
+    if(error)return setStatus(friendlyDbError(error))
+    setHandle('');setUrl('');setStatus('Parceiro adicionado à rede.');await onSaved()
+  }
+  return <section className="admin-quick-reel"><div><span>QUICK ADD / PARTNER</span><b>Amplie a rede sem alterar o código.</b><p>Cadastre o @ e o Instagram. Foto e descrição podem ser refinadas depois no editor.</p></div><div className="admin-quick-reel-form"><input value={handle} onChange={e=>setHandle(e.target.value)} placeholder="@usuario"/><input value={url} onChange={e=>setUrl(e.target.value)} placeholder="https://www.instagram.com/usuario"/><input disabled value="PARTNER / NETWORK"/><button disabled={busy} onClick={save}>{busy?'SALVANDO…':'ADICIONAR →'}</button></div>{status&&<small role="status" aria-live="polite">{status}</small>}</section>
+}
+
 function AdminItemCards({ rows, table, readiness, onEdit, onToggle, onDuplicate, onRemove, onMove }) {
   return <div className="admin-mobile-list">{rows.map(row=>{const[label,tone]=readiness(row);const media=row.poster||row.cover||row.brand_poster||row.public_cover;return <article key={row.id} className="admin-mobile-card"><div className="admin-mobile-card-top">{media?<img src={media} alt="" onError={event=>{event.currentTarget.hidden=true}}/>:<div className="admin-thumb admin-thumb-empty">7</div>}<div><span>{row.client||row.category||row.handle||row.slug||TABLES[table].eyebrow}</span><strong>{row.title||row.name||row.client||'Sem título'}</strong><small>ordem {row.order??'—'}</small></div></div><div className="admin-mobile-status"><span className={`readiness readiness-${tone}`}>{label}</span><button className={`publish-toggle ${row.active===false?'is-draft':'is-live'}`} onClick={()=>onToggle(row)}>{row.active===false?'RASCUNHO':'PUBLICADO'}</button></div><div className="admin-mobile-card-actions"><button aria-label="Mover item para cima" onClick={()=>onMove(row,-1)}>↑</button><button aria-label="Mover item para baixo" onClick={()=>onMove(row,1)}>↓</button><button onClick={()=>onEdit(row)}>EDITAR</button><button onClick={()=>onDuplicate(row)}>DUPLICAR</button><button className="danger" onClick={()=>onRemove(row)}>EXCLUIR</button></div></article>})}</div>
 }
 
 function Dashboard({ all, onNavigate, onSeed, seeding }) {
   const contents=all.contents||[], projects=all.projects||[], clients=all.clients||[], behance=all.behance_items||[]
-  const activeReels=contents.filter(x=>x.active!==false)
+  const partnerRows=contents.filter(isPartnerRow)
+  const publishedPartners=partnerRows.filter(x=>x.active!==false)
+  const activeReels=contents.filter(x=>x.active!==false&&!isPartnerRow(x))
   const playable=activeReels.filter(x=>isVideoUrl(x.video)||isReelUrl(x.permalink||x.url))
   const withPoster=activeReels.filter(x=>x.poster)
   const activeProjects=projects.filter(x=>x.active!==false)
@@ -309,11 +343,12 @@ function Dashboard({ all, onNavigate, onSeed, seeding }) {
     {title:'Reels sem mídia reproduzível',detail:`${Math.max(0,activeReels.length-playable.length)} item(ns) ainda não abrem vídeo/Instagram diretamente.`,table:'contents',count:Math.max(0,activeReels.length-playable.length)},
     {title:'Reels sem capa própria',detail:`${Math.max(0,activeReels.length-withPoster.length)} item(ns) podem ganhar impacto com poster real.`,table:'contents',count:Math.max(0,activeReels.length-withPoster.length)},
     {title:'Projetos sem capa',detail:`${missingCover.length} item(ns) publicados sem imagem principal própria.`,table:'projects',count:missingCover.length},
-    {title:'Cases incompletos',detail:`${incompleteCase.length} projeto(s) com slug ainda sem desafio + estratégia + resultado.`,table:'projects',count:incompleteCase.length}
+    {title:'Cases incompletos',detail:`${incompleteCase.length} projeto(s) com slug ainda sem desafio + estratégia + resultado.`,table:'projects',count:incompleteCase.length},
+    {title:'Rede de parceiros no fallback',detail:partnerRows.length?'A rede já está editável no CMS.':`${seededPartners.length} parceiro(s) aparecem pela base estática; migre para editar fotos, ordem e descrições.`,table:'partners',count:partnerRows.length?0:seededPartners.length}
   ].sort((a,b)=>b.count-a.count)
   return <>
-    <section className="admin-command-hero"><div><span>CONTROL ROOM / V9.3</span><h1>O portfólio fica melhor quando você sabe <b>o que falta.</b></h1><p>Este painel mede completude editorial — não performance de marketing. Priorize mídia real e cases claros antes de adicionar mais efeitos.</p></div><div className="admin-score" style={{'--score':`${score*3.6}deg`}}><div><strong>{score}%</strong><span>COMPLETUDE<br/>DO CMS</span></div></div></section>
-    <div className="admin-dashboard-grid"><article className="admin-stat"><span>PROJETOS PUBLICADOS</span><strong>{activeProjects.length}</strong><small>{covered.length} com capa · {completeCases.length} cases completos</small></article><article className="admin-stat"><span>REELS REPRODUZÍVEIS</span><strong>{playable.length}<i>/{activeReels.length}</i></strong><small>{withPoster.length} com capa própria</small></article><article className="admin-stat"><span>ARQUIVO BEHANCE</span><strong>{behance.filter(x=>x.active!==false).length}</strong><small>novidades entram pelo Behance Watch</small></article><article className="admin-stat"><span>MARCAS NO CMS</span><strong>{clients.filter(x=>x.active!==false).length}</strong><small>repertório ativo no painel</small></article></div>
+    <section className="admin-command-hero"><div><span>CONTROL ROOM / V10.3</span><h1>O portfólio fica melhor quando você sabe <b>o que falta.</b></h1><p>Este painel mede completude editorial — não performance de marketing. Priorize mídia real e cases claros antes de adicionar mais efeitos.</p></div><div className="admin-score" style={{'--score':`${score*3.6}deg`}}><div><strong>{score}%</strong><span>COMPLETUDE<br/>DO CMS</span></div></div></section>
+    <div className="admin-dashboard-grid"><article className="admin-stat"><span>PROJETOS PUBLICADOS</span><strong>{activeProjects.length}</strong><small>{covered.length} com capa · {completeCases.length} cases completos</small></article><article className="admin-stat"><span>REELS REPRODUZÍVEIS</span><strong>{playable.length}<i>/{activeReels.length}</i></strong><small>{withPoster.length} com capa própria</small></article><article className="admin-stat"><span>ARQUIVO BEHANCE</span><strong>{behance.filter(x=>x.active!==false).length}</strong><small>novidades entram pelo Behance Watch</small></article><article className="admin-stat"><span>MARCAS NO CMS</span><strong>{clients.filter(x=>x.active!==false).length}</strong><small>repertório ativo no painel</small></article><article className="admin-stat"><span>REDE DE PARCEIROS</span><strong>{publishedPartners.length || seededPartners.length}</strong><small>{publishedPartners.length?'colaboradores publicados no CMS':'base estática ativa · migre para editar'}</small></article></div>
     <div className="admin-health"><section className="admin-panel"><div className="admin-panel-head"><div><span>CONTENT HEALTH</span><b>O que merece atenção primeiro</b></div></div><div className="admin-health-list">{issues.map(issue=><div className={`admin-health-item ${issue.count===0?'resolved':''}`} key={issue.title}><div><strong>{issue.count===0?'✓ ':''}{issue.title}</strong><span>{issue.detail}</span></div><button onClick={()=>onNavigate(issue.table)}>{issue.count===0?'ABRIR':'REVISAR'} →</button></div>)}</div></section><section className="admin-panel"><div className="admin-panel-head"><div><span>WORKFLOW</span><b>Sequência que mais melhora a LP</b></div></div><div className="admin-health-list">{['1. Capas reais dos cases mais fortes','2. Permalinks corretos + posters dos Reels','3. Desafio → decisão → execução → resultado','4. Importar novidades do Behance','5. Criar links de prospecção por segmento'].map(text=><div className="admin-health-item" key={text}><div><strong>{text}</strong><span>Melhora a percepção comercial sem depender de novo efeito visual.</span></div></div>)}</div></section></div>
     <section className="admin-panel admin-seed-panel"><div className="admin-panel-head"><div><span>CMS FOUNDATION</span><b>Torne os fallbacks da LP editáveis no painel</b></div></div><div className="admin-seed-body"><p>A LP possui uma base estática de segurança. Este comando copia apenas os itens ainda ausentes para o Supabase, sem duplicar o que já existe.</p><button disabled={seeding} onClick={onSeed}>{seeding?'MIGRANDO BASE…':'MIGRAR BASE PARA O CMS →'}</button></div></section>
     <div className="admin-dashboard-pitch"><PitchLinkBuilder/></div>
@@ -373,13 +408,15 @@ export default function AdminApp() {
       const existingProjects=new Set((all.projects||[]).map(row=>String(row.slug||'').toLowerCase()).filter(Boolean))
       const existingServices=new Set((all.services||[]).map(row=>String(row.title||'').toLowerCase()).filter(Boolean))
       const existingBehance=new Set((all.behance_items||[]).map(row=>normalizeUrl(row.url)).filter(Boolean))
+      const existingPartners=new Set((all.contents||[]).filter(isPartnerRow).map(row=>normalizeUrl(row.permalink||row.url)).filter(Boolean))
       const nextOrder = rows => Math.max(-1,...rows.map(row=>Number(row.order??-1)))+1
-      const clientBase=nextOrder(all.clients||[]), projectBase=nextOrder(all.projects||[]), serviceBase=nextOrder(all.services||[]), behanceBase=nextOrder(all.behance_items||[])
+      const clientBase=nextOrder(all.clients||[]), projectBase=nextOrder(all.projects||[]), serviceBase=nextOrder(all.services||[]), behanceBase=nextOrder(all.behance_items||[]), partnerBase=nextOrder((all.contents||[]).filter(isPartnerRow))
       const clientRows=seededClients.filter(item=>!existingClients.has(item.id.toLowerCase())).map((item,index)=>({slug:item.id,name:item.name,handle:item.handle||null,category:item.category||null,accent:item.accent||null,url:item.url||null,website:item.website||null,brand_poster:item.brandPoster||null,public_cover:item.publicCover||null,public_cover_fit:item.publicCoverFit||'cover',public_proof:item.publicProof||null,active:true,order:clientBase+index}))
       const projectRows=seededProjects.filter(item=>!existingProjects.has(item.id.toLowerCase())).map((item,index)=>({slug:item.id,client:item.clientId||null,label:item.label||null,title:item.title,description:item.summary||null,category:item.label||null,tags:(item.tags||[]).join(', '),theme:item.theme||null,size:item.size||null,cover:item.cover||null,url:/^https?:/i.test(item.href||'')?item.href:null,active:true,order:projectBase+index}))
       const serviceRows=seededSolutions.filter(item=>!existingServices.has(String(item.problem||'').toLowerCase())).map((item,index)=>({title:item.problem,description:item.answer,stack:(item.stack||[]).join(', '),active:true,order:serviceBase+index}))
+      const partnerRows=seededPartners.filter(item=>!existingPartners.has(normalizeUrl(item.url))).map((item,index)=>({slug:item.id,client:item.handle,category:'partner',title:item.handle,description:item.role||'Parceiro Seeven',permalink:item.url,featured:Boolean(item.featured),active:true,order:partnerBase+index}))
       const behanceRows=seededBehance.filter(item=>!existingBehance.has(normalizeUrl(item.url))).map((item,index)=>({title:item.title,client:item.client||'Seeven Projects',url:item.url,cover:item.cover||null,tools:(item.tools||[]).join(', '),theme:item.theme||'editorial',active:true,order:behanceBase+index}))
-      const batches=[['clients',clientRows],['projects',projectRows],['services',serviceRows],['behance_items',behanceRows]]
+      const batches=[['clients',clientRows],['projects',projectRows],['services',serviceRows],['contents',partnerRows],['behance_items',behanceRows]]
       const errors=[]; let inserted=0
       for(const [name,data] of batches){ if(!data.length)continue; const {error}=await supabase.from(name).insert(data); if(error)errors.push(`${TABLES[name].label}: ${friendlyDbError(error)}`); else inserted+=data.length }
       const seedMessage=errors.length?`Migração parcial: ${errors.join(' · ')}`:`${inserted} item(ns) adicionados ao CMS. A base está pronta para edição.`
@@ -392,7 +429,7 @@ export default function AdminApp() {
   useEffect(()=>{loadAll()},[session,access])
   useEffect(()=>{setSelected(undefined);setQuery('');setStatusFilter('all')},[table])
 
-  const rows=table==='dashboard'?[]:(all[table]||[])
+  const rows=table==='dashboard'?[]:table==='partners'?(all.contents||[]).filter(isPartnerRow):table==='contents'?(all.contents||[]).filter(row=>!isPartnerRow(row)):(all[table]||[])
   const readiness=row=>{
     if(table==='contents'){
       const playable=isVideoUrl(row.video)||isReelUrl(row.permalink||row.url)
@@ -400,6 +437,11 @@ export default function AdminApp() {
       if(playable)return['SEM CAPA','mid']
       if(row.poster)return['SÓ CAPA','mid']
       return['PENDENTE','low']
+    }
+    if(table==='partners'){
+      if(!row.title||!row.client)return['INCOMPLETO','low']
+      if(!row.permalink)return['SEM LINK','mid']
+      return row.poster?['PRONTO','ok']:['SEM FOTO','mid']
     }
     if(table==='projects'){
       if(!row.cover)return['SEM CAPA','low']
@@ -430,9 +472,9 @@ export default function AdminApp() {
     })
   },[rows,query,statusFilter,table])
 
-  const remove=async row=>{if(!confirm(`Excluir “${row.title||row.name||'este item'}”? Esta ação não pode ser desfeita.`))return;const {error}=await supabase.from(table).delete().eq('id',row.id);setStatus(error?friendlyDbError(error):'Item removido.');if(!error)loadAll()}
-  const toggle=async row=>{const {error}=await supabase.from(table).update({active:row.active===false}).eq('id',row.id);setStatus(error?friendlyDbError(error):'Publicação atualizada.');if(!error)loadAll()}
-  const duplicate=async row=>{const copy={...row};['id','created_at','updated_at'].forEach(k=>delete copy[k]);if('title'in copy)copy.title=`${copy.title||'Item'} — cópia`;if('slug'in copy&&copy.slug)copy.slug=`${copy.slug}-copy-${Date.now().toString().slice(-4)}`;copy.active=false;copy.order=Math.max(-1,...rows.map(x=>Number(x.order??-1)))+1;const {error}=await supabase.from(table).insert(copy);setStatus(error?friendlyDbError(error):'Cópia criada como rascunho.');if(!error)loadAll()}
+  const remove=async row=>{if(!confirm(`Excluir “${row.title||row.name||'este item'}”? Esta ação não pode ser desfeita.`))return;const {error}=await supabase.from(sourceTable(table)).delete().eq('id',row.id);setStatus(error?friendlyDbError(error):'Item removido.');if(!error)loadAll()}
+  const toggle=async row=>{const {error}=await supabase.from(sourceTable(table)).update({active:row.active===false}).eq('id',row.id);setStatus(error?friendlyDbError(error):'Publicação atualizada.');if(!error)loadAll()}
+  const duplicate=async row=>{const copy={...row};['id','created_at','updated_at'].forEach(k=>delete copy[k]);if('title'in copy)copy.title=`${copy.title||'Item'} — cópia`;if('slug'in copy&&copy.slug)copy.slug=`${copy.slug}-copy-${Date.now().toString().slice(-4)}`;copy.active=false;copy.order=Math.max(-1,...rows.map(x=>Number(x.order??-1)))+1;const {error}=await supabase.from(sourceTable(table)).insert(copy);setStatus(error?friendlyDbError(error):'Cópia criada como rascunho.');if(!error)loadAll()}
   const move=async(row,direction)=>{
     const ordered=[...rows].sort((a,b)=>Number(a.order??999)-Number(b.order??999)||String(a.id).localeCompare(String(b.id)))
     const index=ordered.findIndex(x=>x.id===row.id), target=ordered[index+direction]
@@ -440,19 +482,19 @@ export default function AdminApp() {
     // Regrava a sequência inteira. Assim ordens duplicadas no CMS não fazem o botão parecer quebrado.
     const reordered=[...ordered]
     ;[reordered[index],reordered[index+direction]]=[reordered[index+direction],reordered[index]]
-    const results=await Promise.all(reordered.map((item,position)=>Number(item.order)===position?Promise.resolve({error:null}):supabase.from(table).update({order:position}).eq('id',item.id)))
+    const results=await Promise.all(reordered.map((item,position)=>Number(item.order)===position?Promise.resolve({error:null}):supabase.from(sourceTable(table)).update({order:position}).eq('id',item.id)))
     const error=results.find(x=>x?.error)?.error
     setStatus(error?friendlyDbError(error):'Ordem atualizada.')
     if(!error)loadAll()
   }
-  const exportBackup=()=>{const blob=new Blob([JSON.stringify({version:'9.3',exported_at:new Date().toISOString(),data:all},null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`seeven-cms-backup-${new Date().toISOString().slice(0,10)}.json`;a.click();URL.revokeObjectURL(url)}
+  const exportBackup=()=>{const blob=new Blob([JSON.stringify({version:'10.3',exported_at:new Date().toISOString(),data:all},null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`seeven-cms-backup-${new Date().toISOString().slice(0,10)}.json`;a.click();URL.revokeObjectURL(url)}
 
   if(!supabaseEnabled)return <div className="admin-shell"><SetupScreen/></div>
   if(!session)return <div className="admin-shell"><Login onSession={setSession}/></div>
   if(access==='checking')return <div className="admin-shell"><div className="admin-login-wrap"><div className="admin-login"><span>SEE7VEN / CONTROL ROOM</span><h1>Validando acesso…</h1><p>Confirmando sessão e permissões editoriais.</p></div></div></div>
   if(access!=='allowed')return <div className="admin-shell"><AccessScreen mode={access} email={session.user.email}/></div>
 
-  const counts=Object.fromEntries(Object.keys(TABLES).filter(x=>x!=='dashboard').map(name=>[name,(all[name]||[]).length]))
+  const counts=Object.fromEntries(Object.keys(TABLES).filter(x=>x!=='dashboard').map(name=>[name,name==='partners'?(all.contents||[]).filter(isPartnerRow).length:name==='contents'?(all.contents||[]).filter(row=>!isPartnerRow(row)).length:(all[name]||[]).length]))
   const clientOptions=[...seededClients,...(all.clients||[])].filter((item,index,array)=>array.findIndex(other=>(other.slug||other.id)===(item.slug||item.id))===index).map(item=>({...item,slug:item.slug||item.id}))
   const title=TABLES[table]
   const defaultOrder=Math.max(-1,...rows.map(row=>Number(row.order??-1)))+1
@@ -460,6 +502,7 @@ export default function AdminApp() {
   const publicLink = row => {
     if (table === 'projects' && row.slug) return `/work/${encodeURIComponent(row.slug)}`
     if (table === 'contents') return row.permalink || row.video || row.url || ''
+    if (table === 'partners') return row.permalink || row.url || ''
     if (table === 'behance_items') return row.url || ''
     if (table === 'clients') return row.website || row.url || ''
     return ''
@@ -479,8 +522,9 @@ export default function AdminApp() {
         {table==='dashboard'?<Dashboard all={all} onNavigate={setTable} onSeed={seedFallbacks} seeding={seeding}/>:<>
           {table==='behance_items'&&<BehanceSync rows={rows} onImported={loadAll}/>} 
           {table==='contents'&&<QuickReel clients={clientOptions} rows={rows} onSaved={loadAll}/>} 
+          {table==='partners'&&<QuickPartner rows={rows} onSaved={loadAll}/>} 
           <div className="admin-toolbar"><div className="admin-status" role="status" aria-live="polite">{status||`${rows.length} item(ns) · ${published} publicado(s)`}</div><div className="admin-toolbar-search"><input aria-label="Buscar" placeholder={`Buscar em ${title.label.toLowerCase()}…`} value={query} onChange={e=>setQuery(e.target.value)}/><select aria-label="Filtrar status" value={statusFilter} onChange={e=>setStatusFilter(e.target.value)}><option value="all">Todos</option><option value="published">Publicados</option><option value="draft">Rascunhos</option><option value="attention">Precisam de atenção</option></select></div><button onClick={()=>setSelected(null)}>+ NOVO ITEM</button></div>
-          <div className="admin-table-wrap"><table className="admin-table"><thead><tr><th>ORDEM</th><th>MÍDIA</th><th>ITEM</th><th>STATUS</th><th>AÇÕES</th></tr></thead><tbody>{filtered.map(row=>{const[label,tone]=readiness(row);const media=row.poster||row.cover||row.brand_poster||row.public_cover;return <tr key={row.id}><td><div className="order-controls"><button aria-label="Mover item para cima" onClick={()=>move(row,-1)}>↑</button><span>{row.order??'—'}</span><button aria-label="Mover item para baixo" onClick={()=>move(row,1)}>↓</button></div></td><td>{media?<img className="admin-thumb" src={media} alt="" onError={event=>{event.currentTarget.hidden=true}}/>:<div className="admin-thumb admin-thumb-empty">7</div>}</td><td><strong>{row.title||row.name||row.client||'Sem título'}</strong><small>{row.client||row.category||row.handle||row.slug||''}</small>{publicLink(row)&&<a className="admin-inline-link" href={publicLink(row)} target="_blank" rel="noreferrer">{table==='projects'?'VER CASE':table==='contents'?'ABRIR MÍDIA':table==='behance_items'?'VER BEHANCE':'ABRIR PRESENÇA'} ↗</a>}</td><td><div className="admin-status-stack"><span className={`readiness readiness-${tone}`}>{label}</span><button className={`publish-toggle ${row.active===false?'is-draft':'is-live'}`} onClick={()=>toggle(row)}>{row.active===false?'RASCUNHO':'PUBLICADO'}</button></div></td><td><div className="row-actions"><button onClick={()=>setSelected(row)}>Editar</button><button onClick={()=>duplicate(row)}>Duplicar</button><button className="danger" onClick={()=>remove(row)}>Excluir</button></div></td></tr>})}</tbody></table></div>
+          <div className="admin-table-wrap"><table className="admin-table"><thead><tr><th>ORDEM</th><th>MÍDIA</th><th>ITEM</th><th>STATUS</th><th>AÇÕES</th></tr></thead><tbody>{filtered.map(row=>{const[label,tone]=readiness(row);const media=row.poster||row.cover||row.brand_poster||row.public_cover;return <tr key={row.id}><td><div className="order-controls"><button aria-label="Mover item para cima" onClick={()=>move(row,-1)}>↑</button><span>{row.order??'—'}</span><button aria-label="Mover item para baixo" onClick={()=>move(row,1)}>↓</button></div></td><td>{media?<img className="admin-thumb" src={media} alt="" onError={event=>{event.currentTarget.hidden=true}}/>:<div className="admin-thumb admin-thumb-empty">7</div>}</td><td><strong>{row.title||row.name||row.client||'Sem título'}</strong><small>{row.client||row.category||row.handle||row.slug||''}</small>{publicLink(row)&&<a className="admin-inline-link" href={publicLink(row)} target="_blank" rel="noreferrer">{table==='projects'?'VER CASE':table==='contents'?'ABRIR MÍDIA':table==='partners'?'VER INSTAGRAM':table==='behance_items'?'VER BEHANCE':'ABRIR PRESENÇA'} ↗</a>}</td><td><div className="admin-status-stack"><span className={`readiness readiness-${tone}`}>{label}</span><button className={`publish-toggle ${row.active===false?'is-draft':'is-live'}`} onClick={()=>toggle(row)}>{row.active===false?'RASCUNHO':'PUBLICADO'}</button></div></td><td><div className="row-actions"><button onClick={()=>setSelected(row)}>Editar</button><button onClick={()=>duplicate(row)}>Duplicar</button><button className="danger" onClick={()=>remove(row)}>Excluir</button></div></td></tr>})}</tbody></table></div>
           <AdminItemCards rows={filtered} table={table} readiness={readiness} onEdit={setSelected} onToggle={toggle} onDuplicate={duplicate} onRemove={remove} onMove={move}/>
           {filtered.length===0&&<div className="admin-empty"><span>SEM RESULTADOS</span><b>Nada corresponde a este filtro.</b><button onClick={()=>{setQuery('');setStatusFilter('all')}}>LIMPAR FILTROS</button></div>}
         </>}

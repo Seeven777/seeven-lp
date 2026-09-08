@@ -5,13 +5,15 @@ import {
   featuredProjects as fallbackProjects,
   reels as fallbackReels,
   behanceProjects as fallbackBehance,
-  solutions as fallbackSolutions
+  solutions as fallbackSolutions,
+  partners as fallbackPartners
 } from './data'
 
 const projectThemes = ['orange', 'wine', 'acid', 'violet', 'steel', 'sky', 'event', 'music', 'food']
 const projectSizes = ['xl', 'md', 'md', 'lg', 'sm', 'sm']
 
 const text = (value, fallback = '') => String(value ?? fallback).trim()
+const isPartnerContent = item => /^(partner|parceiro|partners|parceiros)$/i.test(text(item?.category))
 
 function parseList(value) {
   if (Array.isArray(value)) return value.map(String).map(v => v.trim()).filter(Boolean)
@@ -56,11 +58,7 @@ function mergeClients(rows = []) {
     }
   })
 
-  const keys = new Set(normalized.flatMap(client => [String(client.id), client.name, client.handle].filter(Boolean)))
-  return [
-    ...normalized,
-    ...fallbackClients.filter(client => !keys.has(String(client.id)) && !keys.has(client.name) && !keys.has(client.handle))
-  ]
+  return normalized
 }
 
 function resolveClient(list, value) {
@@ -161,31 +159,16 @@ function mergeProjects(rows = [], clientList) {
     .sort((a, b) => Number(a.order ?? 999) - Number(b.order ?? 999))
   if (!active.length) return fallbackProjects
 
-  const dynamic = active.map((item, index) => normalizeProject(item, index, clientList))
-  const result = [...fallbackProjects]
-  const used = new Set()
-
-  dynamic.forEach((item, index) => {
-    let target = -1
-    // A slug is the canonical identity of a project. A new project for the
-    // same client must be appended instead of silently replacing the seeded
-    // case for that client. Client matching is kept only for legacy rows that
-    // predate slugs.
-    if (item._slug) target = result.findIndex((base, i) => !used.has(i) && base.id === item._slug)
-    if (target < 0 && !item._slug && item.clientId) target = result.findIndex((base, i) => !used.has(i) && base.clientId === item.clientId)
-
-    if (target >= 0) {
-      const base = result[target]
-      result[target] = { ...base, ...item, id: item._slug || base.id }
-      used.add(target)
-    } else {
-      const { _rawId, _slug, ...clean } = item
-      result.push({ ...clean, id: _slug || `cms-project-${_rawId || index}` })
-    }
-  })
-
-  return result
-    .map(({ _rawId, _slug, ...item }) => item)
+  return active
+    .map((item, index) => {
+      const normalized = normalizeProject(item, index, clientList)
+      const base = fallbackProjects.find(project =>
+        project.id === normalized._slug ||
+        (!normalized._slug && normalized.clientId && project.clientId === normalized.clientId)
+      ) || {}
+      const { _rawId, _slug, ...clean } = normalized
+      return { ...base, ...clean, id: _slug || clean.id || `cms-project-${_rawId || index}` }
+    })
     .sort((a, b) => Number(a.order ?? 999) - Number(b.order ?? 999))
     .slice(0, 36)
 }
@@ -217,10 +200,12 @@ function normalizeReel(item, index, clientList) {
 function mergeReels(rows = [], clientList) {
   const active = rows.filter(item => item?.active !== false)
   const reelLike = active.filter(item =>
+    !isPartnerContent(item) && (
     /reel|video|motion/i.test(text(item.category)) ||
     item.video || item.permalink || item.poster ||
     /instagram\.com\/(reel|tv|p)\//i.test(text(item.url)) ||
     /\.(mp4|webm)(\?|$)/i.test(text(item.url))
+    )
   )
 
   if (!reelLike.length) return fallbackReels
@@ -228,27 +213,11 @@ function mergeReels(rows = [], clientList) {
     .sort((a, b) => Number(a.order ?? 999) - Number(b.order ?? 999))
     .map((item, index) => normalizeReel(item, index, clientList))
 
-  const result = [...fallbackReels]
-  const perClientSlot = new Map()
+  return dynamic.map(({ _rawId, _slug, ...item }, index) => ({
+    ...item,
+    id: _slug || `cms-reel-${_rawId || index}`
+  }))
 
-  dynamic.forEach((item, index) => {
-    const count = perClientSlot.get(item.clientId) || 0
-    const candidates = result.map((reel, i) => ({ reel, i })).filter(({ reel }) => reel.clientId === item.clientId)
-    const target = candidates[count]?.i ?? -1
-    perClientSlot.set(item.clientId, count + 1)
-
-    if (target >= 0) {
-      const base = result[target]
-      result[target] = { ...base, ...item, id: item._slug || base.id }
-    } else {
-      const { _rawId, _slug, ...clean } = item
-      result.push({ ...clean, id: _slug || `cms-reel-${_rawId || index}` })
-    }
-  })
-
-  return result
-    .map(({ _rawId, _slug, ...item }) => item)
-    .sort((a, b) => Number(a.order ?? 999) - Number(b.order ?? 999))
 }
 
 function normalizeBehance(item, index) {
@@ -271,12 +240,11 @@ function mergeBehance(rows = []) {
     .sort((a, b) => Number(a.order ?? 999) - Number(b.order ?? 999))
   if (!active.length) return fallbackBehance
 
-  const byUrl = new Map(fallbackBehance.filter(item => item.url).map(item => [item.url, item]))
-  active.map(normalizeBehance).forEach(item => {
-    const key = item.url || `cms-${item.id}`
-    byUrl.set(key, { ...(byUrl.get(key) || {}), ...item })
+  return active.map((item, index) => {
+    const normalized = normalizeBehance(item, index)
+    const base = fallbackBehance.find(row => row.url && row.url === normalized.url) || {}
+    return { ...base, ...normalized }
   })
-  return [...byUrl.values()].sort((a, b) => Number(a.order ?? 999) - Number(b.order ?? 999))
 }
 
 function normalizeServices(rows = []) {
@@ -293,6 +261,25 @@ function normalizeServices(rows = []) {
   }))
 }
 
+function normalizePartners(rows = []) {
+  const active = rows
+    .filter(row => row?.active !== false && isPartnerContent(row))
+    .sort((a, b) => Number(a.order ?? 999) - Number(b.order ?? 999))
+  if (!active.length) return fallbackPartners
+
+  return active.map((row, index) => ({
+    id: text(row.slug || row.id, `partner-${index}`),
+    name: text(row.title || row.client, `Parceiro ${index + 1}`),
+    handle: text(row.client || row.description),
+    role: text(row.description, 'Parceiro Seeven'),
+    url: text(row.permalink || row.url),
+    cover: text(row.poster),
+    featured: Boolean(row.featured),
+    active: row.active !== false,
+    order: Number(row.order ?? index)
+  }))
+}
+
 export function useCmsContent() {
   const [content, setContent] = useState({
     clients: fallbackClients,
@@ -300,6 +287,7 @@ export function useCmsContent() {
     reels: fallbackReels,
     behance: fallbackBehance,
     services: fallbackSolutions,
+    partners: fallbackPartners,
     source: 'static',
     loading: Boolean(supabase),
     errors: []
@@ -334,6 +322,7 @@ export function useCmsContent() {
       const reelItems = map.contents.error ? fallbackReels : mergeReels(map.contents.data || [], clientList)
       const behance = map.behance_items.error ? fallbackBehance : mergeBehance(map.behance_items.data || [])
       const services = map.services.error ? fallbackSolutions : normalizeServices(map.services.data || [])
+      const partners = map.contents.error ? fallbackPartners : normalizePartners(map.contents.data || [])
       const anyCms = Object.values(map).some(result => !result.error && result.data?.length)
 
       setContent({
@@ -342,6 +331,7 @@ export function useCmsContent() {
         reels: reelItems,
         behance,
         services,
+        partners,
         source: anyCms ? 'supabase+fallback' : 'static',
         loading: false,
         errors

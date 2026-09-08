@@ -246,3 +246,7 @@ A experiência pública foi reformulada na V10. Consulte `V10_RELEASE.md` para d
 
 ### V10.2 / Presence System
 A revisão V10.2 amplia clareza comercial, casos Bento, amplitude digital/física e mídia real. Consulte `V10_2_RELEASE.md`.
+
+
+### V10.3 / Network & Clarity
+A V10.3 transforma a LP em uma vitrine comercial mais completa: arquivo vivo de marcas, Presence System com exemplos reais, mídia com fallback visual inteligente, URLs de cases funcionais e rede de 25 parceiros. Consulte `V10_3_RELEASE.md`.

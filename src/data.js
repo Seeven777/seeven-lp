@@ -158,6 +158,44 @@ export const reels = reelPlan.flatMap(([clientId, count]) => {
   })
 })
 
+
+
+export const partners = [
+  ['marquinhos-bastos','@marquinhos.bastos_','https://www.instagram.com/marquinhos.bastos_'],
+  ['japa-fotografia','@japafotografiaaa','https://www.instagram.com/japafotografiaaa'],
+  ['markle','@markle00','https://www.instagram.com/markle00'],
+  ['mansori-gerente','@mansori_gerente','https://www.instagram.com/mansori_gerente'],
+  ['abydallaxzz','@abydallaxzz','https://www.instagram.com/abydallaxzz'],
+  ['gabi-loreto','@gabiloretooficial','https://www.instagram.com/gabiloretooficial'],
+  ['nich-db','@nich.d.b','https://www.instagram.com/nich.d.b'],
+  ['leon-felsi','@leonfelsi','https://www.instagram.com/leonfelsi'],
+  ['japa-lino','@japa_lino_77','https://www.instagram.com/japa_lino_77'],
+  ['zanka-ddl','@zanka.ddl','https://www.instagram.com/zanka.ddl'],
+  ['dj-pikeno-beat','@djpikenobeat','https://www.instagram.com/djpikenobeat'],
+  ['dj-junindazo','@dj_junindazo','https://www.instagram.com/dj_junindazo'],
+  ['gustavo-alvarenga','@gustavooalvarengaa','https://www.instagram.com/gustavooalvarengaa'],
+  ['afantauva','@afantauva','https://www.instagram.com/afantauva'],
+  ['manda-camilo','@manda.camilo','https://www.instagram.com/manda.camilo'],
+  ['dj-hd','@djhd_oficial','https://www.instagram.com/djhd_oficial'],
+  ['dj-bh','@djbh_oficial','https://www.instagram.com/djbh_oficial'],
+  ['dj-everton','@djeverton.original','https://www.instagram.com/djeverton.original'],
+  ['ssarahlee','@_ssarahlee','https://www.instagram.com/_ssarahlee'],
+  ['dj-allan-zinho','@dj_allan_zinhoo','https://www.instagram.com/dj_allan_zinhoo'],
+  ['mariah-filippini','@mariahfilippini_','https://www.instagram.com/mariahfilippini_'],
+  ['vitao','@vitao_iluminadopordeus','https://www.instagram.com/vitao_iluminadopordeus'],
+  ['prilippimpim','@prilippimpim','https://www.instagram.com/prilippimpim'],
+  ['dj-camargo','@dj.camargo','https://www.instagram.com/dj.camargo'],
+  ['net-boy360','@net_boy360','https://www.instagram.com/net_boy360']
+].map(([id, handle, url], order) => ({
+  id,
+  name: handle.replace(/^@/, ''),
+  handle,
+  url,
+  role: 'Parceiro Seeven',
+  active: true,
+  order
+}))
+
 export const solutions = [
   {
     problem: 'Quero vender mais.',

@@ -1,4 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://seeven-lp.vercel.app/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
+  <url><loc>https://seeven-lp.vercel.app/work/sindpetshop-ecosystem</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://seeven-lp.vercel.app/work/venancio-social</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://seeven-lp.vercel.app/work/seon-identity</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://seeven-lp.vercel.app/work/eazy-experience</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://seeven-lp.vercel.app/work/czk-industrial</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://seeven-lp.vercel.app/work/mibis-food</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://seeven-lp.vercel.app/work/eventos-experience</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://seeven-lp.vercel.app/work/dicarias-music</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://seeven-lp.vercel.app/work/sabor-conversion</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://seeven-lp.vercel.app/work/pufinho-music</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://seeven-lp.vercel.app/work/salseiro-nightlife</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://seeven-lp.vercel.app/work/cajamar-fest</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
 </urlset>

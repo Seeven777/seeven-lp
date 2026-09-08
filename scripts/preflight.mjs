@@ -2,7 +2,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
-import { clients, featuredProjects } from '../src/data.js'
+import { clients, featuredProjects, partners } from '../src/data.js'
 
 const here = path.dirname(fileURLToPath(import.meta.url))
 const root = path.resolve(here, '..')
@@ -24,10 +24,13 @@ const pkg = JSON.parse(read('package.json'))
 // Data / public experience
 assert(clients.length >= 10, 'Base de clientes insuficiente.')
 assert(featuredProjects.length >= 8, 'Portfólio seeded insuficiente.')
+assert(partners.length >= 25, 'Rede de parceiros seeded insuficiente.')
 assert(/function Hero/.test(app) && /<Hero/.test(app), 'Hero V10 ausente.')
 assert(/function PresenceSystem/.test(app) && /<PresenceSystem/.test(app), 'Presence System V10 ausente.')
 assert(/function SelectedWork/.test(app) && /<SelectedWork/.test(app), 'Selected Work V10 ausente.')
 assert(/function BentoCase/.test(app), 'Case Study V10 ausente.')
+assert(/function WorkArchive/.test(app), 'Arquivo visual V10.3 ausente.')
+assert(/function Partners/.test(app) && /<Partners/.test(app), 'Rede de parceiros V10.3 ausente.')
 assert(/function Brief/.test(app), 'Brief rápido V10 ausente.')
 assert(/prefers-reduced-motion/.test(css), 'Fallback reduced motion ausente.')
 assert(/@media\s*\(max-width:900px\)|@media\s*\(max-width:\s*900px\)/.test(css), 'Layout mobile V10 ausente.')
@@ -43,7 +46,7 @@ assert(/friendlyAuthError/.test(admin), 'Tratamento de autenticação do Admin a
 assert(/aria-modal="true"/.test(admin), 'Acessibilidade de modal do Admin ausente.')
 
 // Deploy / repo
-assert(pkg.version === '10.2.0', `Versão esperada 10.2.0; atual ${pkg.version}.`)
+assert(pkg.version === '10.3.0', `Versão esperada 10.3.0; atual ${pkg.version}.`)
 assert(/node_modules\//.test(gitignore) && /dist\//.test(gitignore), '.gitignore incompleto.')
 assert(/X-Robots-Tag/.test(vercel) && /noindex/.test(vercel), '/admin sem noindex no Vercel.')
 assert(/X-Content-Type-Options/.test(vercel), 'Headers de segurança básicos ausentes.')
@@ -58,7 +61,8 @@ if (failures.length) {
   warnings.forEach(item => console.warn(`! ${item}`))
   process.exit(1)
 }
-console.log('SEE7VEN V10.2 / PREFLIGHT OK')
+console.log('SEE7VEN V10.3 / PREFLIGHT OK')
 console.log(`✓ ${clients.length} clientes seeded`)
 console.log(`✓ ${featuredProjects.length} projetos seeded`)
+console.log(`✓ ${partners.length} parceiros seeded`)
 warnings.forEach(item => console.warn(`! ${item}`))
