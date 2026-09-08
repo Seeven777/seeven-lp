@@ -1,10 +1,43 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useCmsContent } from './useCmsContent'
-import { caseStudies } from './data'
+import { caseStudies, projectIntelligence } from './data'
 
 const WA_KAREN = '5511971493985'
 const WA_GUSTAVO = '5511920626850'
 const arrow = '↗'
+
+const capabilityGroups = [
+  {
+    id: 'brand', label: 'Estratégia & Marca', accent: '#c9ff32',
+    lead: 'A ideia que organiza tudo antes da primeira peça.',
+    items: ['Posicionamento', 'Naming', 'Identidade visual', 'Brandbook', 'Direção criativa', 'Copy & campanha']
+  },
+  {
+    id: 'digital', label: 'Digital & Produto', accent: '#7b61ff',
+    lead: 'Experiências digitais que explicam, vendem e funcionam.',
+    items: ['Sites institucionais', 'Landing pages', 'E-commerce', 'UI/UX', 'Sistemas', 'Analytics']
+  },
+  {
+    id: 'growth', label: 'Conteúdo & Performance', accent: '#ff7a1a',
+    lead: 'Presença recorrente com mensagem, distribuição e leitura de resultado.',
+    items: ['Planejamento', 'Social media', 'Criativos', 'Tráfego pago', 'SEO', 'Campanhas']
+  },
+  {
+    id: 'motion', label: 'Motion & Audiovisual', accent: '#73cfff',
+    lead: 'Quando a ideia precisa ganhar ritmo, som e tempo.',
+    items: ['Reels', 'Vídeo institucional', 'Captação', 'Edição', 'Motion 2D/3D', 'Comerciais']
+  },
+  {
+    id: 'physical', label: 'Físico & Experiência', accent: '#f4c63d',
+    lead: 'A marca continua existindo quando a tela termina.',
+    items: ['Impressos', 'PDV', 'Embalagens', 'Sinalização', 'Eventos', 'Cenografia & brindes']
+  },
+  {
+    id: 'tech', label: 'Tecnologia & Automação', accent: '#58f5d0',
+    lead: 'Integrações e inteligência para a operação não depender de improviso.',
+    items: ['Dashboards', 'Automações', 'Integrações', 'Formulários', 'CRM & jornadas', 'IA aplicada']
+  }
+]
 
 function track(event, detail = {}) {
   try {
@@ -31,7 +64,11 @@ function useSectionProgress(ref) {
     update()
     window.addEventListener('scroll', onScroll, { passive: true })
     window.addEventListener('resize', onScroll)
-    return () => { cancelAnimationFrame(raf); window.removeEventListener('scroll', onScroll); window.removeEventListener('resize', onScroll) }
+    return () => {
+      cancelAnimationFrame(raf)
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', onScroll)
+    }
   }, [ref])
   return progress
 }
@@ -63,6 +100,20 @@ function LogoMark() {
   return <span className="v10-logo" aria-label="Seeven"><i>7</i><b>SEE7VEN</b></span>
 }
 
+function normalizeText(value = '') { return String(value || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ') }
+
+function pickVisual(project, clients, behance) {
+  if (!project) return ''
+  if (project.cover) return project.cover
+  const client = clients.find(c => c.id === project.clientId) || {}
+  const needle = normalizeText(project.client || client.name)
+  const related = behance.find(item => {
+    const hay = normalizeText(`${item.client || ''} ${item.title || ''}`)
+    return needle && (hay.includes(needle) || needle.split(' ').some(word => word.length > 4 && hay.includes(word)))
+  })
+  return related?.cover || client.publicCover || client.brandPoster || ''
+}
+
 function Header({ onBrief }) {
   const [open, setOpen] = useState(false)
   useBodyLock(open)
@@ -70,7 +121,10 @@ function Header({ onBrief }) {
     <header className="v10-header">
       <a href="#top" className="v10-brand"><LogoMark/></a>
       <nav className="v10-nav" aria-label="Principal">
-        <a href="#work">Projetos</a><a href="#system">Sistema</a><a href="#contact">Contato</a>
+        <a href="#work">Projetos</a>
+        <a href="#capabilities">O que fazemos</a>
+        <a href="#system">Sistema</a>
+        <a href="#contact">Contato</a>
       </nav>
       <button className="v10-start" onClick={() => onBrief()}>Começar projeto <span>{arrow}</span></button>
       <button className="v10-menu-btn" aria-expanded={open} onClick={() => setOpen(v => !v)}>{open ? 'FECHAR' : 'MENU'}</button>
@@ -78,57 +132,106 @@ function Header({ onBrief }) {
     <div className={`v10-menu ${open ? 'is-open' : ''}`} aria-hidden={!open}>
       <div className="v10-menu-inner">
         <span className="v10-kicker">NAVEGAÇÃO</span>
-        {[['01','Projetos','#work'],['02','Como pensamos','#system'],['03','Motion','#motion'],['04','Contato','#contact']].map(([n,l,h]) => <a key={h} href={h} onClick={() => setOpen(false)}><small>{n}</small><strong>{l}</strong><span>↘</span></a>)}
+        {[['01','Projetos','#work'],['02','O que fazemos','#capabilities'],['03','Como pensamos','#system'],['04','Motion','#motion'],['05','Contato','#contact']].map(([n,l,h]) => <a key={h} href={h} onClick={() => setOpen(false)}><small>{n}</small><strong>{l}</strong><span>↘</span></a>)}
         <button onClick={() => { setOpen(false); onBrief() }}>Tenho um projeto em mente <span>{arrow}</span></button>
       </div>
     </div>
   </>
 }
 
-function Hero({ projects }) {
+function Hero({ projects, clients, behance }) {
   const ref = useRef(null)
   const progress = useSectionProgress(ref)
   const featured = projects.slice(0, 5)
-  const phase = clamp(progress * 1.35)
+  const phase = clamp(progress * 1.28)
   return <section className="v10-hero" id="top" ref={ref} style={{ '--p': phase }}>
     <div className="v10-hero-sticky">
       <div className="v10-ambient"/>
-      <div className="v10-hero-meta"><span>CREATIVE PRESENCE STUDIO</span><span>SÃO PAULO · BRASIL</span><span>EST. 2024</span></div>
+      <div className="v10-hero-meta"><span>CREATIVE PRESENCE STUDIO</span><span>SÃO PAULO · BRASIL</span><span>DIGITAL ↔ FÍSICO</span></div>
       <div className="v10-hero-copy">
-        <span className="v10-kicker">ESTRATÉGIA · DESIGN · TECNOLOGIA</span>
-        <h1><span>MARCAS</span><span>PRECISAM DE</span><em>PRESENÇA.</em></h1>
-        <p>Construímos sistemas de marca que conectam estratégia, identidade, conteúdo, web, motion e mundo físico.</p>
+        <span className="v10-kicker">ESTRATÉGIA · DESIGN · CONTEÚDO · TECNOLOGIA</span>
+        <h1><span>TUDO QUE</span><span>UMA MARCA</span><em>PRECISA.</em></h1>
+        <p>Da estratégia ao site. Do reel ao impresso. Da campanha ao evento. Criamos, conectamos e colocamos a marca no mundo.</p>
+        <div className="v10-hero-tags"><span>Branding</span><span>Web</span><span>Social</span><span>Motion</span><span>Performance</span><span>Físico</span></div>
       </div>
-      <div className="v10-orbit" aria-hidden="true">
+      <div className="v10-orbit" aria-label="Projetos conectados pela Seeven">
         {featured.map((project, i) => {
-          const client = project.client || 'SEE7VEN'
+          const client = clients.find(c => c.id === project.clientId) || {}
+          const visual = pickVisual(project, clients, behance)
           const angle = (i / Math.max(featured.length, 1)) * Math.PI * 2
           const x = 50 + Math.cos(angle) * 37
           const y = 50 + Math.sin(angle) * 31
-          return <div className="v10-orbit-node" key={project.id} style={{ '--x': `${x}%`, '--y': `${y}%`, '--delay': i }}><i/><span>{client}</span></div>
+          return <a href="#work" className="v10-orbit-node" key={project.id} style={{ '--x': `${x}%`, '--y': `${y}%`, '--delay': i, '--accent': client.accent || '#c9ff32' }}>
+            {visual ? <SmartImage src={visual} alt="" loading="lazy"/> : <i/>}
+            <span>{project.client || client.name || 'Projeto'}</span>
+          </a>
         })}
         <div className="v10-orbit-core"><LogoMark/><small>ONE CONNECTED SYSTEM</small></div>
       </div>
-      <a href="#system" className="v10-scroll-cue"><i/><span>Role para explorar</span></a>
+      <a href="#capabilities" className="v10-scroll-cue"><i/><span>Role para explorar</span></a>
     </div>
   </section>
 }
 
-const nodes = [
-  ['Estratégia','Direção antes da execução'],['Branding','Identidade reconhecível'],['Conteúdo','Consistência que se move'],
-  ['Web','Experiências que convertem'],['Motion','Ideias com ritmo'],['Físico','Presença fora da tela']
+function CapabilityUniverse({ onBrief }) {
+  const [active, setActive] = useState(0)
+  const group = capabilityGroups[active]
+  return <section className="v10-universe" id="capabilities" style={{ '--accent': group.accent }}>
+    <div className="v10-universe-head">
+      <span className="v10-kicker">01 / O QUE FAZEMOS</span>
+      <h2>Do pixel ao papel.<br/><em>E tudo entre eles.</em></h2>
+      <p>Você não precisa chegar sabendo qual serviço contratar. Pode chegar com uma meta, um problema ou uma ideia. A gente monta o conjunto certo.</p>
+    </div>
+    <div className="v10-universe-shell">
+      <div className="v10-universe-tabs" role="group" aria-label="Áreas de atuação">
+        {capabilityGroups.map((item, i) => <button key={item.id} className={active === i ? 'is-active' : ''} onClick={() => setActive(i)} onMouseEnter={() => setActive(i)}>
+          <small>0{i+1}</small><strong>{item.label}</strong><span>↗</span>
+        </button>)}
+      </div>
+      <div className="v10-universe-detail">
+        <div className="v10-universe-number">0{active+1}</div>
+        <span className="v10-kicker">{group.label}</span>
+        <h3>{group.lead}</h3>
+        <div className="v10-universe-items">{group.items.map(item => <span key={item}>{item}</span>)}</div>
+        <button onClick={() => onBrief(group.label)}>Preciso disso {arrow}</button>
+      </div>
+    </div>
+    <div className="v10-universe-foot"><span>UMA AGÊNCIA.</span><span>VÁRIAS DISCIPLINAS.</span><strong>UM SISTEMA.</strong></div>
+  </section>
+}
+
+const systemNodes = [
+  ['Estratégia','Direção antes da execução','Estratégia'],
+  ['Branding','Identidade reconhecível','Branding'],
+  ['Conteúdo','Consistência que se move','Social'],
+  ['Web','Experiências que convertem','Web'],
+  ['Motion','Ideias com ritmo','Vídeo'],
+  ['Físico','Presença fora da tela','Eventos']
 ]
 
-function PresenceSystem() {
+function PresenceSystem({ projects, clients, behance }) {
   const ref = useRef(null)
   const p = useSectionProgress(ref)
-  const active = Math.min(nodes.length - 1, Math.floor(clamp(p * 1.02) * nodes.length))
+  const scrollActive = Math.min(systemNodes.length - 1, Math.floor(clamp(p * 1.01) * systemNodes.length))
+  const [manual, setManual] = useState(null)
+  const active = manual ?? scrollActive
+  const [title, desc, tag] = systemNodes[active]
+  const related = projects.find(project => (project.tags || []).some(t => normalizeText(t).includes(normalizeText(tag)))) || projects[active] || projects[0]
+  const visual = pickVisual(related, clients, behance)
   return <section className="v10-system" id="system" ref={ref} style={{ '--p': p }}>
     <div className="v10-system-sticky">
-      <div className="v10-section-head"><span className="v10-kicker">02 / PRESENCE SYSTEM</span><h2>Uma marca.<br/><em>Muitos pontos de contato.</em></h2><p>O valor não está em fazer mais peças. Está em fazer cada ponto reforçar o mesmo posicionamento.</p></div>
+      <div className="v10-section-head">
+        <span className="v10-kicker">02 / PRESENCE SYSTEM</span>
+        <h2>Uma marca.<br/><em>Muitos pontos de contato.</em></h2>
+        <p>Não fazemos canais competirem entre si. Fazemos estratégia, conteúdo, tecnologia e execução física reforçarem a mesma percepção.</p>
+      </div>
       <div className="v10-network" aria-label="Mapa de capacidades">
+        <div className="v10-network-preview">
+          {visual ? <SmartImage src={visual} alt="" loading="lazy"/> : null}
+          <div><small>AGORA / {String(active+1).padStart(2,'0')}</small><strong>{title}</strong><span>{desc}</span></div>
+        </div>
         <div className="v10-network-core"><b>SEE7VEN</b><small>PRESENCE<br/>SYSTEM</small></div>
-        {nodes.map(([title,desc], i) => <div key={title} className={`v10-service-node n${i+1} ${i === active ? 'is-active' : ''}`}><span>{String(i+1).padStart(2,'0')}</span><b>{title}</b><small>{desc}</small></div>)}
+        {systemNodes.map(([nodeTitle,nodeDesc], i) => <button key={nodeTitle} onMouseEnter={() => setManual(i)} onMouseLeave={() => setManual(null)} onFocus={() => setManual(i)} onBlur={() => setManual(null)} onClick={() => setManual(i)} className={`v10-service-node n${i+1} ${i === active ? 'is-active' : ''}`}><span>{String(i+1).padStart(2,'0')}</span><b>{nodeTitle}</b><small>{nodeDesc}</small></button>)}
         <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d="M50 50 L18 20 M50 50 L50 13 M50 50 L82 22 M50 50 L17 76 M50 50 L50 88 M50 50 L84 76"/></svg>
       </div>
       <div className="v10-system-count"><strong>0{active+1}</strong><span>/ 06</span></div>
@@ -136,8 +239,8 @@ function PresenceSystem() {
   </section>
 }
 
-function ProjectMedia({ project, client }) {
-  const cover = project.cover || client?.publicCover || client?.brandPoster
+function ProjectMedia({ project, client, visual }) {
+  const cover = visual || project.cover || client?.publicCover || client?.brandPoster
   return <div className="v10-project-media" style={{ '--accent': client?.accent || project.accent || '#b7ff35' }}>
     {cover ? <SmartImage src={cover} alt="" loading="lazy"/> : null}
     <div className="v10-project-shape"><span>{project.client?.slice(0,1) || '7'}</span></div>
@@ -145,29 +248,146 @@ function ProjectMedia({ project, client }) {
   </div>
 }
 
-function SelectedWork({ projects, clients, onOpen }) {
+function SelectedWork({ projects, clients, behance, onOpen }) {
   const top = projects.slice(0, 6)
   return <section className="v10-work" id="work">
-    <div className="v10-work-intro"><span className="v10-kicker">03 / SELECTED WORK</span><h2>O trabalho<br/>fala <em>primeiro.</em></h2><p>Projetos em contextos diferentes. Uma constante: construir uma presença que faça sentido para a marca e para quem está do outro lado.</p></div>
+    <div className="v10-work-intro">
+      <span className="v10-kicker">03 / SELECTED WORK</span>
+      <h2>Não mostramos<br/>só <em>peças.</em></h2>
+      <p>Mostramos problemas, decisões e sistemas. Porque o visual é consequência do que a marca precisava resolver.</p>
+    </div>
     <div className="v10-work-list">
       {top.map((project, i) => {
         const client = clients.find(c => c.id === project.clientId) || {}
+        const visual = pickVisual(project, clients, behance)
         return <article className="v10-project" key={project.id} style={{ '--accent': client.accent || '#b7ff35' }}>
           <button className="v10-project-hit" onClick={() => onOpen(project)} aria-label={`Abrir case ${project.client}`}/>
           <div className="v10-project-index"><span>{String(i+1).padStart(2,'0')}</span><small>{project.label || 'PROJECT'}</small></div>
-          <ProjectMedia project={project} client={client}/>
-          <div className="v10-project-copy"><h3>{project.client}</h3><p>{project.title}</p><div>{(project.tags || []).slice(0,4).map(tag => <span key={tag}>{tag}</span>)}</div><button onClick={() => onOpen(project)}>Explorar case {arrow}</button></div>
+          <ProjectMedia project={project} client={client} visual={visual}/>
+          <div className="v10-project-copy"><h3>{project.client}</h3><p>{project.title}</p><div>{(project.tags || []).slice(0,4).map(tag => <span key={tag}>{tag}</span>)}</div><button onClick={() => onOpen(project)}>Ver raciocínio {arrow}</button></div>
         </article>
       })}
     </div>
   </section>
 }
 
-function BentoCase({ project, clients, onClose, onBrief }) {
+function ThinkingBento({ behance }) {
+  const visual = behance[4]?.cover || behance[0]?.cover || ''
+  return <section className="v10-thinking">
+    <div className="v10-thinking-head"><span className="v10-kicker">04 / COMO PENSAMOS</span><h2>Você chega com um problema.<br/><em>A gente conecta o resto.</em></h2></div>
+    <div className="v10-thinking-bento">
+      <div className="v10-thinking-left">
+        {[['01','Informação demais','Muita coisa para dizer e pouca hierarquia para decidir o que vem primeiro.'],['02','Jornada confusa','Site, social, anúncio, atendimento e material físico parecem marcas diferentes.'],['03','Execução sem sistema','A produção cresce, mas a percepção da marca não cresce junto.']].map(([n,t,d]) => <article key={n}><span>{n}</span><div><strong>{t}</strong><p>{d}</p></div></article>)}
+        <div className="v10-thinking-chart"><strong>Challenge</strong><svg viewBox="0 0 260 100" aria-hidden="true"><path d="M8 84 L48 64 L88 72 L128 40 L168 51 L208 18 L252 30"/><line x1="8" y1="84" x2="252" y2="84"/></svg><small>RUÍDO → CLAREZA</small></div>
+      </div>
+      <div className="v10-thinking-visual">
+        {visual ? <SmartImage src={visual} alt="Projeto Seeven" loading="lazy"/> : <div className="v10-thinking-silhouette"/>}
+        <div className="v10-thinking-overlay"><LogoMark/><span>FOCUSED ACTIONS</span><strong>Menos ruído.<br/>Mais presença.</strong></div>
+      </div>
+      <div className="v10-thinking-right">
+        <div className="v10-thinking-decision"><span>DESIGN DECISION</span><strong>Uma lógica antes<br/>de muitos formatos.</strong><i>7</i></div>
+        <div className="v10-thinking-decisions">
+          <p>Estratégia antes de produzir.</p>
+          <p>Uma linguagem que funciona em todos os canais.</p>
+          <p>Execução do digital ao físico sem perder consistência.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+}
+
+function Capabilities({ services, onBrief }) {
+  const [active, setActive] = useState(0)
+  const fallback = [
+    { problem: 'Quero vender mais.', answer: 'Estratégia, mídia, conteúdo e uma jornada digital que leve interesse até ação.', stack: ['Performance','Conteúdo','Landing page'] },
+    { problem: 'Minha marca parece pequena.', answer: 'Posicionamento e consistência para a percepção acompanhar a qualidade do que você entrega.', stack: ['Branding','Direção','Sistema'] },
+    { problem: 'Ninguém entende o que fazemos.', answer: 'Mensagem, hierarquia e experiência para tornar o complexo simples de comprar.', stack: ['Estratégia','Copy','Web'] }
+  ]
+  const items = (services?.length ? services : fallback).slice(0, 6)
+  const safeActive = Math.min(active, Math.max(items.length - 1, 0))
+  const item = items[safeActive] || fallback[0]
+  return <section className="v10-capabilities">
+    <div className="v10-cap-title"><span className="v10-kicker">05 / COMECE PELO PROBLEMA</span><h2>Não sabe o nome<br/>do serviço? <em>Melhor ainda.</em></h2></div>
+    <div className="v10-cap-grid">
+      <div className="v10-cap-menu">{items.map((row,i) => <button key={`${row.problem}-${i}`} className={safeActive===i?'is-active':''} onClick={() => setActive(i)}><small>0{i+1}</small><strong>{row.problem}</strong><span>+</span></button>)}</div>
+      <div className="v10-cap-detail"><span className="v10-kicker">RESPOSTA / {String(safeActive+1).padStart(2,'0')}</span><h3>{item.problem}</h3><p>{item.answer}</p><div>{(item.stack || []).map(x => <span key={x}>{x}</span>)}</div><button onClick={() => onBrief(item.problem)}>Vamos resolver isso {arrow}</button></div>
+    </div>
+  </section>
+}
+
+function Motion({ reels, clients, behance }) {
+  const items = reels.slice(0, 10)
+  return <section className="v10-motion" id="motion">
+    <div className="v10-motion-head"><span className="v10-kicker">06 / MOTION & CONTENT</span><h2>Algumas ideias<br/><em>precisam se mover.</em></h2><p>Conteúdo, campanha e vídeo não entram no fim. Entram quando movimento é a melhor forma de fazer a ideia chegar.</p></div>
+    <div className="v10-motion-stage">
+      {items.map((reel,i) => {
+        const client = clients.find(c=>c.id===reel.clientId)||{}
+        const related = behance.find(item => normalizeText(item.client).includes(normalizeText(reel.client).split(' ')[0]))
+        const poster = reel.poster || related?.cover || client.brandPoster
+        const href = safeLink(reel.permalink||reel.url||client.url)
+        return <a key={reel.id} href={href||'#work'} target={href?'_blank':undefined} rel="noreferrer" className={`v10-motion-card ${i===0?'is-featured':''}`} style={{'--accent':reel.accent||client.accent||'#765bff'}}>
+          <div>{poster ? <SmartImage src={poster} alt="" loading="lazy"/> : <span className="v10-motion-seven">7</span>}<i>▶</i><em>{String(i+1).padStart(2,'0')}</em></div>
+          <small>{reel.client}</small><strong>{reel.title}</strong>
+        </a>
+      })}
+    </div>
+  </section>
+}
+
+function Proof({ behance, clients }) {
+  const visualItems = behance.slice(0, 7)
+  return <section className="v10-proof">
+    <div className="v10-proof-copy"><span className="v10-kicker">07 / DO DIGITAL AO FÍSICO</span><h2>Uma ideia.<br/><em>Vários formatos.</em></h2><p>Site, campanha, feed, vídeo, apresentação, impresso, evento, sinalização. O formato muda. A lógica da marca continua.</p></div>
+    <div className="v10-proof-wall">
+      {visualItems.map((item,i) => <a key={item.id || i} href={safeLink(item.url)||'#work'} target={safeLink(item.url)?'_blank':undefined} rel="noreferrer" className={`v10-proof-tile t${i+1}`}><SmartImage src={item.cover} alt={item.title || item.client || 'Projeto Seeven'} loading="lazy"/><span><small>{item.client}</small><strong>{item.title}</strong></span></a>)}
+      <div className="v10-proof-tile v10-proof-cap"><strong>PIXEL</strong><span>↔</span><strong>PAPEL</strong><small>e tudo entre eles</small></div>
+    </div>
+    <div className="v10-proof-logos">{clients.slice(0,8).map(client => <span key={client.id}>{client.name}</span>)}</div>
+  </section>
+}
+
+function CaseBentoStory({ project, study, intelligence, visual }) {
+  const focus = intelligence?.focus || ['Clareza','Sistema','Escala']
+  const signal = intelligence?.signal || [64,72,82,70,91,86]
+  return <section className="v10-case-story">
+    <div className="v10-case-story-head"><span className="v10-kicker">RACIOCÍNIO / CASE</span><h2>O visual é a última parte<br/>de uma <em>boa decisão.</em></h2></div>
+    <div className="v10-case-story-grid">
+      <div className="v10-case-story-left">
+        {[
+          ['01','Contexto', intelligence?.context || study.challenge],
+          ['02','Insight', intelligence?.insight || 'Encontrar a ideia que simplifica decisões e organiza prioridades.'],
+          ['03','Restrição', intelligence?.constraint || 'Resolver o problema sem criar ruído novo.']
+        ].map(([n,t,d]) => <article key={n}><span>{n}</span><div><strong>{t}</strong><p>{d}</p></div></article>)}
+        <div className="v10-case-signal"><span>CHALLENGE</span><div>{signal.map((value,i)=><i key={i} style={{height:`${Math.max(18,value)}%`}}/> )}</div><small>{focus.join(' · ')}</small></div>
+      </div>
+      <div className="v10-case-story-visual">
+        {visual ? <SmartImage src={visual} alt="" loading="lazy"/> : null}
+        <div><LogoMark/><small>{project.client}</small><strong>{intelligence?.objective || study.headline || project.title}</strong></div>
+      </div>
+      <div className="v10-case-story-right">
+        <div className="v10-case-decision-hero"><span>DESIGN DECISION</span><strong>{intelligence?.decision || study.strategy}</strong><i>7</i></div>
+        <div className="v10-case-decision-list">
+          <p>{intelligence?.system || (study.execution || []).join(' → ')}</p>
+          <p>{intelligence?.result || study.result}</p>
+          <p>{(intelligence?.channels || study.execution || []).join(' · ')}</p>
+        </div>
+      </div>
+    </div>
+  </section>
+}
+
+function BentoCase({ project, clients, behance, onClose, onBrief }) {
   const client = clients.find(c => c.id === project.clientId) || {}
   const study = project.caseStudy || caseStudies[project.id] || {}
+  const intelligence = projectIntelligence.find(item => item.id === project.id)
   const source = safeLink(study.source || project.href || client.website || client.url)
-  const accent = study.accent || client.accent || '#b7ff35'
+  const accent = study.accent || intelligence?.accent || client.accent || '#b7ff35'
+  const visual = pickVisual(project, clients, behance)
+  const gallery = behance.filter(item => {
+    const a = normalizeText(item.client)
+    const b = normalizeText(project.client)
+    return b && (a.includes(b) || b.split(' ').some(word => word.length > 4 && a.includes(word)))
+  }).slice(0,4)
   useBodyLock(Boolean(project))
   useEffect(() => {
     const close = e => { if (e.key === 'Escape') onClose() }
@@ -178,56 +398,24 @@ function BentoCase({ project, clients, onClose, onBrief }) {
     <header><LogoMark/><button onClick={onClose}>Fechar <span>×</span></button></header>
     <main>
       <section className="v10-case-hero">
-        <div><span className="v10-kicker">{project.label || 'CASE STUDY'}</span><h1>{study.headline || project.title}</h1><p>{study.intro || project.summary}</p></div>
-        <ProjectMedia project={project} client={client}/>
+        <div><span className="v10-kicker">{study.eyebrow || project.label || 'CASE STUDY'}</span><h1>{study.headline || project.title}</h1><p>{study.intro || project.summary}</p><div className="v10-case-tags">{(study.execution || project.tags || []).map(item => <span key={item}>{item}</span>)}</div></div>
+        <ProjectMedia project={project} client={client} visual={visual}/>
       </section>
-      <section className="v10-case-bento">
-        <article className="problem"><small>01 / DESAFIO</small><h2>{study.challenge || 'Transformar comunicação fragmentada em uma presença coerente e fácil de reconhecer.'}</h2></article>
-        <article className="decision"><small>02 / DECISÃO</small><p>{study.strategy || 'Reduzir ruído, definir hierarquia e fazer cada ponto de contato trabalhar como parte do mesmo sistema.'}</p></article>
-        <article className="system"><small>03 / SISTEMA</small><div>{(study.execution?.length ? study.execution : project.tags || ['Estratégia','Identidade','Conteúdo','Digital']).map((item,i) => <span key={`${item}-${i}`}>{String(i+1).padStart(2,'0')} {item}</span>)}</div></article>
-        <article className="result"><small>04 / RESULTADO</small><h2>{study.result || project.summary}</h2>{study.proof?.length ? <ul>{study.proof.slice(0,4).map(item => <li key={item}>{item}</li>)}</ul> : null}</article>
-      </section>
+      <CaseBentoStory project={project} study={study} intelligence={intelligence} visual={visual}/>
+      {gallery.length ? <section className="v10-case-gallery"><div><span className="v10-kicker">PRESENÇA EM ESCALA</span><h2>Uma ideia não termina<br/>no primeiro formato.</h2></div><div>{gallery.map(item => <a key={item.id} href={safeLink(item.url)} target="_blank" rel="noreferrer"><SmartImage src={item.cover} alt={item.title} loading="lazy"/><span>{item.title}</span></a>)}</div></section> : null}
       <section className="v10-case-end"><span>DO PIXEL AO PAPEL.</span><h2>Uma ideia só ganha força<br/>quando <em>vira presença.</em></h2><div>{source ? <a href={source} target="_blank" rel="noreferrer">Ver presença pública {arrow}</a> : null}<button onClick={() => { onClose(); onBrief(`Projeto parecido com ${project.client}`) }}>Quero construir algo assim {arrow}</button></div></section>
     </main>
   </div>
 }
 
-function Capabilities({ services, onBrief }) {
-  const [active, setActive] = useState(0)
-  const fallback = nodes.map(([title, desc]) => ({ problem: title, answer: desc, stack: [] }))
-  const items = (services?.length ? services : fallback).slice(0, 6)
-  return <section className="v10-capabilities">
-    <div className="v10-cap-title"><span className="v10-kicker">04 / CAPABILITIES</span><h2>Não vendemos uma lista.<br/><em>Montamos o sistema certo.</em></h2></div>
-    <div className="v10-cap-grid">
-      <div className="v10-cap-menu">{items.map((item,i) => <button key={`${item.problem}-${i}`} className={active===i?'is-active':''} onClick={() => setActive(i)}><small>0{i+1}</small><strong>{item.problem}</strong><span>+</span></button>)}</div>
-      <div className="v10-cap-detail"><span className="v10-kicker">FOCO / {String(active+1).padStart(2,'0')}</span><h3>{items[active]?.problem}</h3><p>{items[active]?.answer}</p><div>{(items[active]?.stack || []).map(x => <span key={x}>{x}</span>)}</div><button onClick={() => onBrief(items[active]?.problem)}>Conversar sobre isso {arrow}</button></div>
-    </div>
-  </section>
-}
-
-function Motion({ reels, clients }) {
-  const usable = reels.filter(r => r.poster || r.video || r.permalink || r.url).slice(0, 8)
-  const fallback = reels.slice(0, 8)
-  const items = usable.length >= 4 ? usable : fallback
-  return <section className="v10-motion" id="motion">
-    <div className="v10-motion-head"><span className="v10-kicker">05 / MOTION & CONTENT</span><h2>Algumas ideias<br/><em>precisam se mover.</em></h2></div>
-    <div className="v10-marquee"><div>{[...items,...items].map((reel,i) => { const client=clients.find(c=>c.id===reel.clientId)||{}; const href=safeLink(reel.permalink||reel.url||client.url); return <a key={`${reel.id}-${i}`} href={href||'#work'} target={href?'_blank':undefined} rel="noreferrer" className="v10-motion-card" style={{'--accent':reel.accent||client.accent||'#765bff'}}><div>{reel.poster ? <SmartImage src={reel.poster} alt="" loading="lazy"/> : <span className="v10-motion-seven">7</span>}<i>▶</i></div><small>{reel.client}</small><strong>{reel.title}</strong></a>})}</div></div>
-  </section>
-}
-
-function Proof({ clients }) {
-  return <section className="v10-proof">
-    <div><span className="v10-kicker">06 / TRUST</span><h2>Design chama atenção.<br/><em>Consistência constrói valor.</em></h2></div>
-    <div className="v10-client-cloud">{clients.slice(0,11).map(client => <span key={client.id}>{client.brandPoster ? <SmartImage src={client.brandPoster} alt={client.name} loading="lazy"/> : client.name}</span>)}</div>
-  </section>
-}
-
 function Contact({ onBrief }) {
   const text = encodeURIComponent('Olá! Conheci a Seeven pelo site e quero conversar sobre um projeto.')
+  const quick = ['Marca / identidade','Site / landing / sistema','Campanha / mídia','Conteúdo / social','Vídeo / motion','Impresso / evento','Ainda não sei']
   return <section className="v10-contact" id="contact">
-    <span className="v10-kicker">07 / START SOMETHING</span>
-    <h2>A sua marca<br/>já tem <em>presença?</em></h2>
-    <p>Conte o que você está construindo. A gente organiza o problema, encontra a direção e transforma isso em um sistema que funciona.</p>
+    <span className="v10-kicker">08 / START SOMETHING</span>
+    <h2>O que a sua marca<br/><em>precisa agora?</em></h2>
+    <p>Escolha um ponto de partida ou simplesmente conte o problema. A gente organiza o resto.</p>
+    <div className="v10-contact-quick">{quick.map(item => <button key={item} onClick={() => onBrief(item)}>{item}<span>+</span></button>)}</div>
     <button className="v10-contact-main" onClick={() => onBrief()}>Começar um projeto <span>{arrow}</span></button>
     <div className="v10-contact-people">
       <a href={`https://wa.me/${WA_GUSTAVO}?text=${text}`} target="_blank" rel="noreferrer"><small>DIREÇÃO</small><strong>Gustavo</strong><span>+55 11 92062-6850 {arrow}</span></a>
@@ -242,7 +430,7 @@ function Brief({ open, onClose, initial = '' }) {
   useBodyLock(open)
   useEffect(() => { if (open) { setStep(0); setForm(v => ({...v, need: initial || v.need})) } }, [open, initial])
   if (!open) return null
-  const choices = ['Marca / identidade','Site / landing page','Conteúdo / social','Campanha','Motion / vídeo','Ainda não sei']
+  const choices = ['Marca / identidade','Site / landing / sistema','Conteúdo / social','Campanha / mídia','Vídeo / motion','Impresso / evento','Tecnologia / automação','Ainda não sei']
   const send = () => {
     const message = `Olá! Quero conversar sobre um projeto com a Seeven.\n\nPreciso de: ${form.need || '-'}\nMarca/empresa: ${form.company || '-'}\nPrazo: ${form.timing || '-'}\nMeu nome: ${form.name || '-'}`
     track('brief_completed', { need: form.need })
@@ -279,20 +467,22 @@ export default function App() {
     meta.content = '#0a0a0a'
     return () => document.documentElement.classList.remove('seeven-v10')
   }, [])
-  useEffect(() => { track('page_view',{source:cms.source,version:'v10'}) }, [cms.source])
+  useEffect(() => { track('page_view',{source:cms.source,version:'v10.2'}) }, [cms.source])
   return <div className="v10-shell">
     <Header onBrief={openBrief}/>
     <main>
-      <Hero projects={cms.projects}/>
-      <PresenceSystem/>
-      <SelectedWork projects={cms.projects} clients={cms.clients} onOpen={p=>{setCaseProject(p);track('case_opened',{project:p.id})}}/>
+      <Hero projects={cms.projects} clients={cms.clients} behance={cms.behance}/>
+      <CapabilityUniverse onBrief={openBrief}/>
+      <PresenceSystem projects={cms.projects} clients={cms.clients} behance={cms.behance}/>
+      <SelectedWork projects={cms.projects} clients={cms.clients} behance={cms.behance} onOpen={p=>{setCaseProject(p);track('case_opened',{project:p.id})}}/>
+      <ThinkingBento behance={cms.behance}/>
       <Capabilities services={cms.services} onBrief={openBrief}/>
-      <Motion reels={cms.reels} clients={cms.clients}/>
-      <Proof clients={cms.clients}/>
+      <Motion reels={cms.reels} clients={cms.clients} behance={cms.behance}/>
+      <Proof behance={cms.behance} clients={cms.clients}/>
       <Contact onBrief={openBrief}/>
     </main>
     <Footer/>
-    {caseProject ? <BentoCase project={caseProject} clients={cms.clients} onClose={()=>setCaseProject(null)} onBrief={openBrief}/> : null}
+    {caseProject ? <BentoCase project={caseProject} clients={cms.clients} behance={cms.behance} onClose={()=>setCaseProject(null)} onBrief={openBrief}/> : null}
     <Brief open={brief} onClose={()=>setBrief(false)} initial={briefPreset}/>
   </div>
 }

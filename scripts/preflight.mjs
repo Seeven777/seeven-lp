@@ -30,7 +30,7 @@ assert(/function SelectedWork/.test(app) && /<SelectedWork/.test(app), 'Selected
 assert(/function BentoCase/.test(app), 'Case Study V10 ausente.')
 assert(/function Brief/.test(app), 'Brief rápido V10 ausente.')
 assert(/prefers-reduced-motion/.test(css), 'Fallback reduced motion ausente.')
-assert(/@media \(max-width: 900px\)/.test(css), 'Layout mobile V10 ausente.')
+assert(/@media\s*\(max-width:900px\)|@media\s*\(max-width:\s*900px\)/.test(css), 'Layout mobile V10 ausente.')
 assert(/v10-system/.test(css) && /v10-project/.test(css), 'CSS público V10 incompleto.')
 assert(/WA_KAREN/.test(app) && /WA_GUSTAVO/.test(app), 'Roteamento de contato não configurado.')
 assert(/useCmsContent/.test(app), 'Experiência pública deixou de consumir o CMS.')
@@ -43,7 +43,7 @@ assert(/friendlyAuthError/.test(admin), 'Tratamento de autenticação do Admin a
 assert(/aria-modal="true"/.test(admin), 'Acessibilidade de modal do Admin ausente.')
 
 // Deploy / repo
-assert(pkg.version === '10.0.0', `Versão esperada 10.0.0; atual ${pkg.version}.`)
+assert(pkg.version === '10.2.0', `Versão esperada 10.2.0; atual ${pkg.version}.`)
 assert(/node_modules\//.test(gitignore) && /dist\//.test(gitignore), '.gitignore incompleto.')
 assert(/X-Robots-Tag/.test(vercel) && /noindex/.test(vercel), '/admin sem noindex no Vercel.')
 assert(/X-Content-Type-Options/.test(vercel), 'Headers de segurança básicos ausentes.')
@@ -58,7 +58,7 @@ if (failures.length) {
   warnings.forEach(item => console.warn(`! ${item}`))
   process.exit(1)
 }
-console.log('SEE7VEN V10 / PREFLIGHT OK')
+console.log('SEE7VEN V10.2 / PREFLIGHT OK')
 console.log(`✓ ${clients.length} clientes seeded`)
 console.log(`✓ ${featuredProjects.length} projetos seeded`)
 warnings.forEach(item => console.warn(`! ${item}`))

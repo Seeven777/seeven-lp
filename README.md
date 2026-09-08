@@ -243,3 +243,6 @@ scripts/preflight.mjs    quality gate local/Vercel
 
 ## V10 / Interactive Presence
 A experiência pública foi reformulada na V10. Consulte `V10_RELEASE.md` para deploy e principais mudanças.
+
+### V10.2 / Presence System
+A revisão V10.2 amplia clareza comercial, casos Bento, amplitude digital/física e mídia real. Consulte `V10_2_RELEASE.md`.

@@ -137,20 +137,25 @@ const reelPlan = [
 
 const highlightedClients = new Set(['sindpetshop', 'mibis', 'eventos', 'pufinho', 'sabor'])
 
+let reelPosterIndex = 0
 export const reels = reelPlan.flatMap(([clientId, count]) => {
   const client = clients.find(c => c.id === clientId)
-  return Array.from({ length: count }, (_, index) => ({
-    id: `${clientId}-${index + 1}`,
-    clientId,
-    client: client?.name || clientId,
-    title: index === 0 ? 'Destaque da marca' : `Reel ${String(index + 1).padStart(2, '0')}`,
-    poster: '',
-    video: '',
-    url: client?.url || '#',
-    accent: client?.accent || '#8b5cf6',
-    featured: index === 0 && highlightedClients.has(clientId),
-    publicContext: client?.publicProof || ''
-  }))
+  return Array.from({ length: count }, (_, index) => {
+    const posterNumber = (reelPosterIndex % 17) + 1
+    reelPosterIndex += 1
+    return {
+      id: `${clientId}-${index + 1}`,
+      clientId,
+      client: client?.name || clientId,
+      title: index === 0 ? 'Destaque da marca' : `Reel ${String(index + 1).padStart(2, '0')}`,
+      poster: `/assets/posters/reel-${String(posterNumber).padStart(2, '0')}.jpg`,
+      video: '',
+      url: client?.url || '#',
+      accent: client?.accent || '#8b5cf6',
+      featured: index === 0 && highlightedClients.has(clientId),
+      publicContext: client?.publicProof || ''
+    }
+  })
 })
 
 export const solutions = [
