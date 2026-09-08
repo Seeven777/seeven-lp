@@ -1,4 +1,4 @@
-SEE7VEN V8 / LOCAL PORTFOLIO FALLBACKS
+SEE7VEN V9.2 / LOCAL PORTFOLIO FALLBACKS
 
 A pasta brands/ contém capas editoriais locais de segurança. Elas mantêm cada
 marca identificável enquanto o CMS ainda não possui poster/capa real.
@@ -15,5 +15,5 @@ sindpetshop-01.mp4
 seon-01.webp
 seon-01.mp4
 
-A V8 nunca escolhe uma publicação aleatória de um perfil e a apresenta como
+A V9.2 nunca escolhe uma publicação aleatória de um perfil e a apresenta como
 trabalho confirmado da Seeven. Mídia específica precisa ser cadastrada pelo CMS.

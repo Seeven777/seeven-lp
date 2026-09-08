@@ -1,7 +1,7 @@
 {
-  "name": "seeven-presence-v8",
+  "name": "seeven-presence-v9",
   "private": true,
-  "version": "8.0.1",
+  "version": "9.2.0",
   "type": "module",
   "scripts": {
     "dev": "vite",

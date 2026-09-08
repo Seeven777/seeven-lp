@@ -1,100 +1,91 @@
-# SEE7VEN V8 — Deploy Checklist
+# SEE7VEN V9.2 — Deploy checklist
 
-## Antes do commit
+## Git
 
-- [ ] Backup JSON feito no Control Room
-- [ ] `node_modules` removido do índice do Git
-- [ ] `.env` / `.env.local` não versionados
-- [ ] lockfile antigo removido/regenerado (`rm -f package-lock.json && npm install`)
-- [ ] `npm run preflight` passou
-- [ ] `npm run build` passou
-- [ ] nenhum link secreto/credencial inserido no source
+- [ ] `node_modules` não está rastreado
+- [ ] `dist` não está rastreado
+- [ ] `.env` / `.env.local` não estão rastreados
+- [ ] arquivos V7/V8 legados foram removidos quando possível
+- [ ] `git status` revisado
 
-### Limpar node_modules rastreado
+Se necessário:
 
 ```bash
 git rm -r --cached node_modules
-rm -f package-lock.json
-npm install
 ```
 
-O `npm install` gera um lockfile novo compatível com React 19, Supabase e Vite 7 usados pela V8.
+## Build
 
-## Supabase
+```bash
+npm install
+npm run preflight
+npm run build
+```
 
-- [ ] `SUPABASE_V8_MIGRATION.sql` executado uma vez
-- [ ] `cms_admins` contém o usuário correto
-- [ ] login em `/admin` funciona
-- [ ] Admin consegue visualizar rascunhos
-- [ ] Admin consegue editar/publicar
-- [ ] upload no bucket `portfolio-assets` funciona
-- [ ] usuário autenticado não autorizado não consegue escrever
+- [ ] preflight OK
+- [ ] Vite build OK
+- [ ] sem erro crítico no console
 
 ## Vercel
 
-Variáveis públicas esperadas:
+- [ ] `VITE_SUPABASE_URL`
+- [ ] `VITE_SUPABASE_PUBLISHABLE_KEY`
+- [ ] `VITE_KAREN_WHATSAPP`
+- [ ] `VITE_GUSTAVO_WHATSAPP` se utilizado
+- [ ] Production + Preview
+- [ ] redeploy após alterar variável VITE
 
-```text
-VITE_SUPABASE_URL
-VITE_SUPABASE_PUBLISHABLE_KEY
-VITE_KAREN_WHATSAPP
-VITE_GUSTAVO_WHATSAPP (opcional)
-```
+## LP / desktop
 
-- [ ] Production
-- [ ] Preview
-- [ ] novo deploy após alteração de variável VITE
+- [ ] StoryIntro completa 01–05
+- [ ] stepper muda de etapa
+- [ ] Pular intro leva a Trabalhos
+- [ ] prova visual do frame 05 aparece
+- [ ] 1366×768 sem corte
+- [ ] 1440×900 sem corte
+- [ ] filtros mudam a curadoria
+- [ ] Case Drawer + `/work/:slug`
+- [ ] case Sindpetshop 4 etapas
+- [ ] Presence Engine 5 etapas
+- [ ] Motion Archive
+- [ ] Behance
+- [ ] FAQ
+- [ ] Brief / WhatsApp
 
-Nunca use `SUPABASE_SECRET_KEY` com prefixo `VITE_`.
+## LP / mobile
 
-## QA da LP
-
-Desktop:
-
-- [ ] hero legível
-- [ ] manifesto sem branco sobre branco
-- [ ] todos os filtros mudam a curadoria
-- [ ] cases abrem e fecham
-- [ ] URL `/work/:slug` abre direto
-- [ ] Before/After chega a 0 e 100
-- [ ] Motion Archive só mostra Play onde há mídia reproduzível
-- [ ] Ecosystem sem colisão entre labels
-- [ ] FAQ abre/fecha
-- [ ] Brief monta WhatsApp
-- [ ] Behance abre apenas links reais
-
-Mobile 360–430 px:
-
-- [ ] nenhum texto estoura horizontalmente
-- [ ] menu abre/fecha
-- [ ] filtros possuem scroll horizontal
-- [ ] cards ficam em uma coluna
+- [ ] 360×800
+- [ ] 390×844
+- [ ] 430×932
+- [ ] texto não estoura
+- [ ] swipe vertical funciona nas cenas sticky
+- [ ] stepper não cobre informação importante
+- [ ] filtros tocáveis
 - [ ] Reels em duas colunas
-- [ ] Before/After utilizável por toque
-- [ ] Ecosystem vira grid
-- [ ] Capability/Strategy navegáveis
-- [ ] CTA inferior não cobre conteúdo crítico
+- [ ] CTA inferior não cobre o conteúdo
+- [ ] Brief funciona por toque
 
-## QA do Admin
+## Admin
 
-- [ ] dashboard carrega
-- [ ] nova mídia
+- [ ] `/admin` login
+- [ ] dashboard
+- [ ] novo Reel
+- [ ] permalink exato do Reel
+- [ ] poster
+- [ ] upload MP4/WebM
 - [ ] novo projeto
-- [ ] limpar campo e salvar
-- [ ] rascunho não aparece na LP
-- [ ] publicar aparece sem deploy
-- [ ] duplicar cria rascunho
-- [ ] reordenar funciona
-- [ ] upload de imagem
-- [ ] upload de vídeo + tentativa de poster
+- [ ] draft/publicação
+- [ ] reordenar
 - [ ] Behance Watch
 - [ ] Backup JSON
 - [ ] Pitch Link Builder
 
-## Depois do deploy
+## Supabase
 
-- [ ] `Ctrl+Shift+R` e teste em janela anônima
-- [ ] DevTools Console sem erro crítico
-- [ ] Network sem 401/403 inesperado
-- [ ] teste com login e sem login
-- [ ] teste de um link de prospecção
+Se o banco já recebeu V8, não rode migration novamente.
+
+Caso ainda seja V7.4:
+
+```text
+SUPABASE_V8_MIGRATION.sql
+```

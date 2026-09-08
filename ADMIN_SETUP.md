@@ -1,4 +1,4 @@
-# SEE7VEN / ADMIN — configuração V8
+# SEE7VEN V9.2 / ADMIN — configuração
 
 A rota administrativa é:
 
@@ -18,7 +18,7 @@ Você já configurou a URL/Publishable Key e o login do Supabase. Para atualizar
 SUPABASE_V8_MIGRATION.sql
 ```
 
-4. Faça o deploy da V8.
+4. Faça o deploy da V9.2.
 5. Entre em `/admin`.
 
 A migration cria `cms_admins` e restringe a edição a administradores explícitos. Se houver apenas um usuário em Authentication, ele é preservado automaticamente. Se houver mais de um, o próprio `/admin` mostra o SQL para autorizar a conta correta.

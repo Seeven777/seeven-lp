@@ -1,6 +1,6 @@
 # Fontes públicas usadas como contexto
 
-A V8 usa dados públicos apenas quando eles ajudam a contextualizar o trabalho. Esses dados não devem ser apresentados como resultado da Seeven sem evidência específica.
+A V9.2 usa dados públicos apenas quando eles ajudam a contextualizar o trabalho. Esses dados não devem ser apresentados como resultado da Seeven sem evidência específica.
 
 ## Seeven / Behance
 
@@ -54,3 +54,11 @@ Contexto usado: atuação com estruturas, cenografia, iluminação, LED, produç
 - Não cadastrar um Reel sem identificar o permalink correto.
 - Não transformar números públicos de uma organização em KPI da Seeven.
 - Não usar hotlink como solução permanente quando o asset pertence à própria Seeven e pode ser armazenado no Media Vault.
+
+## Referência de interação
+
+DJI Mavic 4 Pro:
+
+`https://www.dji.com/br/mavic-4-pro`
+
+A referência é apenas conceitual: progressão por scroll, palco sticky e apresentação de uma ideia por vez. Nenhum asset, texto, marca ou layout da DJI faz parte do projeto Seeven.

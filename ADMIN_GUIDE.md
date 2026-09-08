@@ -150,7 +150,7 @@ Quando um projeto novo aparecer:
 
 ## Limpar um campo
 
-Na V8, apagar o valor de um input e salvar envia `NULL` ao Supabase. Isso corrige o comportamento antigo em que um campo vazio podia continuar gravado no banco.
+Na base atual, apagar o valor de um input e salvar envia `NULL` ao Supabase. Isso corrige o comportamento antigo em que um campo vazio podia continuar gravado no banco.
 
 
 ## Status no Control Room

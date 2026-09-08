@@ -1,118 +1,60 @@
-# Auditoria estratégica — SEE7VEN V8
+# Auditoria estratégica — SEE7VEN V9.2
 
-## Problema que a V8 resolve
+## Decisão principal
 
-As versões anteriores tinham boas ideias visuais, mas alguns elementos competiam com a compreensão:
+A LP anterior tinha repertório e funções demais competindo pela atenção ao mesmo tempo. A V9.2 troca isso por **progressão controlada**.
 
-- tipografia extrema em determinados breakpoints;
-- contraste inconsistente;
-- filtros com pouca sensação de mudança;
-- muitas seções funcionando como demonstração técnica ao mesmo tempo;
-- fallbacks de Reel parecendo mídia real;
-- motion e composição criando risco de bugs em captura/scroll longo;
-- Admin com aparência de CRUD e formulário excessivamente longo;
-- segurança Supabase permissiva para qualquer usuário autenticado;
-- documentação acumulada e `node_modules` rastreado no Git.
+A referência funcional é o padrão de product storytelling visto em páginas como a DJI Mavic 4 Pro: um palco permanece no viewport e a mensagem muda conforme o scroll. A Seeven usa esse princípio sem copiar layout, assets ou identidade.
 
-A V8 prioriza **clareza → prova → profundidade → ação**.
+## Jornada comercial
 
-## Princípios usados
+O empresário deve chegar a estas conclusões em ordem:
 
-### 1. Trabalho antes de discurso
+1. **Eles sabem chamar atenção.**
+2. **Eles entendem que atenção não basta.**
+3. **Eles pensam a marca em vários pontos de contato.**
+4. **Eles têm repertório real.**
+5. **Eles conseguem explicar decisões, não apenas mostrar arte.**
+6. **Eles conseguem executar digital, audiovisual e físico.**
+7. **Eu consigo começar uma conversa sem saber o nome do serviço.**
 
-Selected Work aparece cedo. O visitante deve perceber repertório antes de ler uma longa lista de serviços.
+## O que foi condensado
 
-### 2. Case é uma história comercial
+Seções independentes de estratégia, ecossistema, pixel/papel, serviços e ferramentas foram transformadas no **Presence Engine**.
 
-Projeto forte responde:
+Isso reduz repetição e faz cada novo bloco adicionar informação, em vez de reafirmar a mesma tese.
 
-`qual era o problema → qual decisão foi tomada → como foi executada → o que mudou`
+## Prova antes de promessa longa
 
-A estética é apresentada como consequência, não como justificativa suficiente.
+Depois da abertura, o próximo bloco é Selected Work. O case principal aparece logo depois.
 
-### 3. Prova sem inventar prova
+A lógica é deliberada: o site demonstra capacidade antes de pedir ao visitante que aceite uma lista de serviços.
 
-A V8 não adiciona depoimentos fictícios, clientes não confirmados ou métricas não suportadas.
+## Mobile
 
-- escala do Sindpetshop = contexto público do cliente;
-- métricas de agosto/2026 = performance identificada pelo recorte fornecido;
-- Capability OS diferencia uso/ferramenta de evidência pública.
+No celular, a prioridade é entendimento:
 
-### 4. Problema antes do nome do serviço
+- uma mensagem por estado;
+- tipografia menor e limitada;
+- visual como suporte, não como obstáculo;
+- progressão por swipe vertical;
+- arquivos compactos antes de expandir;
+- CTA comercial persistente apenas depois da prova inicial.
 
-Empresário não deveria precisar decidir entre “branding”, “LP”, “motion” e “tráfego” antes de explicar o que está errado.
+## Admin
 
-A seção de soluções começa por frases como:
+O Control Room permanece responsável por transformar conteúdo real em prova comercial. A prioridade editorial é:
 
-- Quero vender mais.
-- Minha marca está ultrapassada.
-- Ninguém entende o que eu faço.
-- Preciso parecer maior.
-- Preciso chamar atenção.
-
-### 5. Mobile é outra composição
-
-No celular, a V8 troca complexidade espacial por interação direta:
-
-- órbita → grid;
-- mosaico → uma coluna;
-- painéis laterais → fluxo vertical;
-- CTA final distante → ação persistente.
-
-### 6. Motion é enhancement
-
-Nada importante depende de IntersectionObserver para existir.
-
-Se animação falhar ou o usuário pedir reduced motion, a informação continua acessível.
-
-## Repositório
-
-Auditoria pública realizada sobre:
-
-`https://github.com/Seeven777/seeven-lp`
-
-O branch main ainda expõe `node_modules` rastreado e documentação de versões V7 antigas. A V8 entrega `.gitignore`, Quality Gate e instruções explícitas para limpar o índice.
+1. capas reais;
+2. Reels realmente reproduzíveis;
+3. cases claros;
+4. Behance atualizado;
+5. só então novos efeitos.
 
 ## Behance
 
-Perfil observado:
+O perfil público da Seeven continua recebendo novos projetos. O fluxo recomendado é **Behance Watch → revisar → importar → publicar**, em vez de congelar uma lista manual no código.
 
-`https://www.behance.net/wedeseeven`
+## Git
 
-A indexação pública recente já mostra novos projetos além do seed estático, incluindo trabalhos de eventos, web, 3D, food e identidade. A V8 não tenta congelar essa lista em código: o Behance Watch existe justamente para detectar/importar novas publicações.
-
-## O que foi removido ou reduzido
-
-- efeitos globais de blend/invert;
-- dependência visual de conteúdo escondido por observer;
-- promessa de “32 vídeos reproduzíveis” enquanto os permalinks não existem;
-- textos internos de fallback nos SVGs;
-- formulário administrativo monolítico;
-- escrita Supabase para qualquer conta autenticada;
-- documentação V7 redundante no pacote final.
-
-## O que foi acrescentado
-
-- Client Rail;
-- filtros dinâmicos;
-- Case Drawer mais claro;
-- Reel readiness honesto;
-- Decision/FAQ;
-- Brief de 60 segundos;
-- Control Room;
-- Content Health;
-- editor por etapas;
-- Behance Watch;
-- RLS administrativo explícito;
-- preflight;
-- GitHub Actions Quality Gate;
-- guia de migração.
-
-## Prioridade de conteúdo após o deploy
-
-1. colocar capa real nos cases mais importantes;
-2. cadastrar os permalinks corretos dos Reels;
-3. transformar 3–5 projetos em cases completos;
-4. importar os novos projetos Behance;
-5. substituir hotlinks por arquivos próprios;
-6. adicionar provas/métricas somente quando verificáveis.
+O repositório público ainda pode carregar `node_modules` de commits antigos. O pacote V9.2 não inclui dependências instaladas e o `.gitignore` impede reincidência depois que o índice do Git for limpo.

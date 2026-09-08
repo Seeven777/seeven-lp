@@ -21,7 +21,7 @@ const migration = read('SUPABASE_V8_MIGRATION.sql')
 const bootstrap = read('SUPABASE_V8_BOOTSTRAP.sql')
 const readme = read('README.md')
 const adminSetup = read('ADMIN_SETUP.md')
-const migrationGuide = read('MIGRATION_V8.md')
+const migrationGuide = read('DATABASE_MIGRATION.md')
 const envExample = read('.env.example')
 const vercel = read('vercel.json')
 const packageJson = JSON.parse(read('package.json'))
@@ -88,7 +88,7 @@ assert(/admin-status-stack/.test(admin), 'Status editorial e publicação ainda 
 // Deploy / repository hygiene -----------------------------------------
 assert(exists('SUPABASE_V8_MIGRATION.sql'), 'Migration V8 ausente.')
 assert(exists('SUPABASE_V8_BOOTSTRAP.sql'), 'Bootstrap V8 ausente.')
-assert(exists('ADMIN_GUIDE.md') && exists('ADMIN_SETUP.md') && exists('DEPLOY_CHECKLIST.md') && exists('QA_V8.md'), 'Documentação operacional/QA V8 incompleta.')
+assert(exists('ADMIN_GUIDE.md') && exists('ADMIN_SETUP.md') && exists('DEPLOY_CHECKLIST.md') && exists('QA_V9_2.md'), 'Documentação operacional/QA V9.2 incompleta.')
 assert(exists('.gitignore'), '.gitignore ausente.')
 warn(!exists('node_modules'), 'node_modules existe no ambiente atual. Isso é normal após npm install; confirme apenas que não está versionado no Git.')
 assert(/node_modules\//.test(gitignore) && /dist\//.test(gitignore) && /\.env/.test(gitignore), '.gitignore não cobre node_modules, dist e variáveis locais.')
@@ -96,12 +96,11 @@ assert(packageJson.scripts?.preflight, 'package.json não possui script prefligh
 warn(exists('package-lock.json'), 'package-lock.json não foi gerado neste ambiente; gere um novo lockfile com npm install antes do commit final.')
 assert(/X-Robots-Tag/.test(vercel) && /noindex/.test(vercel), '/admin não está protegido contra indexação no vercel.json.')
 assert(/X-Content-Type-Options/.test(vercel), 'Headers básicos de segurança não estão configurados no Vercel.')
-assert(!/seevenprojects@gmail/i.test([migration, bootstrap, read('README.md'), read('MIGRATION_V8.md')].join('\n')), 'Dados pessoais não devem ficar hard-coded em SQL/documentação.')
+assert(!/seevenprojects@gmail/i.test([migration, bootstrap, read('README.md'), read('DATABASE_MIGRATION.md')].join('\n')), 'Dados pessoais não devem ficar hard-coded em SQL/documentação.')
 assert(!/VITE_KAREN_WHATSAPP=5511\d{8,}/.test(envExample), '.env.example contém número real em vez de placeholder.')
 assert(/count\(\*\) from auth\.users\) = 1/i.test(migration), 'Migration V8 deve preservar automaticamente apenas um único Auth user existente.')
 assert(/SUPABASE_V8_BOOTSTRAP\.sql/.test(adminSetup), 'ADMIN_SETUP deve orientar fresh install pela V8 bootstrap.')
-assert(/SUPABASE_V8_BOOTSTRAP\.sql/.test(migrationGuide), 'MIGRATION_V8 deve orientar fresh install pela V8 bootstrap.')
-assert(!/SUPABASE_V7_4_SETUP\.sql/.test([readme, adminSetup, migrationGuide].join('\n')), 'Documentação final ainda referencia SUPABASE_V7_4_SETUP.sql, que não faz parte do pacote V8.')
+assert(/SUPABASE_V8_BOOTSTRAP\.sql/.test(migrationGuide), 'DATABASE_MIGRATION deve orientar fresh install pela V8 bootstrap.')
 assert(/scroll_depth/.test(app), 'Analytics não registra profundidade de scroll.')
 assert(/expanded \? archive\.length/.test(app), 'Motion Archive ainda limita o arquivo expandido artificialmente.')
 assert(/expanded \? validProjects\.length/.test(app), 'Behance expandido ainda limita projetos artificialmente.')
@@ -110,18 +109,43 @@ assert(/\.ba-slider>i\{left:var\(--ba\)\}/.test(css), 'Handle do Before/After n�
 for (const artifact of ['src/App.jsx.pre-final','src/App.jsx.v8-qa-backup','src/admin.jsx.pre-final','src/admin.jsx.v8-qa-backup','src/styles.css.v8-qa-backup','qa-prototype.html','SUPABASE_V8_MIGRATION.sql.v8-qa-backup','vercel.json.v8-qa-backup']) {
   assert(!exists(artifact), `Arquivo legado/intermediário ainda presente no pacote: ${artifact}`)
 }
-warn(!exists('SUPABASE_V7_4_SETUP.sql'), 'SUPABASE_V7_4_SETUP.sql é legado. Remova do Git quando possível; ele não deve bloquear o build da V8.')
+
+// V9.2 scrollytelling / conversion journey ----------------------------
+assert(/function StoryIntro/.test(app) && /<StoryIntro/.test(app), 'StoryIntro V9.2 ausente da jornada pública.')
+assert(/function PresenceEngine/.test(app) && /<PresenceEngine/.test(app), 'Presence Engine V9.2 ausente da jornada pública.')
+assert(/function JourneyRail/.test(app) && /<JourneyRail/.test(app), 'Journey Rail V9.2 ausente.')
+assert(/story_step/.test(app), 'Analytics story_step ausente.')
+assert(/presence_engine_step/.test(app), 'Analytics presence_engine_step ausente.')
+assert(/journey_chapter/.test(app), 'Analytics journey_chapter ausente.')
+assert(/workStart/.test(app), 'CTA mobile não está atrasado até a proximidade do portfólio.')
+assert(app.includes('aria-hidden={active !=='), 'Cenas sticky não têm aria-hidden para estados inativos.')
+assert(app.includes('inert={active !=='), 'Cenas sticky não removem conteúdo inativo da navegação por teclado.')
+assert(/\.story-intro/.test(css) && /\.presence-engine/.test(css), 'CSS da narrativa sticky V9.2 incompleto.')
+assert(/position\s*:\s*sticky/i.test(css), 'V9.2 perdeu position:sticky da narrativa.')
+assert(/story-stepper/.test(app) && /story-stepper/.test(css), 'Stepper da abertura V9.2 ausente.')
+assert(/story-proof-grid/.test(app) && /story-proof-grid/.test(css), 'Prova visual do frame final da abertura ausente.')
+assert(/preferredScrollBehavior/.test(app), 'Scroll programático não respeita reduced motion.')
+assert(/journey-rail\.is-intro/.test(css), 'Journey Rail não some durante a abertura.')
+assert(/max-height:760px/.test(css), 'Falta tratamento de viewport baixo para notebooks.')
+assert(packageJson.version === '9.2.0', `package.json deveria estar em 9.2.0 e está em ${packageJson.version}.`)
+assert(/version:'9\.2'/.test(admin), 'Backup do Control Room não está marcado como V9.2.')
+assert(/rel="canonical"/.test(read('index.html')), 'Canonical ausente no index.html.')
+
+// A jornada pública deve estar condensada e o source não deve carregar os antigos blocos autônomos.
+for (const legacyComponent of ['function StrategyLens(', 'function PixelPaper(', 'function Ecosystem(', 'function CapabilityOS(', 'function Solutions(']) {
+  assert(!app.includes(legacyComponent), `Componente legado ainda presente em App.jsx: ${legacyComponent}.`)
+}
 
 if (css.split('{').length !== css.split('}').length) failures.push('Quantidade de chaves CSS não confere.')
 
 if (failures.length) {
-  console.error('\nSEE7VEN V8 / PREFLIGHT FAILED')
+  console.error('\nSEE7VEN V9.2 / PREFLIGHT FAILED')
   failures.forEach(item => console.error(`✗ ${item}`))
   warnings.forEach(item => console.warn(`! ${item}`))
   process.exit(1)
 }
 
-console.log('SEE7VEN V8 / PREFLIGHT OK')
+console.log('SEE7VEN V9.2 / PREFLIGHT OK')
 console.log(`✓ ${clients.length} clientes`)
 console.log(`✓ ${featuredProjects.length} projetos selecionados`)
 console.log(`✓ ${reels.length} slots de Reel`)

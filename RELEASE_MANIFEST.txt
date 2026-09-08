@@ -1,4 +1,4 @@
-SEE7VEN Presence System V8 — release manifest
+SEE7VEN Presence System V9.2 — release manifest
 
 Core
 - src/App.jsx
@@ -19,15 +19,18 @@ Backend / deploy
 - scripts/preflight.mjs
 
 Supabase
-- SUPABASE_V8_MIGRATION.sql      (upgrade da base V7.4 atual)
-- SUPABASE_V8_BOOTSTRAP.sql      (instalação nova)
+- SUPABASE_V8_MIGRATION.sql
+- SUPABASE_V8_BOOTSTRAP.sql
 
-Operação
+Operação / QA
 - ADMIN_GUIDE.md
 - ADMIN_SETUP.md
-- MIGRATION_V8.md
+- DATABASE_MIGRATION.md
 - DEPLOY_CHECKLIST.md
-- QA_V8.md
+- AUDITORIA_ESTRATEGICA.md
+- PUBLIC_SOURCES.md
+- QA_V9_2.md
+- V9_CHANGELOG.md
 - README.md
 
 Assets
@@ -39,4 +42,4 @@ Não incluídos deliberadamente
 - node_modules/
 - dist/
 - .env / .env.local
-- package-lock.json antigo da V7
+- documentação intermediária V7/V8
