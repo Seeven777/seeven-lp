@@ -1,4 +1,4 @@
-# SEE7VEN V9.2 — Deploy checklist
+# SEE7VEN V9.3 — Deploy checklist
 
 ## Git
 

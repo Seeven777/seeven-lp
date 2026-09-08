@@ -164,6 +164,16 @@ function SmartImage({ src, alt = '', className = '', ...props }) {
   return <img src={src} alt={alt} className={className} decoding="async" onError={() => setFailed(true)} {...props}/>
 }
 
+
+function RevealMore({ label = 'VER MAIS', children, className = '' }) {
+  return (
+    <details className={`reveal-more ${className}`}>
+      <summary><span>{label}</span><i aria-hidden="true">+</i></summary>
+      <div className="reveal-more-body">{children}</div>
+    </details>
+  )
+}
+
 function caseIdFromLocation() {
   const match = window.location.pathname.match(/^\/work\/([^/]+)\/?$/)
   return match ? decodeURIComponent(match[1]) : ''
@@ -381,31 +391,31 @@ function StoryIntro({ pitch, prospect, onBrief, clientList = [], projects = [] }
         ? `Uma ideia para ${prospect}: role para ver como atenção vira presença, ponto por ponto.`
         : context?.line
           ? `${context.line} Role para ver como essa lógica vira presença.`
-          : 'Role. Em poucos minutos você entende o que fazemos, como pensamos e por que isso pode mudar a percepção de uma marca.',
+          : 'Role. O essencial aparece primeiro. O restante se revela conforme você quiser explorar.',
       accent: 'ROLE PARA COMEÇAR'
     },
     {
       eyebrow: '01 / ATENÇÃO',
       title: `PARAR É SÓ\nO PRIMEIRO\nSEGUNDO.`,
-      body: 'Depois a marca precisa ser entendida, lembrada e escolhida. É aí que estética deixa de ser decoração e vira direção.',
+      body: 'Atenção abre a porta. Direção faz a marca permanecer.',
       accent: 'ENTENDER → LEMBRAR → ESCOLHER'
     },
     {
       eyebrow: '02 / PRESENÇA',
       title: `UMA MARCA\nNÃO VIVE\nEM UM POST.`,
-      body: 'Ela continua no site, no vídeo, no Google, no WhatsApp, no evento, na embalagem e na experiência com o cliente.',
+      body: 'Uma presença forte continua muito além do feed.',
       accent: 'UMA MARCA / VÁRIOS PONTOS'
     },
     {
       eyebrow: '03 / SISTEMA',
       title: `NÃO SOMAMOS\nPEÇAS.\nCONECTAMOS.`,
-      body: 'Estratégia, branding, conteúdo, motion, web e físico trabalhando como partes de uma mesma presença.',
+      body: 'Uma direção. Vários pontos de contato.',
       accent: 'DO PIXEL AO PAPEL'
     },
     {
       eyebrow: '04 / PROVA',
       title: `AGORA,\nOLHE O\nTRABALHO.`,
-      body: 'Menos promessa. Mais repertório, decisões, execução e contexto real de projeto.',
+      body: 'Agora a prova fala mais alto.',
       accent: 'A PROVA COMEÇA ABAIXO'
     }
   ]
@@ -600,30 +610,35 @@ function PresenceEngine({ onBrief, items }) {
       index: '01',
       label: 'PROBLEMA',
       title: 'VOCÊ NÃO PRECISA\nSABER O NOME\nDO SERVIÇO.',
+      short: 'Comece pelo problema.',
       copy: 'Chegue com o problema. A gente organiza o que precisa mudar antes de escolher formato, canal ou ferramenta.'
     },
     {
       index: '02',
       label: 'DECISÃO',
       title: 'ANTES DA\nESTÉTICA, EXISTE\nUMA ESCOLHA.',
+      short: 'A direção vem antes da peça.',
       copy: 'Contexto, público e objetivo vêm antes da peça. O design é consequência de uma direção — não o ponto de partida.'
     },
     {
       index: '03',
       label: 'PRESENÇA',
       title: 'UMA MARCA\nNÃO VIVE EM\nUM CANAL.',
+      short: 'Uma marca precisa se reconhecer em qualquer canal.',
       copy: 'Social, site, vídeo, busca, WhatsApp, evento e impresso precisam reconhecer a mesma marca sem parecer cópia.'
     },
     {
       index: '04',
       label: 'PIXEL → PAPEL',
       title: 'A TELA TERMINA.\nA MARCA\nNÃO.',
+      short: 'A tela termina. A presença continua.',
       copy: 'Uma direção forte continua funcionando quando vira interface, embalagem, crachá, folder, uniforme ou material de evento.'
     },
     {
       index: '05',
       label: 'CAPACIDADE',
       title: 'FERRAMENTAS\nMUDAM. CAPACIDADE\nFICA.',
+      short: 'Ferramenta é meio. Resultado é o fim.',
       copy: 'Design, motion, 3D, desenvolvimento e IA entram quando ajudam a resolver melhor — não para enfeitar o processo.'
     }
   ]
@@ -670,7 +685,7 @@ function PresenceEngine({ onBrief, items }) {
         <div className="presence-engine-copy">
           <span>{steps[active].index} / {steps[active].label}</span>
           <h2>{steps[active].title.split('\n').map((line, index) => <React.Fragment key={`${line}-${index}`}>{line}{index < steps[active].title.split('\n').length - 1 && <br/>}</React.Fragment>)}</h2>
-          <p>{steps[active].copy}</p>
+          <p>{steps[active].short}</p><RevealMore label="ENTENDER ESTA ETAPA"><p>{steps[active].copy}</p></RevealMore>
           <div className="presence-engine-tabs" aria-label="Etapas do Presence Engine">{steps.map((step, index) => <button key={step.index} className={active === index ? 'active' : ''} onClick={() => scrollToStep(index)} aria-label={`${step.index} ${step.label}`}><span>{step.index}</span><b>{step.label}</b></button>)}</div>
         </div>
 
@@ -678,7 +693,7 @@ function PresenceEngine({ onBrief, items }) {
           <div className={`engine-panel engine-problems ${active === 0 ? 'is-active' : ''}`} aria-hidden={active !== 0} inert={active !== 0}>
             <span>COMECE PELO QUE DÓI</span>
             <div className="engine-problem-list">{problems.map((item, index) => <button key={item.problem} className={problemIndex === index ? 'active' : ''} onClick={() => setProblemIndex(index)}><small>{String(index + 1).padStart(2, '0')}</small><b>{item.problem}</b></button>)}</div>
-            {selectedProblem && <article><p>{selectedProblem.answer}</p><div>{(selectedProblem.stack || []).slice(0, 4).map(item => <span key={item}>{item}</span>)}</div><button onClick={() => onBrief(selectedProblem.problem)}>QUERO RESOLVER ISSO →</button></article>}
+            {selectedProblem && <RevealMore label="VER CAMINHO POSSÍVEL" className="engine-problem-more"><article><p>{selectedProblem.answer}</p><div>{(selectedProblem.stack || []).slice(0, 4).map(item => <span key={item}>{item}</span>)}</div><button onClick={() => onBrief(selectedProblem.problem)}>QUERO RESOLVER ISSO →</button></article></RevealMore>}
           </div>
 
           <div className={`engine-panel engine-decision ${active === 1 ? 'is-active' : ''}`} aria-hidden={active !== 1} inert={active !== 1}>
@@ -689,7 +704,7 @@ function PresenceEngine({ onBrief, items }) {
 
           <div className={`engine-panel engine-touchpoints ${active === 2 ? 'is-active' : ''}`} aria-hidden={active !== 2} inert={active !== 2}>
             <div className="engine-core"><small>SEE7VEN</small><b>MARCA</b></div>
-            {touchpoints.slice(0, 10).map((point, index) => <span key={point} style={{ '--angle': `${index * (360 / Math.min(10, touchpoints.length))}deg` }}>{point}</span>)}
+            {touchpoints.slice(0, 6).map((point, index) => <span key={point} style={{ '--angle': `${index * 60}deg` }}>{point}</span>)}
           </div>
 
           <div className={`engine-panel engine-pixel ${active === 3 ? 'is-active' : ''}`} aria-hidden={active !== 3} inert={active !== 3}>
@@ -702,7 +717,7 @@ function PresenceEngine({ onBrief, items }) {
 
           <div className={`engine-panel engine-capability ${active === 4 ? 'is-active' : ''}`} aria-hidden={active !== 4} inert={active !== 4}>
             <span>CAPABILITY STACK</span>
-            <div>{knowledgeGroups.map(group => <article key={group.id}><i style={{ background: group.accent }}/><b>{group.label}</b><small>{group.tools.slice(0, 4).map(tool => tool.short).join(' / ')}</small></article>)}</div>
+            <div>{knowledgeGroups.slice(0, 3).map(group => <article key={group.id}><i style={{ background: group.accent }}/><b>{group.label}</b><small>{group.tools.slice(0, 3).map(tool => tool.short).join(' / ')}</small></article>)}</div>
             <button onClick={() => onBrief()}>TENHO UM PROJETO →</button>
           </div>
         </div>
@@ -796,7 +811,7 @@ function Work({ projects, clientList, onBrief }) {
   const isMobile = useMediaQuery('(max-width: 760px)')
   const filter = portfolioFilterOptions.find(item => item.id === filterId) || portfolioFilterOptions[0]
   const matched = projects.filter(project => projectMatches(project, filter))
-  const compactLimit = isMobile ? 5 : 8
+  const compactLimit = isMobile ? 3 : 4
   const visible = filterId === 'all' && !showAll ? matched.slice(0, compactLimit) : matched
   const activeIndex = projects.findIndex(project => project.id === activeCaseId)
   const activeProject = activeIndex >= 0 ? projects[activeIndex] : null
@@ -841,7 +856,7 @@ function Work({ projects, clientList, onBrief }) {
       <div className="work-heading">
         <div className="section-index" data-reveal>02 / SELECTED WORK</div>
         <h2 data-reveal>NÃO REPETIMOS<br/><span>A MESMA FÓRMULA.</span></h2>
-        <p data-reveal>Cada marca pede uma linguagem. Explore por disciplina e abra um case para entender o raciocínio por trás do visual.</p>
+        <p data-reveal>Veja primeiro. Entenda o raciocínio quando quiser aprofundar.</p>
       </div>
       <div className="work-filter" role="tablist" aria-label="Filtrar portfólio">
         {portfolioFilterOptions.map(option => {
@@ -849,11 +864,11 @@ function Work({ projects, clientList, onBrief }) {
           return <button key={option.id} className={filterId === option.id ? 'active' : ''} onClick={() => { setFilterId(option.id); track('work_filter', { filter: option.id }) }} role="tab" aria-selected={filterId === option.id}>{option.label}<small>{count}</small></button>
         })}
       </div>
-      <div className="filter-context" key={filter.id}><span>{filter.label.toUpperCase()} / CURADORIA</span><p>{filter.description}</p><b>{matched.length} PROJETOS</b></div>
+      <div className="filter-context" key={filter.id}><span>{filter.label.toUpperCase()} / CURADORIA</span><b>{matched.length} PROJETOS</b><RevealMore label="SOBRE ESTA CURADORIA"><p>{filter.description}</p></RevealMore></div>
       <div className={`project-grid filter-${filter.id}`} key={filter.id}>
         {visible.map((project, index) => <button className={`project-card project-slot-${index % 6}`} key={project.id} onClick={() => openCase(project)} data-reveal>
           <ProjectVisual project={project} clientList={clientList}/>
-          <div className="project-meta"><span>{project.label}</span><h3>{project.title}</h3><p>{project.summary}</p><div>{(project.tags || []).slice(0, 4).map(tag => <small key={tag}>{tag}</small>)}</div></div>
+          <div className="project-meta"><span>{project.label}</span><h3>{project.title}</h3><div>{(project.tags || []).slice(0, 2).map(tag => <small key={tag}>{tag}</small>)}</div><small className="project-open-hint">ABRIR CASE →</small></div>
         </button>)}
       </div>
       {matched.length > visible.length && <button className="work-expand" onClick={() => setShowAll(true)}>VER MAIS {matched.length - visible.length} PROJETOS ↓</button>}
@@ -936,7 +951,7 @@ function CaseSpotlight({ onBrief }) {
         <div className="case-scroll-copy">
           <span className="case-scroll-overline">{steps[active].index} / {steps[active].label}</span>
           <h2>{steps[active].title.split('\n').map((line, index) => <React.Fragment key={`${line}-${index}`}>{line}{index === 0 && <br/>}</React.Fragment>)}</h2>
-          <p>{steps[active].copy}</p>
+          <p className="case-scroll-lead">{steps[active].label === 'O DESAFIO' ? 'Complexidade precisa virar clareza.' : steps[active].label === 'A DECISÃO' ? 'De peças soltas para um sistema.' : steps[active].label === 'O SISTEMA' ? 'Uma presença, vários canais.' : 'Resultado com contexto.'}</p><RevealMore label="VER CONTEXTO"><p>{steps[active].copy}</p></RevealMore>
           <div className="case-scroll-tabs" aria-label="Etapas do case">
             {steps.map((step, index) => <button key={step.index} className={active === index ? 'active' : ''} onClick={() => {
               const node = sectionRef.current
@@ -1006,13 +1021,13 @@ function MotionArchive({ items, clientList }) {
   }, [items, ready])
   const archive = ready.length ? [...ready, ...uniqueBrandFallbacks] : items.filter((item, index, array) => array.findIndex(other => other.clientId === item.clientId) === index)
   const totalReels = items.length
-  const collapsedLimit = isMobile ? 4 : 8
+  const collapsedLimit = isMobile ? 2 : 4
   const display = archive.slice(0, expanded ? archive.length : collapsedLimit)
   const connectedLabel = playable.length ? `${playable.length} de ${totalReels} vídeos conectados para assistir agora` : 'As marcas já estão organizadas; os vídeos entram conforme os links reais são conectados.'
 
   return (
     <section id="motion" className="motion-section section-shell" data-phase="dark">
-      <div className="motion-heading"><div className="section-index" data-reveal>05 / MOTION ARCHIVE</div><h2 data-reveal>ATENÇÃO<br/><span>TAMBÉM TEM RITMO.</span></h2><div data-reveal><p>{totalReels} peças organizadas, {new Set(items.map(item => item.clientId)).size} linguagens. O objetivo não é repetir formato: é encontrar o ritmo que pertence a cada marca.</p><span>{connectedLabel}</span></div></div>
+      <div className="motion-heading"><div className="section-index" data-reveal>05 / MOTION ARCHIVE</div><h2 data-reveal>ATENÇÃO<br/><span>TAMBÉM TEM RITMO.</span></h2><div data-reveal><span>{connectedLabel}</span><RevealMore label="COMO PENSAMOS VÍDEO"><p>{totalReels} peças organizadas, {new Set(items.map(item => item.clientId)).size} linguagens. O formato muda conforme a marca pede.</p></RevealMore></div></div>
       <div className={`motion-grid ${ready.length ? 'has-media' : 'brand-mode'}`}>
         {display.map((reel, index) => {
           const clientUrl = clientList.find(client => client.id === reel.clientId)?.url
@@ -1033,11 +1048,11 @@ function BehanceWall({ projects }) {
   const [expanded, setExpanded] = useState(false)
   const isMobile = useMediaQuery('(max-width: 760px)')
   const validProjects = useMemo(() => (projects || []).filter(project => safeHttpUrl(project.url)), [projects])
-  const limit = isMobile ? 4 : 8
+  const limit = isMobile ? 2 : 4
   const visible = validProjects.slice(0, expanded ? validProjects.length : limit)
   return (
     <section id="behance" className="behance-section section-shell" data-phase="dark">
-      <div className="behance-heading"><div className="section-index" data-reveal>06 / VISUAL ARCHIVE</div><h2 data-reveal>O PORTFÓLIO<br/><span>CONTINUA CRESCENDO.</span></h2><p data-reveal>Campanhas, identidades, 3D, interfaces e experimentos publicados pela própria Seeven. O arquivo é o rastro do que estamos produzindo.</p></div>
+      <div className="behance-heading"><div className="section-index" data-reveal>06 / VISUAL ARCHIVE</div><h2 data-reveal>O PORTFÓLIO<br/><span>CONTINUA CRESCENDO.</span></h2><RevealMore label="SOBRE O ARQUIVO"><p>Campanhas, identidades, 3D, interfaces e experimentos publicados pela própria Seeven.</p></RevealMore></div>
       <div className="behance-grid">{visible.map((project, index) => <a key={project.id || project.url} href={safeHttpUrl(project.url)} target="_blank" rel="noreferrer" className={`behance-card behance-${index % 5}`} data-reveal onClick={() => track('behance_project_open', { project: project.title })}><div className="behance-art"><div className="behance-fallback" aria-hidden="true"><span>SEE7VEN / BEHANCE</span><b>{project.title}</b></div><SmartImage src={project.cover} alt={`Capa de ${project.title}`} loading="lazy"/><span className="behance-index">{String(index + 1).padStart(2, '0')}</span></div><div className="behance-meta"><div><strong>{project.title}</strong><span>{project.client}</span></div><div>{(project.tools || []).slice(0, 3).map(tool => <small key={tool}>{tool}</small>)}</div><i>{externalArrow}</i></div></a>)}</div>
       {validProjects.length > limit && <button className="behance-expand" onClick={() => setExpanded(value => !value)}>{expanded ? 'MOSTRAR MENOS ↑' : `VER MAIS PROJETOS / ${validProjects.length} ↓`}</button>}
       <a className="behance-profile-link" href="https://www.behance.net/wedeseeven" target="_blank" rel="noreferrer">VER PERFIL COMPLETO NO BEHANCE {externalArrow}</a>
@@ -1046,20 +1061,37 @@ function BehanceWall({ projects }) {
 }
 
 function DecisionSection({ onBrief }) {
-  const [open, setOpen] = useState(0)
+  const [open, setOpen] = useState(-1)
+  const essentials = [
+    ['01', 'Clareza antes de produção.', 'Entender o problema evita investir energia na peça errada.'],
+    ['02', 'Uma linguagem que pertence à marca.', 'Direção visual não deveria parecer o mesmo template trocando a logo.'],
+    ['03', 'Execução conectada.', 'Social, site, vídeo e físico trabalham como partes do mesmo sistema.'],
+    ['04', 'Capacidade de evoluir.', 'A presença pode crescer por etapas sem perder coerência.']
+  ]
   return (
     <section id="why-seeven" className="decision-section section-shell" data-phase="dark">
-      <div className="decision-value"><div className="section-index" data-reveal>07 / WHY SEE7VEN</div><h2 data-reveal>O QUE VOCÊ ESTÁ<br/><span>CONTRATANDO DE VERDADE.</span></h2><div className="value-grid"><article data-reveal><span>01</span><strong>Clareza antes de produção.</strong><p>Entender o problema evita investir energia na peça errada.</p></article><article data-reveal><span>02</span><strong>Uma linguagem que pertence à marca.</strong><p>Direção visual não deveria parecer o mesmo template trocando a logo.</p></article><article data-reveal><span>03</span><strong>Execução conectada.</strong><p>Social, site, vídeo e físico passam a trabalhar como partes do mesmo sistema.</p></article><article data-reveal><span>04</span><strong>Capacidade de evoluir.</strong><p>Identidade, conteúdo, site e materiais podem evoluir por etapas sem perder coerência.</p></article></div></div>
-      <div className="faq"><span>ANTES DE CHAMAR / FAQ</span>{faqItems.map(([question, answer], index) => <article key={question} className={open === index ? 'active' : ''}><button onClick={() => setOpen(open === index ? -1 : index)}><strong>{question}</strong><i>{open === index ? '−' : '+'}</i></button><p>{answer}</p></article>)}<button className="faq-cta" onClick={() => onBrief()}>Ainda ficou uma dúvida? Comece pelo brief →</button></div>
+      <div className="decision-value">
+        <div className="section-index" data-reveal>07 / WHY SEE7VEN</div>
+        <h2 data-reveal>MENOS PEÇAS.<br/><span>MAIS DIREÇÃO.</span></h2>
+        <div className="value-grid value-grid-essential">{essentials.slice(0, 2).map(([n, title]) => <article key={n} data-reveal><span>{n}</span><strong>{title}</strong></article>)}</div>
+        <RevealMore label="VER COMO TRABALHAMOS">
+          <div className="value-grid value-grid-more">{essentials.map(([n, title, text]) => <article key={n}><span>{n}</span><strong>{title}</strong><p>{text}</p></article>)}</div>
+        </RevealMore>
+      </div>
+      <RevealMore label="DÚVIDAS FREQUENTES" className="faq-disclosure">
+        <div className="faq"><span>ANTES DE CHAMAR / FAQ</span>{faqItems.map(([question, answer], index) => <article key={question} className={open === index ? 'active' : ''}><button onClick={() => setOpen(open === index ? -1 : index)}><strong>{question}</strong><i>{open === index ? '−' : '+'}</i></button><p>{answer}</p></article>)}<button className="faq-cta" onClick={() => onBrief()}>Começar pelo brief →</button></div>
+      </RevealMore>
     </section>
   )
 }
 
 function People() {
   return (
-    <section className="people-section section-shell" data-phase="dark">
+    <section className="people-section section-shell people-compact" data-phase="dark">
       <div><div className="section-index" data-reveal>08 / PEOPLE</div><h2 data-reveal>POR TRÁS DA SEE7VEN,<br/><span>TEM GENTE.</span></h2></div>
-      <div className="people-cards"><article data-reveal><span>K / 01</span><div className="person-monogram">K</div><strong>KAREN</strong><p>Relacionamento, operação e projetos.</p></article><article data-reveal><span>G / 02</span><div className="person-monogram">G</div><strong>GUSTAVO</strong><p>Estratégia, direção e desenvolvimento.</p></article></div>
+      <RevealMore label="CONHECER QUEM ESTÁ POR TRÁS">
+        <div className="people-cards"><article><span>K / 01</span><div className="person-monogram">K</div><strong>KAREN</strong><p>Relacionamento, operação e projetos.</p></article><article><span>G / 02</span><div className="person-monogram">G</div><strong>GUSTAVO</strong><p>Estratégia, direção e desenvolvimento.</p></article></div>
+      </RevealMore>
     </section>
   )
 }
@@ -1118,7 +1150,7 @@ function Contact({ onBrief, karenWhatsapp, gustavoWhatsapp, hasKaren, hasGustavo
         {hasKaren ? <a href={karenWhatsapp} target="_blank" rel="noreferrer"><span>KAREN / NOVOS PROJETOS</span><strong>WhatsApp {externalArrow}</strong></a> : <button className="contact-fallback" onClick={() => onBrief()}><span>NOVOS PROJETOS</span><strong>Contato via brief →</strong></button>}
         {hasGustavo ? <a href={gustavoWhatsapp} target="_blank" rel="noreferrer"><span>GUSTAVO / DIREÇÃO</span><strong>Conversar {externalArrow}</strong></a> : <a href="https://www.behance.net/wedeseeven" target="_blank" rel="noreferrer"><span>REPERTÓRIO / SEE7VEN</span><strong>Behance {externalArrow}</strong></a>}
       </div>
-      <div className="contact-next" data-reveal><span>O QUE ACONTECE DEPOIS</span><ol><li><b>01</b><p>Você conta o problema.</p></li><li><b>02</b><p>A gente organiza o que realmente precisa ser resolvido.</p></li><li><b>03</b><p>Você recebe um próximo passo claro, sem compromisso com pacote genérico.</p></li></ol></div>
+      <RevealMore label="COMO FUNCIONA DEPOIS DO CONTATO" className="contact-more"><div className="contact-next"><ol><li><b>01</b><p>Você conta o problema.</p></li><li><b>02</b><p>A gente organiza o que precisa ser resolvido.</p></li><li><b>03</b><p>Você recebe um próximo passo claro.</p></li></ol></div></RevealMore>
       <div className="contact-word" aria-hidden="true">SEE7VEN</div>
     </section>
   )

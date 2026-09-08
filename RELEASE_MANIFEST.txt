@@ -1,4 +1,4 @@
-SEE7VEN Presence System V9.2 — release manifest
+SEE7VEN Presence System V9.3 — release manifest
 
 Core
 - src/App.jsx

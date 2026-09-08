@@ -88,7 +88,7 @@ assert(/admin-status-stack/.test(admin), 'Status editorial e publicação ainda 
 // Deploy / repository hygiene -----------------------------------------
 assert(exists('SUPABASE_V8_MIGRATION.sql'), 'Migration V8 ausente.')
 assert(exists('SUPABASE_V8_BOOTSTRAP.sql'), 'Bootstrap V8 ausente.')
-assert(exists('ADMIN_GUIDE.md') && exists('ADMIN_SETUP.md') && exists('DEPLOY_CHECKLIST.md') && exists('QA_V9_2.md'), 'Documentação operacional/QA V9.2 incompleta.')
+assert(exists('ADMIN_GUIDE.md') && exists('ADMIN_SETUP.md') && exists('DEPLOY_CHECKLIST.md') && exists('QA_V9_3.md'), 'Documentação operacional/QA V9.3 incompleta.')
 assert(exists('.gitignore'), '.gitignore ausente.')
 warn(!exists('node_modules'), 'node_modules existe no ambiente atual. Isso é normal após npm install; confirme apenas que não está versionado no Git.')
 assert(/node_modules\//.test(gitignore) && /dist\//.test(gitignore) && /\.env/.test(gitignore), '.gitignore não cobre node_modules, dist e variáveis locais.')
@@ -110,25 +110,25 @@ for (const artifact of ['src/App.jsx.pre-final','src/App.jsx.v8-qa-backup','src/
   assert(!exists(artifact), `Arquivo legado/intermediário ainda presente no pacote: ${artifact}`)
 }
 
-// V9.2 scrollytelling / conversion journey ----------------------------
-assert(/function StoryIntro/.test(app) && /<StoryIntro/.test(app), 'StoryIntro V9.2 ausente da jornada pública.')
-assert(/function PresenceEngine/.test(app) && /<PresenceEngine/.test(app), 'Presence Engine V9.2 ausente da jornada pública.')
-assert(/function JourneyRail/.test(app) && /<JourneyRail/.test(app), 'Journey Rail V9.2 ausente.')
+// V9.3 scrollytelling / progressive disclosure journey ----------------------------
+assert(/function StoryIntro/.test(app) && /<StoryIntro/.test(app), 'StoryIntro V9.3 ausente da jornada pública.')
+assert(/function PresenceEngine/.test(app) && /<PresenceEngine/.test(app), 'Presence Engine V9.3 ausente da jornada pública.')
+assert(/function JourneyRail/.test(app) && /<JourneyRail/.test(app), 'Journey Rail V9.3 ausente.')
 assert(/story_step/.test(app), 'Analytics story_step ausente.')
 assert(/presence_engine_step/.test(app), 'Analytics presence_engine_step ausente.')
 assert(/journey_chapter/.test(app), 'Analytics journey_chapter ausente.')
 assert(/workStart/.test(app), 'CTA mobile não está atrasado até a proximidade do portfólio.')
 assert(app.includes('aria-hidden={active !=='), 'Cenas sticky não têm aria-hidden para estados inativos.')
 assert(app.includes('inert={active !=='), 'Cenas sticky não removem conteúdo inativo da navegação por teclado.')
-assert(/\.story-intro/.test(css) && /\.presence-engine/.test(css), 'CSS da narrativa sticky V9.2 incompleto.')
-assert(/position\s*:\s*sticky/i.test(css), 'V9.2 perdeu position:sticky da narrativa.')
-assert(/story-stepper/.test(app) && /story-stepper/.test(css), 'Stepper da abertura V9.2 ausente.')
+assert(/\.story-intro/.test(css) && /\.presence-engine/.test(css), 'CSS da narrativa sticky V9.3 incompleto.')
+assert(/position\s*:\s*sticky/i.test(css), 'V9.3 perdeu position:sticky da narrativa.')
+assert(/story-stepper/.test(app) && /story-stepper/.test(css), 'Stepper da abertura V9.3 ausente.')
 assert(/story-proof-grid/.test(app) && /story-proof-grid/.test(css), 'Prova visual do frame final da abertura ausente.')
 assert(/preferredScrollBehavior/.test(app), 'Scroll programático não respeita reduced motion.')
 assert(/journey-rail\.is-intro/.test(css), 'Journey Rail não some durante a abertura.')
 assert(/max-height:760px/.test(css), 'Falta tratamento de viewport baixo para notebooks.')
-assert(packageJson.version === '9.2.0', `package.json deveria estar em 9.2.0 e está em ${packageJson.version}.`)
-assert(/version:'9\.2'/.test(admin), 'Backup do Control Room não está marcado como V9.2.')
+assert(packageJson.version === '9.3.0', `package.json deveria estar em 9.3.0 e está em ${packageJson.version}.`)
+assert(/version:'9\.3'/.test(admin), 'Backup do Control Room não está marcado como V9.3.')
 assert(/rel="canonical"/.test(read('index.html')), 'Canonical ausente no index.html.')
 
 // A jornada pública deve estar condensada e o source não deve carregar os antigos blocos autônomos.
@@ -136,16 +136,27 @@ for (const legacyComponent of ['function StrategyLens(', 'function PixelPaper(',
   assert(!app.includes(legacyComponent), `Componente legado ainda presente em App.jsx: ${legacyComponent}.`)
 }
 
+// V9.3 progressive disclosure ------------------------------------------------
+assert(/function RevealMore/.test(app), 'RevealMore V9.3 ausente.')
+assert(/SOBRE ESTA CURADORIA/.test(app), 'Curadoria não possui disclosure contextual.')
+assert(/ENTENDER ESTA ETAPA/.test(app), 'Presence Engine não usa disclosure progressivo.')
+assert(/COMO PENSAMOS VÍDEO/.test(app), 'Motion Archive não usa disclosure progressivo.')
+assert(/DÚVIDAS FREQUENTES/.test(app), 'FAQ não está em disclosure.')
+assert(/const compactLimit = isMobile \? 3 : 4/.test(app), 'Selected Work ainda exibe projetos demais inicialmente.')
+assert(/const collapsedLimit = isMobile \? 2 : 4/.test(app), 'Motion Archive ainda exibe itens demais inicialmente.')
+assert(/const limit = isMobile \? 2 : 4/.test(app), 'Behance ainda exibe itens demais inicialmente.')
+assert(/\.reveal-more/.test(css), 'CSS do progressive disclosure V9.3 ausente.')
+
 if (css.split('{').length !== css.split('}').length) failures.push('Quantidade de chaves CSS não confere.')
 
 if (failures.length) {
-  console.error('\nSEE7VEN V9.2 / PREFLIGHT FAILED')
+  console.error('\nSEE7VEN V9.3 / PREFLIGHT FAILED')
   failures.forEach(item => console.error(`✗ ${item}`))
   warnings.forEach(item => console.warn(`! ${item}`))
   process.exit(1)
 }
 
-console.log('SEE7VEN V9.2 / PREFLIGHT OK')
+console.log('SEE7VEN V9.3 / PREFLIGHT OK')
 console.log(`✓ ${clients.length} clientes`)
 console.log(`✓ ${featuredProjects.length} projetos selecionados`)
 console.log(`✓ ${reels.length} slots de Reel`)

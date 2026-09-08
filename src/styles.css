@@ -714,7 +714,7 @@ html[data-phase="dark"] .journey-rail-desktop{background:rgba(7,7,10,.7);border-
 /* Mobile keeps the experience clean: section progress lives inside each sticky scene. */
 @media(max-width:760px){.journey-rail{display:none}}
 
-/* V9.2 / DJI-like guided scroll polish --------------------------------- */
+/* V9.3 / DJI-like guided scroll polish --------------------------------- */
 .story-sticky,.case-scroll-sticky,.presence-engine-sticky{touch-action:pan-y;overscroll-behavior-x:none}
 .journey-rail.is-intro{opacity:0;pointer-events:none}
 .story-stepper{position:absolute;z-index:11;right:var(--page);bottom:30px;display:flex;align-items:center;gap:.35rem}
@@ -772,4 +772,76 @@ html[data-phase="dark"] .journey-rail-desktop{background:rgba(7,7,10,.7);border-
 
 @media(prefers-reduced-motion:reduce){
   .story-stepper button>i::after{transition:none!important}
+}
+
+/* V9.3 / Progressive disclosure -----------------------------------------
+   Essential information stays visible. Secondary context opens on demand. */
+.reveal-more{margin-top:1rem;border-top:1px solid rgba(255,255,255,.12);max-width:680px}
+[data-phase="light"] .reveal-more{border-top-color:rgba(10,10,12,.12)}
+.reveal-more>summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.85rem 0;cursor:pointer;font-size:.62rem;font-weight:850;letter-spacing:.12em;text-transform:uppercase;user-select:none;transition:opacity .2s ease,color .2s ease}
+.reveal-more>summary::-webkit-details-marker{display:none}
+.reveal-more>summary:hover{opacity:.7}
+.reveal-more>summary i{font-style:normal;width:28px;height:28px;border:1px solid currentColor;border-radius:999px;display:grid;place-items:center;font-size:.95rem;line-height:1;transition:transform .3s cubic-bezier(.2,.8,.2,1),background .2s ease,color .2s ease}
+.reveal-more[open]>summary i{transform:rotate(45deg);background:#7448df;color:white;border-color:#7448df}
+.reveal-more-body{padding:.15rem 0 1.25rem;animation:revealMoreIn .34s cubic-bezier(.2,.8,.2,1)}
+.reveal-more-body>p{margin:0;max-width:60ch;line-height:1.7;opacity:.72}
+@keyframes revealMoreIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+
+/* Work: show the work first; context stays one click away. */
+.work-heading>p{max-width:36ch}
+.filter-context{display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
+.filter-context>b{margin-left:auto}
+.filter-context .reveal-more{flex:1 0 100%;margin-top:.1rem}
+.project-meta>p{display:none!important}
+.project-open-hint{display:block;margin-top:.8rem;opacity:.48;font-size:.48rem!important;letter-spacing:.12em!important}
+.project-card:hover .project-open-hint{opacity:1}
+
+/* Scroll stories: one sentence visible, context optional. */
+.case-scroll-copy .reveal-more,.presence-engine-copy .reveal-more{margin-top:.7rem;max-width:480px}
+.case-scroll-copy .reveal-more>summary,.presence-engine-copy .reveal-more>summary{font-size:.52rem;padding:.65rem 0}
+.case-scroll-lead{max-width:32ch!important}
+.presence-engine-copy>p{max-width:31ch!important}
+
+/* Motion / Behance: preview first, archive second. */
+.motion-heading .reveal-more,.behance-heading .reveal-more{max-width:520px}
+.motion-heading>div:last-child>span{display:block;max-width:44ch;opacity:.62;line-height:1.55}
+
+/* Why Seeven: only two promises visible initially. */
+.value-grid-essential article p{display:none}
+.value-grid-essential{margin-bottom:.8rem}
+.value-grid-more{margin-top:.2rem}
+.decision-value>.reveal-more{max-width:none;margin-top:.6rem}
+.faq-disclosure{max-width:none;margin-top:2rem}
+.faq-disclosure .faq{margin-top:.4rem}
+
+/* People becomes a compact disclosure rather than another full information wall. */
+.people-compact{padding-top:clamp(5rem,8vw,9rem);padding-bottom:clamp(5rem,8vw,9rem)}
+.people-compact>.reveal-more{max-width:none;margin-top:2rem}
+.people-compact .people-cards{margin-top:.4rem}
+
+/* Contact: conversion stays visible; process stays optional. */
+.contact-more{max-width:760px;margin-top:2.2rem}
+.contact-more .contact-next{margin-top:0}
+.contact-more .contact-next>span{display:none}
+
+/* Slightly shorter page rhythm after progressive disclosure. */
+.motion-section,.behance-section,.decision-section,.people-section{scroll-margin-top:80px}
+
+@media(max-width:760px){
+  .reveal-more{margin-top:.75rem}
+  .reveal-more>summary{font-size:.56rem;padding:.72rem 0}
+  .reveal-more>summary i{width:26px;height:26px}
+  .filter-context{gap:.45rem}
+  .filter-context>b{margin-left:0}
+  .project-open-hint{margin-top:.55rem}
+  .case-scroll-copy .reveal-more,.presence-engine-copy .reveal-more{margin-top:.45rem}
+  .case-scroll-copy .reveal-more-body,.presence-engine-copy .reveal-more-body{font-size:.86rem}
+  .value-grid-essential{grid-template-columns:1fr!important}
+  .value-grid-more{grid-template-columns:1fr!important}
+  .people-compact{padding-top:4.5rem;padding-bottom:4.5rem}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .reveal-more-body{animation:none}
+  .reveal-more>summary i{transition:none}
 }

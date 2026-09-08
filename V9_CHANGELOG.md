@@ -1,3 +1,15 @@
+# V9 CHANGELOG
+
+## V9.3 — Progressive Disclosure
+
+- menos conteúdo simultâneo;
+- detalhes sob demanda;
+- portfólio inicial menor;
+- Motion e Behance mais compactos;
+- FAQ, pessoas e pós-contato recolhidos;
+- cards focados em imagem + título;
+- versão do Control Room/backup atualizada para 9.3.
+
 # SEE7VEN Presence System V9.2 — changelog
 
 ## Abertura

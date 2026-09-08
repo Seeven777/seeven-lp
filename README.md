@@ -1,6 +1,6 @@
-# SEE7VEN — Presence System V9.2
+# SEE7VEN — Presence System V9.3
 
-V9.2 transforma a LP em uma **experiência guiada por scroll**: a primeira tela fica presa no viewport e a mensagem evolui conforme o visitante rola ou puxa para baixo.
+V9.3 transforma a LP em uma **experiência guiada por scroll**: a primeira tela fica presa no viewport e a mensagem evolui conforme o visitante rola ou puxa para baixo.
 
 A referência de interação é a lógica de product storytelling usada em páginas como DJI: **uma ideia por vez → progressão visual → prova → interação → ação**. Layout, identidade, conteúdo e assets continuam próprios da Seeven.
 
@@ -11,6 +11,26 @@ A referência de interação é a lógica de product storytelling usada em pági
 Parar é só o primeiro segundo. A marca ainda precisa ser entendida, lembrada e escolhida.
 
 A Seeven conecta estratégia, branding, conteúdo, motion, web e físico para construir presença **do pixel ao papel**.
+
+
+## V9.3 — menos informação visível, mais descoberta
+
+A V9.3 adota **progressive disclosure**: o visitante vê primeiro somente o que ajuda a entender e desejar o trabalho. Contexto, método, FAQ, pessoas e detalhes editoriais ficam disponíveis em controles como **VER MAIS**, **ENTENDER ESTA ETAPA** e **VER CONTEXTO**.
+
+Mudanças principais:
+
+- Selected Work inicia com 4 projetos no desktop e 3 no mobile;
+- cards mostram título, disciplina e CTA de abertura — a explicação completa fica dentro do case;
+- descrição de cada filtro fica em `SOBRE ESTA CURADORIA`;
+- Flagship Case mostra uma frase essencial por etapa e deixa o contexto completo sob demanda;
+- Presence Engine mostra uma ideia curta por frame e guarda a explicação em `ENTENDER ESTA ETAPA`;
+- Motion inicia com 4 itens no desktop / 2 no mobile;
+- Behance inicia com 4 projetos no desktop / 2 no mobile;
+- Why Seeven deixa apenas duas promessas visíveis e expande o restante;
+- FAQ, pessoas e o processo pós-contato ficam recolhidos inicialmente;
+- os disclosures usam `<details>/<summary>`, então continuam acessíveis por teclado e funcionais sem JavaScript adicional.
+
+A intenção é reduzir carga cognitiva sem empobrecer o portfólio: **o essencial convence; o detalhe fica disponível para quem quiser aprofundar**.
 
 ## Jornada pública
 
@@ -36,7 +56,7 @@ A home abre em um palco fixo de cinco etapas:
 4. **Não somamos peças. Conectamos.**
 5. **Agora, olhe o trabalho.**
 
-Recursos V9.2:
+Recursos V9.3:
 
 - progressão por scroll;
 - `PULAR INTRO` para retorno rápido;
@@ -53,7 +73,7 @@ O portfólio aparece imediatamente após a abertura.
 
 - filtros realmente diferentes;
 - curadoria + taxonomia para projetos futuros do CMS;
-- 8 projetos iniciais no desktop / 5 no mobile;
+- 4 projetos iniciais no desktop / 3 no mobile;
 - Case Drawer com URL compartilhável `/work/:slug`;
 - cases estruturados em problema → decisão → execução → resultado.
 
@@ -86,7 +106,7 @@ O Behance Watch continua sendo o mecanismo para acompanhar projetos novos public
 
 ## Mobile
 
-A V9.2 trata mobile como composição própria:
+A V9.3 trata mobile como composição própria:
 
 - cenas sticky em `100svh`;
 - tipografia limitada por viewport;
@@ -139,7 +159,7 @@ Também possui:
 
 ## Supabase
 
-V9.2 **não exige nova migration** se a segurança V8 já está aplicada.
+V9.3 **não exige nova migration** se a segurança V8 já está aplicada.
 
 Se o banco ainda for V7.4, execute uma vez:
 
@@ -192,7 +212,7 @@ Depois:
 
 ```bash
 git add .
-git commit -m "feat: SEE7VEN Presence System V9.2"
+git commit -m "feat: SEE7VEN Presence System V9.3"
 git push
 ```
 

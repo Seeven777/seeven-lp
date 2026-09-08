@@ -1,10 +1,10 @@
-# SEE7VEN V9.2 — Banco / migração
+# SEE7VEN V9.3 — Banco / migração
 
-A V9.2 altera a experiência pública e **não exige alteração de schema** depois da camada CMS/segurança V8.
+A V9.3 altera a experiência pública e **não exige alteração de schema** depois da camada CMS/segurança V8.
 
 ## Se o `/admin` já funciona com `cms_admins`
 
-Não execute migration nova por causa da V9.2.
+Não execute migration nova por causa da V9.3.
 
 Confirme apenas:
 

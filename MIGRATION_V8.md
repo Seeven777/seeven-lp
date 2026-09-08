@@ -1,38 +1,62 @@
-# Migração V7.4 → V8
+# Migração SEE7VEN V7.4 → V8.0.1
 
-Esta é a sequência recomendada para o repositório que já está online.
+Este projeto já possui Supabase configurado na V7.4. Para atualizar sem apagar conteúdo, use **SUPABASE_V8_MIGRATION.sql**.
 
 ## 1. Faça backup
 
-No `/admin`, use **Backup JSON** antes de trocar o código.
+No Control Room, exporte o backup JSON antes da migration. No Supabase, confirme que o projeto correto está aberto.
 
-Opcionalmente, exporte também as tabelas pelo Supabase.
+## 2. Atualize o código
 
-## 2. Substitua os arquivos do projeto
+Substitua os arquivos da aplicação pelos da V8.0.1. Ao atualizar um repositório existente, arquivos antigos não são apagados automaticamente apenas porque não existem no ZIP novo.
 
-Extraia o ZIP V8 e copie o conteúdo para a raiz do repositório.
-
-Não copie `node_modules` de nenhuma máquina.
-
-## 3. Limpe `node_modules` do Git
-
-O repositório público atual possui `node_modules` já rastreado. O `.gitignore` sozinho não remove arquivos que já estão no histórico/índice.
-
-Execute:
+Faça a limpeza uma vez:
 
 ```bash
 git rm -r --cached node_modules
+git rm --ignore-unmatch <arquivo-setup-legado-v7.4>.sql
+git rm --ignore-unmatch qa-prototype.html
+git add .gitignore
 ```
 
-Depois:
+Se `node_modules` não estiver rastreado, o primeiro comando pode apenas informar que não encontrou arquivos; isso não é problema.
 
-```bash
-git status
+## 3. Supabase existente
+
+No SQL Editor execute:
+
+```text
+SUPABASE_V8_MIGRATION.sql
 ```
 
-É normal aparecer uma grande quantidade de arquivos de `node_modules` como removidos.
+A migration preserva as tabelas existentes e acrescenta a camada V8, incluindo autorização administrativa por `cms_admins` / `is_seeven_admin()`.
 
-## 4. Instale e valide localmente
+**Não execute `SUPABASE_V8_BOOTSTRAP.sql` sobre a instalação V7.4 existente.**
+
+## 4. Instalação nova do zero
+
+Somente para um projeto Supabase novo, sem a estrutura anterior, use:
+
+```text
+SUPABASE_V8_BOOTSTRAP.sql
+```
+
+Depois crie o usuário em Authentication e autorize-o como administrador conforme `ADMIN_SETUP.md`.
+
+## 5. Variáveis Vercel
+
+Mantenha:
+
+```env
+VITE_SUPABASE_URL=...
+VITE_SUPABASE_PUBLISHABLE_KEY=...
+VITE_KAREN_WHATSAPP=...
+VITE_GUSTAVO_WHATSAPP=...
+```
+
+Nunca coloque uma Secret Key em variável `VITE_*`.
+
+## 6. Build local
 
 ```bash
 npm install
@@ -40,91 +64,14 @@ npm run preflight
 npm run build
 ```
 
-Se o build falhar, não faça o deploy até entender o erro.
+Na V8.0.1, a presença de `node_modules` após `npm install` não é mais tratada como erro. Arquivos legados de documentação também não interrompem um deploy de produção, embora devam ser removidos do Git.
 
-## 5. Execute a migration V8 no Supabase
-
-Abra:
-
-**Supabase → SQL Editor**
-
-Cole e execute:
-
-```text
-SUPABASE_V8_MIGRATION.sql
-```
-
-Execute apenas uma vez no upgrade normal.
-
-A migration:
-
-- cria `cms_admins`;
-- preserva automaticamente o administrador quando existe exatamente uma conta em Authentication;
-- restringe escrita a administradores explícitos;
-- mantém leitura pública de itens publicados;
-- permite que o Admin leia rascunhos;
-- restringe upload/alteração/exclusão do Media Vault;
-- adiciona `stack` em `services`;
-- cria triggers de `updated_at`;
-- cria índices de leitura/ordenação.
-
-## 6. Outro usuário administrativo
-
-Primeiro crie a conta em:
-
-**Supabase → Authentication → Users**
-
-Depois, no SQL Editor:
-
-```sql
-insert into public.cms_admins (user_id, email)
-select id, email
-from auth.users
-where lower(email) = lower('OUTRO_EMAIL@EXEMPLO.COM')
-on conflict (user_id) do update set email = excluded.email;
-```
-
-## 7. Confirme as variáveis da Vercel
-
-```text
-VITE_SUPABASE_URL
-VITE_SUPABASE_PUBLISHABLE_KEY
-```
-
-A Secret Key nunca deve ser colocada no frontend.
-
-## 8. Commit
+## 7. Commit
 
 ```bash
 git add .
-git commit -m "feat: Seeven Presence System V8"
+git commit -m "fix: SEE7VEN V8.0.1 Vercel build"
 git push
 ```
 
-## 9. Pós-deploy
-
-Teste:
-
-- `/`
-- `/admin`
-- `/work/sindpetshop-ecosystem`
-- `/?for=food`
-- mobile 360–430 px
-- desktop 1366 px+
-- login do Admin
-- edição + limpeza de campo
-- upload de imagem
-- Reel com permalink
-- Behance Watch
-- Brief → WhatsApp
-
-## Fresh install
-
-Em um Supabase vazio:
-
-1. execute `SUPABASE_V8_BOOTSTRAP.sql`;
-2. crie o usuário em Authentication;
-3. entre em `/admin`;
-4. se necessário, autorize a conta em `cms_admins` usando o SQL mostrado pela própria tela de acesso.
-
-Não execute a migration de upgrade em um banco que já foi criado pelo bootstrap V8.
+Com o projeto conectado à Vercel, o push dispara o novo deploy.
