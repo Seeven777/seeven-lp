@@ -1,101 +1,100 @@
-# V7.4 — deploy checklist
+# SEE7VEN V8 — Deploy Checklist
 
-## 1. Local validation
+## Antes do commit
+
+- [ ] Backup JSON feito no Control Room
+- [ ] `node_modules` removido do índice do Git
+- [ ] `.env` / `.env.local` não versionados
+- [ ] lockfile antigo removido/regenerado (`rm -f package-lock.json && npm install`)
+- [ ] `npm run preflight` passou
+- [ ] `npm run build` passou
+- [ ] nenhum link secreto/credencial inserido no source
+
+### Limpar node_modules rastreado
 
 ```bash
+git rm -r --cached node_modules
+rm -f package-lock.json
 npm install
-npm run build
-npm run dev
 ```
 
-Check these routes before pushing:
+O `npm install` gera um lockfile novo compatível com React 19, Supabase e Vite 7 usados pela V8.
 
-- `/`
-- `/admin`
-- `/work/sindpetshop-ecosystem`
-- `/?for=food`
-- `/?for=b2b&prospect=Empresa%20Teste`
+## Supabase
 
-## 2. Environment variables
+- [ ] `SUPABASE_V8_MIGRATION.sql` executado uma vez
+- [ ] `cms_admins` contém o usuário correto
+- [ ] login em `/admin` funciona
+- [ ] Admin consegue visualizar rascunhos
+- [ ] Admin consegue editar/publicar
+- [ ] upload no bucket `portfolio-assets` funciona
+- [ ] usuário autenticado não autorizado não consegue escrever
 
-Create `.env.local` locally and configure the same values in Vercel:
+## Vercel
 
-```env
-VITE_SUPABASE_URL=
-VITE_SUPABASE_PUBLISHABLE_KEY=
-VITE_KAREN_WHATSAPP=5511XXXXXXXXX
-VITE_GUSTAVO_WHATSAPP=5511XXXXXXXXX
+Variáveis públicas esperadas:
+
+```text
+VITE_SUPABASE_URL
+VITE_SUPABASE_PUBLISHABLE_KEY
+VITE_KAREN_WHATSAPP
+VITE_GUSTAVO_WHATSAPP (opcional)
 ```
 
-Do not commit `.env.local`.
+- [ ] Production
+- [ ] Preview
+- [ ] novo deploy após alteração de variável VITE
 
-## 3. Supabase
+Nunca use `SUPABASE_SECRET_KEY` com prefixo `VITE_`.
 
-Execute/review once in Supabase SQL Editor:
+## QA da LP
 
-`SUPABASE_V7_4_SETUP.sql`
+Desktop:
 
-Then confirm:
+- [ ] hero legível
+- [ ] manifesto sem branco sobre branco
+- [ ] todos os filtros mudam a curadoria
+- [ ] cases abrem e fecham
+- [ ] URL `/work/:slug` abre direto
+- [ ] Before/After chega a 0 e 100
+- [ ] Motion Archive só mostra Play onde há mídia reproduzível
+- [ ] Ecosystem sem colisão entre labels
+- [ ] FAQ abre/fecha
+- [ ] Brief monta WhatsApp
+- [ ] Behance abre apenas links reais
 
-- bucket `portfolio-assets` is public for reads;
-- authenticated Admin users can upload/update/delete media;
-- existing table RLS still allows public reading of published data and authenticated management.
+Mobile 360–430 px:
 
-## 4. Media readiness
+- [ ] nenhum texto estoura horizontalmente
+- [ ] menu abre/fecha
+- [ ] filtros possuem scroll horizontal
+- [ ] cards ficam em uma coluna
+- [ ] Reels em duas colunas
+- [ ] Before/After utilizável por toque
+- [ ] Ecosystem vira grid
+- [ ] Capability/Strategy navegáveis
+- [ ] CTA inferior não cobre conteúdo crítico
 
-In `/admin`:
+## QA do Admin
 
-- every priority Reel should have an exact Instagram Reel permalink or `.mp4/.webm`;
-- every priority Reel should have a poster;
-- mark only the strongest items as `featured=true`;
-- upload project covers to Storage instead of relying on third-party image URLs;
-- use stable client slugs (`sindpetshop`, `venancio`, `seon`, etc.).
+- [ ] dashboard carrega
+- [ ] nova mídia
+- [ ] novo projeto
+- [ ] limpar campo e salvar
+- [ ] rascunho não aparece na LP
+- [ ] publicar aparece sem deploy
+- [ ] duplicar cria rascunho
+- [ ] reordenar funciona
+- [ ] upload de imagem
+- [ ] upload de vídeo + tentativa de poster
+- [ ] Behance Watch
+- [ ] Backup JSON
+- [ ] Pitch Link Builder
 
-## 5. Mobile QA
+## Depois do deploy
 
-Test at approximately:
-
-- 360 × 800;
-- 390 × 844;
-- 430 × 932;
-- tablet portrait;
-- desktop 1366 × 768 and 1920 × 1080.
-
-Check navigation menu, Reel modal, Showreel, Case Drawer, Before/After, Project Intelligence, Capability OS, Pitch Mode and 60-second brief.
-
-## 6. Analytics
-
-If GTM/GA4 is present, map the `dataLayer` events documented in README. Test at least:
-
-- `page_view`
-- `case_open`
-- `reel_open`
-- `reel_play`
-- `showreel_start`
-- `work_filter`
-- `brief_started`
-- `brief_completed`
-- `case_share`
-- `tool_evidence_open`
-
-## 7. Git / Vercel
-
-```bash
-git add .
-git commit -m "feat: Seeven Presence System V7.4"
-git push
-```
-
-Vercel’s rewrite already routes clean paths such as `/work/...` back to `index.html`.
-
-
-## Verificação visual V7.4
-
-Após o deploy, conferir especialmente:
-
-- Manifesto aparece sem precisar “forçar” scroll.
-- Project Intelligence não cria vazio preto.
-- Header troca corretamente entre tema claro/escuro.
-- Selected Work fecha as linhas sem card órfão.
-- Reels ficam legíveis em desktop e 2 por linha no celular.
-- Captura de página inteira não repete grandes trechos.
+- [ ] `Ctrl+Shift+R` e teste em janela anônima
+- [ ] DevTools Console sem erro crítico
+- [ ] Network sem 401/403 inesperado
+- [ ] teste com login e sem login
+- [ ] teste de um link de prospecção

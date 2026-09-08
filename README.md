@@ -1,140 +1,185 @@
-# SEE7VEN — Presence System V7.4
+# SEE7VEN — Presence System V8
 
-V7.3 transforma o portfólio em uma experiência comercial + sistema de mídia + CMS, mantendo o conceito central:
+V8 é uma revisão estrutural da LP/portfólio e do CMS. O objetivo não é adicionar mais efeitos: é tornar a experiência mais clara, estável, convincente e fácil de manter.
 
-**FAZEMOS MARCAS PARAREM.**  
-**Construímos presença.**  
-**Do pixel ao papel.**
+**Posicionamento central**
 
-A direção LIGHT → DARK continua, mas a arquitetura foi endurecida para corrigir bugs de mídia, scroll longo, CMS parcial, mobile e estados sem conteúdo.
+- FAZEMOS MARCAS PARAREM.
+- Construímos presença.
+- Do pixel ao papel.
+- Uma marca. Vários pontos de contato.
 
-## O que mudou de verdade
+## O que mudou na V8
 
-### Mídia / Reels
+### LP / conversão
 
-- 32 slots continuam preservados enquanto o CMS é preenchido;
-- cada Reel aceita `poster`, vídeo `.mp4/.webm` e permalink exato do Instagram;
-- fallback agora segue: **poster específico do Reel → vídeo próprio → capa editorial da marca**; mídia pública genérica não é apresentada como se fosse a capa real do Reel;
-- os posters editoriais locais estão em `public/portfolio/brands/`;
-- preview silencioso no hover quando há arquivo de vídeo próprio;
-- modal reproduz vídeo direto ou embed público do Instagram;
-- Showreel fullscreen com anterior/próximo e teclado;
-- mobile usa 2 colunas no arquivo audiovisual;
-- vídeo em cards usa `preload="none"` para reduzir custo inicial.
+A sequência pública foi reorganizada para funcionar como argumento comercial:
 
-### Portfólio / cases
+`impacto → repertório → posicionamento → trabalhos → case → audiovisual → método → digital/físico → ecossistema → problemas de negócio → capacidades → Behance → objeções → pessoas → contato`
 
-- filtros por Estratégia, Branding, Social, Vídeo/Motion, Web e Físico/Eventos;
-- cases abrem em um **Case Drawer** de tela cheia;
-- URLs limpas e compartilháveis: `/work/sindpetshop-ecosystem`;
-- navegação anterior/próximo entre cases;
-- estrutura Desafio → Estratégia → Execução → Resultado;
-- Before/After interativo no case com dados estruturados;
-- o case Sindpetshop ganhou a “parte do meio” que faltava: desafio, estratégia e execução antes das métricas.
+Principais mudanças:
 
+- hero com proposta de valor + dois CTAs claros;
+- faixa de marcas logo no início;
+- manifesto com contraste previsível (sem texto claro sobre fundo claro);
+- filtros de portfólio por **taxonomia + curadoria**, permitindo que projetos novos do CMS entrem nas categorias;
+- cada filtro tem contexto, contagem e composição visual própria;
+- cases em `/work/:slug` com desafio → estratégia → execução → resultado;
+- Before/After de 0% a 100%, com botões Antes / Comparar / Depois;
+- Motion Archive distingue mídia real de presença editorial: Play só aparece quando existe vídeo ou permalink reproduzível;
+- case Sindpetshop separa escala pública do cliente de performance de conteúdo;
+- Decision System mostra contexto, público, insight e decisão sem inventar KPIs;
+- Pixel → Papel e Ecosystem Explorer simplificados no mobile;
+- Capability OS mostra como ferramentas entram no processo — sem barras arbitrárias de “95%”;
+- soluções vendidas pelo problema do empresário, não por nomes de serviços;
+- FAQ reduz objeções antes do contato;
+- Brief de 60 segundos monta a conversa no WhatsApp;
+- CTA persistente e simples no mobile.
 
-### Project Intelligence / Strategy OS
+### Mobile
 
-A V7.4 mantém uma camada de case study inspirada no que funciona em portfólios de produto/UI avançados: o visitante não vê só o resultado, mas **contexto → público → insight → decisão → sistema → resultado**.
+A V8 não tenta reproduzir o desktop em miniatura:
 
-- seletor de projetos dentro de uma interface tipo produto;
-- objetivo e restrição visíveis antes da solução;
-- etapas de raciocínio navegáveis;
-- `Project Signal` como linguagem visual de decisão, não como métrica inventada de performance;
-- touchpoints por projeto;
-- bloco `Project Intelligence` dentro do Case Drawer;
-- campos equivalentes no Admin/Supabase para que essa camada possa ser editada sem deploy;
-- referência conceitual: estudos como NEXTSTEP usam pesquisa, user persona e case study como parte central da apresentação do produto. A V7.3 adapta esse princípio ao portfólio Seeven sem copiar layout, marca ou assets.
+- tipografia limitada por `clamp()`;
+- Selected Work vira uma coluna;
+- Reels ficam em duas colunas;
+- órbita de touchpoints vira grade tocável;
+- Strategy/Capability OS viram navegação horizontal + conteúdo vertical;
+- Before/After recebe controles explícitos;
+- CTA persistente no rodapé;
+- Motion Lite respeita `prefers-reduced-motion`, ponteiro coarse e dispositivos modestos.
 
-### Reels / separação de origem e arquivo
+### Estabilidade
 
-O CMS agora separa:
+- removido `mix-blend-mode` do layout;
+- removido `filter: invert()` estrutural;
+- não existe camada global fixa com blend;
+- conteúdo `data-reveal` é visível por padrão — animação é enhancement, não requisito;
+- Error Boundary público;
+- CMS parcial preserva os fallbacks estáticos;
+- Admin e LP são carregados em chunks separados;
+- API Behance possui timeout, validação de domínio e resposta sanitizada;
+- preflight automático detecta regressões conhecidas.
 
-- `permalink`: URL exata do Reel/Instagram;
-- `video`: arquivo próprio `.mp4/.webm`;
-- `poster`: capa específica;
-- `url`: mantido só para compatibilidade com dados antigos.
+## Control Room / `/admin`
 
-Isso evita que o upload de um vídeo sobrescreva o link público do Reel e facilita substituir Instagram por mídia própria quando necessário.
+A tela administrativa foi reconstruída como **Seeven Control Room**.
 
-### Capability OS
+### Visão geral
 
-A seção de conhecimentos não usa barras de “95% de Photoshop”. Ela mostra **como as ferramentas entram no processo**.
+O dashboard mostra:
 
-Grupos atuais:
+- projetos publicados;
+- Reels realmente reproduzíveis;
+- quantidade de capas próprias;
+- arquivo Behance;
+- problemas de saúde do conteúdo;
+- sequência recomendada de trabalho.
 
-**Design & identidade**
-- Adobe Photoshop
-- Adobe Illustrator
-- CorelDRAW
-- Canva
+### Editor
 
-**Vídeo & motion**
-- Adobe Premiere Pro
-- Adobe After Effects
-- CapCut
-- FL Studio
+O formulário deixou de ser uma parede única de campos.
 
-**3D & experimentação**
-- Blender
-- After Effects
-- Photoshop
+**Reels**
+- Geral
+- Mídia
+- Publicação
 
-**Web & produto digital**
-- Visual Studio / VS Code
-- HTML / CSS / JavaScript
-- React
-- Vite
-- WordPress / Elementor
-- ASP.NET MVC / C#
-- Supabase
-- GitHub
-- Vercel
+**Projetos**
+- Geral
+- Mídia
+- Case
+- Intelligence
+- Publicação
 
-**IA & automação**
-- Claude
-- Codex
-- Gemini
-- ElevenLabs
-- IA generativa
+**Clientes**
+- Geral
+- Presença
+- Publicação
 
-A referência do Reelful foi usada somente como princípio de apresentação de capacidade por módulos, estados e workflow. Nenhum asset do projeto de terceiros é incluído no repositório.
+Recursos:
 
-## As 20 funções da V7.4
+- cliente por seletor;
+- upload drag-and-drop;
+- validação de tipo/tamanho;
+- MP4/WebM com geração automática de poster;
+- preview de mídia;
+- detecção de alterações não salvas;
+- apagar um campo agora grava `NULL` no Supabase (em vez de ignorar a alteração);
+- rascunho/publicação;
+- reordenação;
+- duplicação em rascunho;
+- busca;
+- backup JSON de todas as tabelas;
+- Pitch Link Builder;
+- Behance Watch;
+- Reel Link Manager com instruções dentro do painel.
 
-| # | Função | Estado |
-|---|---|---|
-| 1 | Media Vault | Ativa no Admin |
-| 2 | Reels individualizados | Ativa / aguarda permalinks reais |
-| 3 | Poster automático de vídeo | Ativa |
-| 4 | Fallback inteligente de mídia | Ativa |
-| 5 | Preview de vídeo no hover | Ativa |
-| 6 | Showreel Mode | Ativa |
-| 7 | Cases compartilháveis | Ativa em `/work/:slug` |
-| 8 | Navegação contínua entre cases | Ativa |
-| 9 | Pitch Mode por segmento | Ativa |
-| 10 | Link personalizado por prospect | Ativa + Builder no Admin |
-| 11 | Brief de 60 segundos | Ativa |
-| 12 | Ecosystem Explorer | Ativa |
-| 13 | Pixel → Papel scroll-driven | Ativa |
-| 14 | Before / After | Ativa onde há dados estruturados |
-| 15 | Métricas contextualizadas | Ativa no case principal |
-| 16 | Command Palette com busca | Ativa |
-| 17 | Filtros inteligentes | Ativa |
-| 18 | Adaptive Motion | Ativa |
-| 19 | Analytics por intenção | Ativa via `dataLayer` |
-| 20 | Admin 2.3 | Ativa |
+## Segurança V8
 
-## Correções de estabilidade
+V7.4 permitia escrita para qualquer conta autenticada no projeto Supabase. V8 restringe o CMS a usuários registrados em:
 
-- removida a dependência do header de `mix-blend-mode`;
-- header identifica a fase clara/escura da seção atual;
-- noise deixa de ser camada `fixed` com blend, reduzindo artefatos em páginas/capturas longas;
-- `IntersectionObserver` também observa conteúdo inserido depois pelo Supabase;
-- `prefers-reduced-motion`, pointer coarse e dispositivos de menor recurso ativam Motion Lite;
-- CMS parcial **não apaga** automaticamente o portfólio estático: V7.3 mescla registros do Supabase com os fallbacks;
-- IDs seeded dos clientes são preservados durante a migração, evitando quebrar relações entre cliente, Reel e case;
-- filtros sem resultado exibem estado vazio em vez de um bloco aparentemente quebrado.
+```text
+public.cms_admins
+```
+
+A função:
+
+```text
+public.is_seeven_admin()
+```
+
+é usada nas policies de tabelas e Storage.
+
+### Upgrade da V7.4
+
+Execute **uma vez**:
+
+```text
+SUPABASE_V8_MIGRATION.sql
+```
+
+A migration preserva automaticamente o usuário existente somente quando o projeto possui exatamente uma conta em Authentication. Se houver mais de uma, o `/admin` fornece o SQL específico para autorizar a conta correta.
+
+Para outro usuário, veja `MIGRATION_V8.md`.
+
+## Behance Watch
+
+No Control Room:
+
+```text
+/admin → Behance → VERIFICAR NOVIDADES
+```
+
+O backend consulta o perfil público da Seeven, compara URLs já conhecidas e permite importar projetos novos.
+
+APIs:
+
+```text
+/api/behance-profile
+/api/behance-meta?url=...
+```
+
+Elas não usam chave secreta do Behance e não inserem automaticamente um projeto sem sua ação no Admin.
+
+## Reels: como funciona
+
+Os 32 slots do briefing continuam preservados. Para transformar um slot em mídia real, cadastre:
+
+```text
+permalink = https://www.instagram.com/reel/XXXXXXXX/
+poster    = capa real do Reel
+video     = MP4/WebM próprio (opcional)
+```
+
+Regras públicas:
+
+1. `video` próprio → player direto;
+2. permalink exato → embed do Instagram;
+3. poster sem player → capa editorial;
+4. sem mídia real → apenas presença da marca, sem fingir que é um vídeo reproduzível.
+
+Veja `ADMIN_GUIDE.md`.
 
 ## Pitch Mode
 
@@ -146,157 +191,46 @@ A referência do Reelful foi usada somente como princípio de apresentação de 
 /?for=nightlife
 ```
 
-Personalização leve:
+Com prospect:
 
 ```text
 /?for=food&prospect=Empresa%20X
 ```
 
-O hero reconhece o contexto e a ordem do Selected Work muda conforme o segmento.
-
-No `/admin`, o **Pitch Link Builder** gera e copia esses links.
-
-## Cases
-
-URLs limpas:
-
-```text
-/work/sindpetshop-ecosystem
-/work/venancio-social
-/work/czk-industrial
-```
-
-A Vercel já possui rewrite SPA em `vercel.json`, então abrir uma URL de case diretamente continua carregando `index.html`.
-
-Os cases estruturados ficam em:
-
-```text
-src/data.js → caseStudies
-```
-
-## 60 Second Brief
-
-O CTA final abre três perguntas:
-
-1. o que precisa mudar;
-2. onde isso precisa acontecer;
-3. quando o projeto deve começar.
-
-Ao final, a mensagem é montada para WhatsApp com o contexto preenchido.
-
-## Media Vault / Admin 2.3
-
-Rota:
-
-```text
-/admin
-```
-
-Recursos:
-
-- upload drag-and-drop;
-- imagens e `.mp4/.webm`;
-- geração de frame JPEG ao subir vídeo;
-- preview da capa;
-- featured / ativo / rascunho;
-- busca;
-- duplicação;
-- reordenação;
-- exportação JSON;
-- indicador de readiness de mídia;
-- Pitch Link Builder.
-
-O bucket esperado é:
-
-```text
-portfolio-assets
-```
-
-Se seu schema atual ainda não tiver os campos V7.4, revise e execute:
-
-```text
-SUPABASE_V7_MIGRATION.sql
-```
-
-A migration adiciona campos sem apagar os existentes e configura o bucket/policies de mídia. Ela **não substitui** suas regras atuais de RLS das tabelas.
-
-## Como cadastrar os 32 Reels reais
-
-O briefing informa a distribuição dos 32 vídeos, mas não inclui os 32 permalinks/arquivos exatos. V7.4 não associa publicações aleatórias à Seeven.
-
-Para cada item real, use o Admin:
-
-```text
-client      = sindpetshop
-category    = reel
-permalink   = https://www.instagram.com/reel/XXXXXXXX/
-video        = https://.../portfolio-assets/video.mp4  (opcional)
-poster      = https://.../portfolio-assets/...
-featured    = true/false
-order       = ...
-```
-
-Ou suba um `.mp4/.webm`: o Admin salva o arquivo e tenta gerar a capa automaticamente.
-
-## CMS híbrido durante a migração
-
-V6.1 podia substituir toda a lista estática assim que encontrasse poucos registros no Supabase. V7.4 usa um merge progressivo:
-
-- cliente CMS sobrepõe o cliente seeded correspondente;
-- projeto CMS sobrepõe o slot seeded do mesmo cliente quando aplicável;
-- Reel CMS preenche os slots existentes daquele cliente;
-- itens extras são adicionados;
-- fallbacks permanecem até serem efetivamente substituídos.
-
-Isso permite migrar o conteúdo aos poucos sem deixar a página pela metade.
-
-## Behance
-
-A parede editorial aponta para projetos públicos da própria Seeven e usa capas remotas apenas como apoio. Para produção, prefira importar cópias dos seus próprios assets para `portfolio-assets` e trocar os hotlinks.
-
-Veja `PUBLIC_SOURCES.md` para os limites do uso de dados públicos.
+O Control Room possui um builder para copiar esses links.
 
 ## Analytics
 
-`track()` envia para `window.dataLayer` quando disponível e dispara `seeven:analytics` localmente.
+`track()` envia eventos ao `window.dataLayer` quando disponível e também dispara `seeven:analytics`.
 
-Eventos principais:
+Eventos centrais:
 
 ```text
 page_view
+work_filter
 case_open
 case_navigate
-case_source_open
-work_filter
-reel_open
-reel_featured_open
-reel_play
-showreel_start
-showreel_previous
-showreel_next
-portfolio_filter
+strategy_project
+strategy_stage
 ecosystem_touchpoint
-toolchain_group
-toolchain_tool
 tool_evidence_open
 behance_project_open
 brief_started
 brief_answer
 brief_completed
-command_palette_open
-strategy_project
-strategy_stage
-case_share
+ui_error
 ```
 
 ## Estrutura
 
 ```text
-seeven-presence-v7.3/
-├── public/
-│   └── portfolio/
-│       ├── brands/
-│       └── README.txt
+seeven-presence-v8/
+├── .github/workflows/quality.yml
+├── api/
+│   ├── behance-meta.js
+│   └── behance-profile.js
+├── public/portfolio/brands/
+├── scripts/preflight.mjs
 ├── src/
 │   ├── App.jsx
 │   ├── admin.jsx
@@ -305,13 +239,11 @@ seeven-presence-v7.3/
 │   ├── styles.css
 │   ├── supabase.js
 │   └── useCmsContent.js
-├── .env.example
-├── AUDITORIA_ESTRATEGICA.md
-├── DEPLOY_CHECKLIST.md
-├── PUBLIC_SOURCES.md
-├── SUPABASE_V7_MIGRATION.sql
-├── V7_CHANGELOG.md
-├── index.html
+├── ADMIN_GUIDE.md
+├── MIGRATION_V8.md
+├── QA_V8.md
+├── SUPABASE_V8_BOOTSTRAP.sql
+├── SUPABASE_V8_MIGRATION.sql
 ├── package.json
 ├── vercel.json
 └── vite.config.js
@@ -319,7 +251,7 @@ seeven-presence-v7.3/
 
 ## Ambiente
 
-Copie `.env.example` para `.env.local`:
+`.env.local`:
 
 ```env
 VITE_SUPABASE_URL=
@@ -328,10 +260,13 @@ VITE_KAREN_WHATSAPP=5511XXXXXXXXX
 VITE_GUSTAVO_WHATSAPP=5511XXXXXXXXX
 ```
 
+Nunca use `SUPABASE_SECRET_KEY` em uma variável `VITE_*`.
+
 ## Rodar
 
 ```bash
 npm install
+npm run preflight
 npm run dev
 ```
 
@@ -341,120 +276,32 @@ Build:
 npm run build
 ```
 
-## Git / Vercel
+
+### `package-lock.json`
+
+O pacote final não inclui um lockfile gerado neste ambiente porque o registry do npm ficou indisponível durante o QA. No seu repositório, gere um lockfile novo antes do commit final:
 
 ```bash
+rm -f package-lock.json
+npm install
+npm run build
+git add package-lock.json
+```
+
+Isso também substitui o lockfile antigo do repositório, que pertence à configuração anterior do projeto.
+
+## Git / Vercel
+
+O repositório público atual ainda possui `node_modules` versionado. Antes do commit da V8, remova-o do índice:
+
+```bash
+git rm -r --cached node_modules
+git add .gitignore
 git add .
-git commit -m "feat: Seeven Presence System V7.4"
+git commit -m "feat: Seeven Presence System V8"
 git push
 ```
 
-Se o repositório já estiver conectado à Vercel, o push dispara o deploy.
+O `.gitignore` da V8 impede que `node_modules`, `dist`, `.vercel` e `.env.*` retornem ao Git.
 
-Antes do push, siga `DEPLOY_CHECKLIST.md`.
-
-## Prioridade de conteúdo daqui para frente
-
-1. cadastrar os 32 permalinks/arquivos corretos;
-2. subir as 32 capas reais;
-3. substituir hotlinks por assets próprios;
-4. cadastrar screenshots desktop/mobile dos sites;
-5. adicionar métricas verificáveis aos demais cases;
-6. transformar 3–5 cases em narrativas ainda mais longas quando houver material suficiente.
-
-
-## V7.3 — correções visuais da captura longa
-
-- Conteúdo `data-reveal` nunca mais fica invisível se o navegador não disparar IntersectionObserver.
-- Header sem `mix-blend-mode:difference` / `filter:invert`, reduzindo glitches de composição.
-- Noise global deixou de ser uma camada fixa blendada sobre todo o documento.
-- Grid de Selected Work rebalanceado para eliminar órfãos e vazios.
-- Motion Archive ampliado para 6 colunas no desktop e 2 no mobile.
-- Strategy OS permanece legível mesmo em captura full-page.
-- Case Sindpetshop recebeu ajuste de ritmo, escala tipográfica e fechamento.
-- React StrictMode removido do bootstrap para evitar efeitos duplicados durante preview de desenvolvimento.
-
----
-
-# V7.4 — Commercial Clarity + Admin Recovery
-
-Esta revisão corrige os pontos observados na validação visual da V7.3 e torna o `/admin` mais fácil de configurar.
-
-## Admin: por que aparecia “Supabase não configurado”
-
-O painel depende de duas variáveis Vite no deploy. V7.4 aceita a chave moderna **Publishable** do Supabase e mantém compatibilidade com a antiga `anon`:
-
-```env
-VITE_SUPABASE_URL=https://SEU-PROJETO.supabase.co
-VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
-```
-
-Fallback legado ainda aceito:
-
-```env
-VITE_SUPABASE_ANON_KEY=...
-```
-
-No Vercel:
-
-1. Project → Settings → Environment Variables;
-2. adicione `VITE_SUPABASE_URL`;
-3. adicione `VITE_SUPABASE_PUBLISHABLE_KEY`;
-4. aplique em Production e Preview;
-5. faça **Redeploy**.
-
-Depois execute uma vez no SQL Editor do Supabase:
-
-```text
-SUPABASE_V7_4_SETUP.sql
-```
-
-O script cria/atualiza `clients`, `projects`, `contents`, `services`, `behance_items`, o bucket `portfolio-assets` e as policies necessárias para leitura pública + edição autenticada.
-
-Crie também o usuário que vai entrar no painel em **Supabase → Authentication → Users**.
-
-## Novo: Behance editável pelo Admin
-
-V7.4 possui a aba:
-
-```text
-/admin → behance
-```
-
-Ela alimenta `behance_items` e permite cadastrar:
-
-- título;
-- cliente;
-- link público do Behance;
-- capa;
-- ferramentas;
-- tema;
-- ativo/rascunho;
-- ordem.
-
-Quando o Supabase ainda está vazio, a parede mantém os projetos definidos em `src/data.js` como fallback. Portanto a migração pode ser feita gradualmente.
-
-## Correções da interface
-
-- contraste do manifesto corrigido;
-- filtros agora alteram seleção, composição e contexto editorial;
-- contagem de projetos por filtro;
-- Before/After vai de 0% a 100%;
-- textos do comparador ganharam limites tipográficos mais seguros;
-- `Vídeo` e `Embalagem` foram afastados no Brand Ecosystem;
-- no mobile o Ecosystem vira uma grade de pontos de contato tocáveis, em vez de uma órbita comprimida;
-- Selected Work vira uma coluna clara no mobile;
-- títulos principais receberam tetos tipográficos para evitar explosões de escala;
-- Visual Archive vira uma coluna no mobile;
-- CTA comercial fixo no mobile: `VER TRABALHOS` + `FALAR SOBRE UM PROJETO`;
-- `/admin` sem variáveis agora mostra um diagnóstico passo a passo em vez de apenas bloquear o usuário.
-
-## Behance / atualização contínua
-
-O perfil público usado como referência é:
-
-```text
-https://www.behance.net/wedeseeven
-```
-
-A V7.4 não tenta raspar o Behance no navegador, porque isso seria frágil e dependente de CORS/markup de terceiros. A abordagem estável é: detectar/publicar a novidade, cadastrar no Admin e manter a capa no próprio Storage quando possível.
+Siga `MIGRATION_V8.md` e `DEPLOY_CHECKLIST.md` antes do push.

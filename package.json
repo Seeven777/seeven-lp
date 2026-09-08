@@ -1,11 +1,12 @@
 {
-  "name": "seeven-presence-v7-4",
+  "name": "seeven-presence-v8",
   "private": true,
-  "version": "7.4.0",
+  "version": "8.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "node node_modules/vite/bin/vite.js build",
+    "preflight": "node scripts/preflight.mjs",
+    "build": "npm run preflight && node node_modules/vite/bin/vite.js build",
     "preview": "vite preview"
   },
   "dependencies": {

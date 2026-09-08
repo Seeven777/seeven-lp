@@ -1,39 +1,43 @@
 const PROFILE_URL = 'https://www.behance.net/wedeseeven'
+const MAX_HTML_CHARS = 12_000_000
 
-function titleFromUrl(url) {
-  try {
-    const slug = new URL(url).pathname.split('/').filter(Boolean).slice(2).join('-')
-    return decodeURIComponent(slug).replace(/[-_]+/g, ' ').replace(/\s+/g, ' ').trim()
-  } catch (_) { return 'Projeto Behance' }
+function send(res, status, body) {
+  res.statusCode = status
+  res.setHeader('Content-Type', 'application/json; charset=utf-8')
+  res.setHeader('Cache-Control', status === 200 ? 'public, s-maxage=600, stale-while-revalidate=1800' : 'no-store')
+  res.end(JSON.stringify(body))
 }
 
-export default async function handler(_req, res) {
+function titleFromUrl(url) {
+  const raw = String(url).split('/').pop() || 'Projeto Behance'
+  let decoded = raw
+  try { decoded = decodeURIComponent(raw) } catch {}
+  return decoded.replace(/^\d+-/, '').replace(/[-_]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 160)
+}
+
+export default async function handler(req, res) {
+  if (req.method !== 'GET') return send(res, 405, { error: 'method_not_allowed' })
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), 8000)
   try {
     const response = await fetch(PROFILE_URL, {
+      signal: controller.signal,
       headers: {
-        'user-agent': 'Mozilla/5.0 (compatible; SeevenPortfolioBot/1.0; +https://www.behance.net/wedeseeven)',
-        'accept-language': 'pt-BR,pt;q=0.9,en;q=0.8'
+        'user-agent': 'Mozilla/5.0 (compatible; SeevenPortfolioBot/1.0)',
+        'accept': 'text/html,application/xhtml+xml'
       }
     })
-    if (!response.ok) return res.status(response.status).json({ error: 'behance_fetch_failed' })
-    const html = await response.text()
-    const urls = new Set()
-    const patterns = [
-      /https:\/\/www\.behance\.net\/gallery\/\d+\/[^"'<>?\s]+/gi,
-      /href=["'](\/gallery\/\d+\/[^"'<>?\s]+)["']/gi
-    ]
-    for (const pattern of patterns) {
-      let match
-      while ((match = pattern.exec(html))) {
-        const raw = match[1] || match[0]
-        const url = raw.startsWith('http') ? raw : `https://www.behance.net${raw}`
-        urls.add(url.replace(/\/$/, ''))
-      }
-    }
-    const projects = [...urls].slice(0, 60).map(url => ({ url, title: titleFromUrl(url) }))
-    res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=1800')
-    return res.status(200).json({ profile: PROFILE_URL, projects, checkedAt: new Date().toISOString() })
+    if (!response.ok) return send(res, 502, { error: 'behance_unavailable', message: 'O Behance não respondeu à consulta pública.' })
+    let html = (await response.text()).slice(0, MAX_HTML_CHARS)
+    html = html.replace(/\\\//g, '/')
+    const matches = [...html.matchAll(/https?:\/\/(?:www\.)?behance\.net\/gallery\/\d+\/[A-Za-z0-9%_()'.,+\-]+/gi)].map(match => match[0])
+    const relative = [...html.matchAll(/(?:href=["']|["'])(\/gallery\/\d+\/[A-Za-z0-9%_()'.,+\-]+)(?:["'?#])/gi)].map(match => `https://www.behance.net${match[1]}`)
+    const urls = [...new Set([...matches, ...relative].map(url => url.replace(/["'<>]+$/g, '').replace(/\?.*$/, '')))].slice(0, 60)
+    return send(res, 200, { profile: PROFILE_URL, checked_at: new Date().toISOString(), projects: urls.map(url => ({ url, title: titleFromUrl(url) })) })
   } catch (error) {
-    return res.status(500).json({ error: 'behance_profile_error', message: error?.message || 'Unknown error' })
+    const timeout = error?.name === 'AbortError'
+    return send(res, 502, { error: timeout ? 'behance_timeout' : 'behance_fetch_failed', message: timeout ? 'O Behance demorou demais para responder.' : 'Não foi possível verificar o Behance agora.' })
+  } finally {
+    clearTimeout(timer)
   }
 }

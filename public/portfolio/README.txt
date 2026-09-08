@@ -1,20 +1,19 @@
-SEE7VEN V7.2 / LOCAL PORTFOLIO FALLBACKS
+SEE7VEN V8 / LOCAL PORTFOLIO FALLBACKS
 
-A pasta brands/ contém capas editoriais locais para manter cada marca visível
-antes da migração dos posters reais.
+A pasta brands/ contém capas editoriais locais de segurança. Elas mantêm cada
+marca identificável enquanto o CMS ainda não possui poster/capa real.
 
-Produção recomendada:
-1. subir capas/vídeos reais pelo /admin -> Supabase Storage;
-2. cadastrar o permalink exato do Reel no campo permalink;
-3. marcar featured somente nos melhores trabalhos;
-4. deixar estes SVGs apenas como último fallback.
+Prioridade de produção:
+1. subir capas e vídeos reais pelo /admin → Media Vault;
+2. cadastrar o permalink exato de cada Reel;
+3. usar featured apenas nos trabalhos que realmente devem abrir a experiência;
+4. manter os SVGs somente como fallback.
 
-Se preferir assets versionados no Git, use nomes como:
+Se preferir assets versionados no Git, use nomes previsíveis, por exemplo:
 sindpetshop-01.webp
 sindpetshop-01.mp4
 seon-01.webp
 seon-01.mp4
-...
 
-A V7.2 não associa Reels aleatórios aos slots existentes sem confirmação do
-proprietário do portfólio.
+A V8 nunca escolhe uma publicação aleatória de um perfil e a apresenta como
+trabalho confirmado da Seeven. Mídia específica precisa ser cadastrada pelo CMS.

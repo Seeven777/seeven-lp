@@ -19,7 +19,7 @@ export const clients = [
     url: 'https://www.instagram.com/czkdrills/', brandPoster: '/portfolio/brands/czk.svg'
   },
   {
-    id: 'mibis', name: 'MIBIS Dog', handle: '@mibisdog', category: 'Food / Pet', accent: '#73cfff',
+    id: 'mibis', name: 'MIBIS Dog', handle: '@mibisdog', category: 'Food', accent: '#73cfff',
     url: 'https://www.instagram.com/mibisdog/', brandPoster: '/portfolio/brands/mibis.svg',
     publicProof: 'Marca de fast food em Franco da Rocha com forte apelo visual de produto; fontes públicas destacam hot dogs, porções e delivery.'
   },
@@ -219,7 +219,7 @@ export const behanceProjects = [
   { id: 8, title: 'Abril Verde', client: 'Sindpetshop-SP', theme: 'green', url: 'https://www.behance.net/gallery/246847939/Sindpetshop-SP-(-Abril-verde-)', cover: 'https://mir-s3-cdn-cf.behance.net/project_modules/max_3840_webp/1b225e246847939.69cd4e19a40c1.png', tools: ['Photoshop'] }
 ]
 
-// V7 — knowledge / capability system
+// V8 — knowledge / capability system
 export const knowledgeGroups = [
   {
     id: 'design', label: 'Design & identidade', accent: '#ff7a1a',
@@ -301,7 +301,7 @@ export const pitchPresets = {
   nightlife: ['eazy-experience', 'salseiro-nightlife', 'pufinho-music', 'dicarias-music']
 }
 
-// V7.1 — structured case stories used by the portfolio drawer.
+// V8 — structured case stories used by the portfolio drawer.
 // The goal is to keep the public portfolio useful even before every project has a long-form page in the CMS.
 export const caseStudies = {
   'sindpetshop-ecosystem': {
@@ -411,7 +411,7 @@ export const pitchCopy = {
   nightlife: { kicker: 'NIGHTLIFE / ATTENTION', line: 'Energia, frequência e presença para disputar atenção em segundos.' }
 }
 
-// V7.2 — PROJECT INTELLIGENCE / STRATEGY OS
+// V8 — PROJECT INTELLIGENCE / STRATEGY OS
 // Inspired by the case-study discipline of product/UI portfolios: research,
 // context and decisions are presented as part of the work instead of hidden
 // behind the final visual result.

@@ -1,49 +1,56 @@
-# Public-source notes used in SEE7VEN V7.1
+# Fontes públicas usadas como contexto
 
-The portfolio uses public information only to add context to work already identified by the project owner. Public sources are not used to claim work that was not provided as a Seeven project.
+A V8 usa dados públicos apenas quando eles ajudam a contextualizar o trabalho. Esses dados não devem ser apresentados como resultado da Seeven sem evidência específica.
 
-## Reelful reference
-- Behance — “Reelful — AI Powered Social Video Creator App | UI/UX”
-- https://www.behance.net/gallery/253975015/Reelful-AI-Powered-Social-Video-Creator-App-UIUX
-- Public project metadata identifies Photoshop and Figma among the tools and UI/UX, App Design and Web Design among its fields.
-- V7.1 borrows only the *principle* of presenting capability like a product/interface: hierarchy, modules, states and workflow. No Reelful artwork is bundled in this repository.
+## Seeven / Behance
+
+Perfil:
+
+`https://www.behance.net/wedeseeven`
+
+O perfil público é a fonte do Visual Archive e do Behance Watch.
+
+Projetos antigos já presentes no seed incluem, entre outros:
+
+- Sindpetshop-SP — Mês das Mulheres
+- Campanha Maio Lilás
+- Nova identidade Sindpetshop-SP
+- Cajamar Fest
+- treino de modelagem 3D
+- Campanha de Junho
+- Sindpetshop-SP
+- Abril Verde
+
+A indexação pública mais recente também exibe novos trabalhos como Publi Eventos (Comunicação), Web oriental, car drifting 3d, POST FOOD, SOCIAL MIDIA (EMPRESA DE ESTRUTURAS), Seeon drop one, Box seeven for seeon, Hot burguer delivery e Sabor do Sul (identidade visual), entre outros.
+
+Como a listagem pública pode mudar, projetos novos devem entrar pelo **Behance Watch** em vez de serem atribuídos automaticamente por título.
 
 ## Sindpetshop-SP
-- Official website: https://sindpetshop.org.br/
-- Public institutional context observed in September 2026 includes the site’s own counters for workers represented, cities served, legal actions concluded and attendances performed.
-- These numbers are labeled in the interface as **context of the client**, not as campaign results produced by Seeven.
 
-## Publi Eventos
-- Official website: https://www.eventospubli.com.br/
-- The company describes more than 17 years in the market, work in more than 20 cities and services such as scenography, structures, lighting, LED panels, stages, tents, visual communication and technical production.
+Site:
 
-## Other public profiles
-The project also links to public profiles supplied in the original Seeven briefing for Pizzaria Venâncio, SEON, CZK Drills, MIBIS Dog, Eazy Club, Salseiro Lounge, DJ Pufinho, Sabor do Sul and DiCárias. Where identity or context was ambiguous, V7.1 avoids adding unsupported factual claims.
+`https://sindpetshop.org.br/`
 
-## Media rule
-A public URL may be used as a reference/fallback, but production priority is:
+Dados de escala pública usados como **contexto do cliente**:
 
-1. asset owned by Seeven;
-2. Supabase Storage / own CDN;
-3. exact public permalink;
-4. editorial fallback bundled with the project.
+- 461.529 trabalhadores representados
+- 645 cidades atendidas
+- 5.341 ações jurídicas concluídas
+- 25.450 atendimentos realizados
 
-This avoids making the portfolio dependent on third-party hotlinks.
+Esses números não são métricas de campanha da Seeven.
 
-## Referências de experiência / produto
+## Eventos Publi
 
-### NEXTSTEP | AI Career Coach Platform — Nika Dykhtiar
-https://www.behance.net/gallery/252496817/NEXTSTEP-AI-Career-Coach-Platform
+Site:
 
-Uso na V7.2: referência conceitual para **estrutura de case study**, pesquisa, user persona, raciocínio de produto e apresentação modular de decisões. O projeto público é classificado no Behance com landing page, Web Design, UI/UX, Mobile app, AI, user persona, research, Case Study, app design e user interface. As ferramentas públicas listadas pelo projeto incluem Photoshop, After Effects, Illustrator, Figma e Midjourney. Nenhum asset visual, layout, copy ou identidade do NEXTSTEP foi incorporado ao repositório Seeven.
+`https://www.eventospubli.com.br/`
 
-### Reelful | AI-Powered Social Video Creator App UI/UX
-https://www.behance.net/gallery/253975015/Reelful-AI-Powered-Social-Video-Creator-App-UIUX
+Contexto usado: atuação com estruturas, cenografia, iluminação, LED, produção e comunicação visual.
 
-Uso na V7+: referência conceitual para interfaces modulares e apresentação de capability/workflow. Nenhum asset de terceiros incluído.
+## Limites
 
-## Seeven Projects / Behance — verificação V7.4
-- Perfil: https://www.behance.net/wedeseeven
-- Verificado em 2026-09-04.
-- No momento da verificação pública, o perfil expunha 8 projetos na seção Work: Mês das Mulheres, Campanha Maio Lilás, Nova identidade visual, Cajamar Fest, Modelagem 3D, Campanha de Junho, Sistema/Sindpetshop-SP e Abril Verde.
-- Projetos novos publicados depois dessa verificação podem ser adicionados pela nova tabela/aba `behance_items` sem editar o front-end.
+- Não inferir que toda publicação pública de um cliente foi criada pela Seeven.
+- Não cadastrar um Reel sem identificar o permalink correto.
+- Não transformar números públicos de uma organização em KPI da Seeven.
+- Não usar hotlink como solução permanente quando o asset pertence à própria Seeven e pode ser armazenado no Media Vault.

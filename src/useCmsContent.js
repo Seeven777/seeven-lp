@@ -1,93 +1,133 @@
 import { useEffect, useState } from 'react'
 import { supabase } from './supabase'
-import { clients as fallbackClients, featuredProjects as fallbackProjects, reels as fallbackReels, behanceProjects as fallbackBehance } from './data'
+import {
+  clients as fallbackClients,
+  featuredProjects as fallbackProjects,
+  reels as fallbackReels,
+  behanceProjects as fallbackBehance,
+  solutions as fallbackSolutions
+} from './data'
 
 const projectThemes = ['orange', 'wine', 'acid', 'violet', 'steel', 'sky', 'event', 'music', 'food']
 const projectSizes = ['xl', 'md', 'md', 'lg', 'sm', 'sm']
 
+const text = (value, fallback = '') => String(value ?? fallback).trim()
+
+function parseList(value) {
+  if (Array.isArray(value)) return value.map(String).map(v => v.trim()).filter(Boolean)
+  return text(value).split(/[,\n]/).map(v => v.trim()).filter(Boolean)
+}
+
+function parseSignal(value) {
+  return parseList(value)
+    .map(Number)
+    .filter(Number.isFinite)
+    .map(v => Math.max(0, Math.min(100, v)))
+    .slice(0, 6)
+}
+
 function mergeClients(rows = []) {
-  if (!rows.length) return fallbackClients
-  const normalized = rows.filter(item => item.active !== false).map((item, index) => {
-    const base = fallbackClients.find(c => c.id === item.slug || c.id === item.client_id || c.id === item.id || c.name === item.name || c.handle === item.handle) || {}
+  const cmsRows = rows.filter(row => row?.active !== false)
+  if (!cmsRows.length) return fallbackClients
+
+  const normalized = cmsRows.map((item, index) => {
+    const base = fallbackClients.find(client =>
+      client.id === item.slug ||
+      client.id === item.client_id ||
+      client.id === item.id ||
+      client.name === item.name ||
+      client.handle === item.handle
+    ) || {}
+
     return {
       ...base,
       ...item,
-      // Preserve the stable front-end id whenever the CMS row clearly belongs
-      // to one of the seeded clients. Supabase UUIDs should not break static
-      // reel/client relationships while the CMS is being migrated.
-      id: item.slug || item.client_id || base.id || item.id || `client-${index}`,
-      name: item.name || base.name || `Cliente ${index + 1}`,
-      handle: item.handle || base.handle || '',
-      category: item.category || base.category || 'Projeto',
-      accent: item.accent || base.accent || '#8b5cf6',
-      url: item.url || base.url || '#',
-      website: item.website || base.website || '',
-      brandPoster: item.brandPoster || item.brand_poster || base.brandPoster || '',
-      publicCover: item.publicCover || item.public_cover || base.publicCover || '',
-      publicCoverFit: item.publicCoverFit || item.public_cover_fit || base.publicCoverFit || 'cover',
-      publicProof: item.publicProof || item.public_proof || base.publicProof || ''
+      id: text(item.slug || item.client_id || base.id || item.id, `client-${index}`),
+      name: text(item.name || base.name, `Cliente ${index + 1}`),
+      handle: text(item.handle || base.handle),
+      category: text(item.category || base.category, 'Projeto'),
+      accent: text(item.accent || base.accent, '#8b5cf6'),
+      url: text(item.url || base.url),
+      website: text(item.website || base.website),
+      brandPoster: text(item.brandPoster || item.brand_poster || base.brandPoster),
+      publicCover: text(item.publicCover || item.public_cover || base.publicCover),
+      publicCoverFit: text(item.publicCoverFit || item.public_cover_fit || base.publicCoverFit, 'cover'),
+      publicProof: text(item.publicProof || item.public_proof || base.publicProof)
     }
   })
-  const keys = new Set(normalized.flatMap(c => [String(c.id), c.name, c.handle].filter(Boolean)))
-  return [...normalized, ...fallbackClients.filter(c => !keys.has(String(c.id)) && !keys.has(c.name) && !keys.has(c.handle))]
+
+  const keys = new Set(normalized.flatMap(client => [String(client.id), client.name, client.handle].filter(Boolean)))
+  return [
+    ...normalized,
+    ...fallbackClients.filter(client => !keys.has(String(client.id)) && !keys.has(client.name) && !keys.has(client.handle))
+  ]
 }
 
 function resolveClient(list, value) {
   if (!value) return null
-  return list.find(c => String(c.id) === String(value) || c.name === value || c.handle === value) || null
-}
-
-function parseList(value) {
-  if (Array.isArray(value)) return value.filter(Boolean)
-  return String(value || '').split(/[,\n]/).map(v => v.trim()).filter(Boolean)
-}
-
-function parseSignal(value) {
-  const values = parseList(value).map(v => Math.max(0, Math.min(100, Number(v)))).filter(Number.isFinite)
-  return values.length ? values.slice(0, 6) : []
+  const needle = String(value)
+  return list.find(client =>
+    String(client.id) === needle ||
+    client.name === value ||
+    client.handle === value ||
+    client.slug === value
+  ) || null
 }
 
 function normalizeProject(item, index, clientList) {
   const client = resolveClient(clientList, item.client || item.client_id)
-  const id = item.slug || item.id || `cms-project-${index}`
+  const id = text(item.slug || item.id, `cms-project-${index}`)
   const execution = parseList(item.execution)
   const proof = parseList(item.proof)
-  const hasCase = Boolean(item.challenge || item.strategy || item.result || item.case_intro || item.headline || execution.length || proof.length)
-  const before = item.before_title || item.before_text ? { title: item.before_title || 'ANTES', text: item.before_text || '' } : null
-  const after = item.after_title || item.after_text ? { title: item.after_title || 'DEPOIS', text: item.after_text || '' } : null
+  const tags = parseList(item.tags)
+  const hasCase = Boolean(
+    item.challenge || item.strategy || item.result || item.case_intro || item.headline || execution.length || proof.length
+  )
+  const before = item.before_title || item.before_text ? {
+    title: text(item.before_title, 'ANTES'),
+    text: text(item.before_text)
+  } : null
+  const after = item.after_title || item.after_text ? {
+    title: text(item.after_title, 'DEPOIS'),
+    text: text(item.after_text)
+  } : null
+
   const caseStudy = hasCase ? {
     id,
-    clientId: client?.id || item.client_id || '',
-    client: client?.name || item.client || item.title || 'Projeto Seeven',
-    eyebrow: item.eyebrow || item.label || item.category || 'CASE / SEE7VEN',
-    headline: item.headline || item.title || 'Projeto',
-    intro: item.case_intro || item.description || '',
-    challenge: item.challenge || 'Contexto em documentação.',
-    strategy: item.strategy || 'Estratégia em documentação.',
-    execution: execution.length ? execution : parseList(item.tags),
-    result: item.result || item.description || '',
-    accent: item.accent || client?.accent || '#8b5cf6',
+    clientId: client?.id || text(item.client_id),
+    client: client?.name || text(item.client || item.title, 'Projeto Seeven'),
+    eyebrow: text(item.eyebrow || item.label || item.category, 'CASE / SEE7VEN'),
+    headline: text(item.headline || item.title, 'Projeto'),
+    intro: text(item.case_intro || item.description),
+    challenge: text(item.challenge),
+    strategy: text(item.strategy),
+    execution: execution.length ? execution : tags,
+    result: text(item.result || item.description),
+    accent: text(item.accent || client?.accent, '#8b5cf6'),
     proof,
     before,
     after,
-    source: item.source_url || item.url || client?.website || client?.url || ''
+    source: text(item.source_url || item.url || client?.website || client?.url)
   } : null
 
   const intelligenceSignal = parseSignal(item.signal)
-  const hasIntelligence = Boolean(item.research_context || item.audience || item.objective || item.constraint_text || item.insight || item.decision_text || item.system_map || item.focus || item.channels || intelligenceSignal.length)
+  const hasIntelligence = Boolean(
+    item.research_context || item.audience || item.objective || item.constraint_text || item.insight ||
+    item.decision_text || item.system_map || item.focus || item.channels || intelligenceSignal.length
+  )
   const intelligence = hasIntelligence ? {
     id,
-    client: client?.name || item.client || item.title || 'Projeto Seeven',
-    category: item.category || item.label || 'PROJECT / SEE7VEN',
-    accent: item.accent || client?.accent || '#8b5cf6',
-    context: item.research_context || item.description || '',
-    audience: item.audience || '',
-    objective: item.objective || '',
-    constraint: item.constraint_text || '',
-    insight: item.insight || '',
-    decision: item.decision_text || item.strategy || '',
-    system: item.system_map || '',
-    result: item.result || '',
+    client: client?.name || text(item.client || item.title, 'Projeto Seeven'),
+    category: text(item.category || item.label, 'PROJECT / SEE7VEN'),
+    accent: text(item.accent || client?.accent, '#8b5cf6'),
+    context: text(item.research_context || item.description),
+    audience: text(item.audience),
+    objective: text(item.objective),
+    constraint: text(item.constraint_text),
+    insight: text(item.insight),
+    decision: text(item.decision_text || item.strategy),
+    system: text(item.system_map),
+    result: text(item.result),
     focus: parseList(item.focus),
     channels: parseList(item.channels),
     signal: intelligenceSignal
@@ -95,18 +135,19 @@ function normalizeProject(item, index, clientList) {
 
   return {
     _rawId: item.id,
-    _slug: item.slug || '',
+    _slug: text(item.slug),
     id,
-    clientId: client?.id || item.client_id || '',
-    client: client?.name || item.client || item.title || 'Projeto Seeven',
-    label: item.label || item.category || 'PROJECT / SEE7VEN',
-    title: item.title || 'Projeto',
-    summary: item.description || item.summary || '',
-    tags: parseList(item.tags),
-    theme: item.theme || projectThemes[index % projectThemes.length],
-    size: item.size || projectSizes[index % projectSizes.length],
-    href: item.url || '#portfolio',
-    cover: item.cover || item.poster || '',
+    clientId: client?.id || text(item.client_id),
+    client: client?.name || text(item.client || item.title, 'Projeto Seeven'),
+    label: text(item.label || item.category, 'PROJECT / SEE7VEN'),
+    title: text(item.title, 'Projeto'),
+    summary: text(item.description || item.summary),
+    category: text(item.category),
+    tags,
+    theme: text(item.theme, projectThemes[index % projectThemes.length]),
+    size: text(item.size, projectSizes[index % projectSizes.length]),
+    href: text(item.url || item.source_url, '#work'),
+    cover: text(item.cover || item.poster),
     active: item.active !== false,
     order: Number(item.order ?? index),
     caseStudy,
@@ -114,8 +155,10 @@ function normalizeProject(item, index, clientList) {
   }
 }
 
-function mergeProjects(rows, clientList) {
-  const active = (rows || []).filter(item => item.active !== false).sort((a,b) => Number(a.order ?? 999) - Number(b.order ?? 999))
+function mergeProjects(rows = [], clientList) {
+  const active = rows
+    .filter(item => item?.active !== false)
+    .sort((a, b) => Number(a.order ?? 999) - Number(b.order ?? 999))
   if (!active.length) return fallbackProjects
 
   const dynamic = active.map((item, index) => normalizeProject(item, index, clientList))
@@ -124,8 +167,13 @@ function mergeProjects(rows, clientList) {
 
   dynamic.forEach((item, index) => {
     let target = -1
+    // A slug is the canonical identity of a project. A new project for the
+    // same client must be appended instead of silently replacing the seeded
+    // case for that client. Client matching is kept only for legacy rows that
+    // predate slugs.
     if (item._slug) target = result.findIndex((base, i) => !used.has(i) && base.id === item._slug)
-    if (target < 0 && item.clientId) target = result.findIndex((base, i) => !used.has(i) && base.clientId === item.clientId)
+    if (target < 0 && !item._slug && item.clientId) target = result.findIndex((base, i) => !used.has(i) && base.clientId === item.clientId)
+
     if (target >= 0) {
       const base = result[target]
       result[target] = { ...base, ...item, id: item._slug || base.id }
@@ -138,45 +186,54 @@ function mergeProjects(rows, clientList) {
 
   return result
     .map(({ _rawId, _slug, ...item }) => item)
-    .slice(0, 24)
+    .sort((a, b) => Number(a.order ?? 999) - Number(b.order ?? 999))
+    .slice(0, 36)
 }
 
 function normalizeReel(item, index, clientList) {
   const client = resolveClient(clientList, item.client || item.client_id)
-  const directVideo = item.video || (/\.(mp4|webm)(\?|$)/i.test(String(item.url || '')) ? item.url : '')
+  const legacyUrl = text(item.url)
+  const permalink = text(item.permalink || (/instagram\.com\/(reel|p|tv)\//i.test(legacyUrl) ? legacyUrl : ''))
+  const directVideo = text(item.video || (/\.(mp4|webm)(\?|$)/i.test(legacyUrl) ? legacyUrl : ''))
+
   return {
     _rawId: item.id,
-    _slug: item.slug || '',
-    clientId: client?.id || item.client_id || `cms-${index}`,
-    client: client?.name || item.client || 'Seeven',
-    title: item.title || `Reel ${index + 1}`,
-    poster: item.poster || '',
+    _slug: text(item.slug),
+    clientId: client?.id || text(item.client_id, `cms-${index}`),
+    client: client?.name || text(item.client, 'Seeven'),
+    title: text(item.title, `Reel ${index + 1}`),
+    description: text(item.description || client?.publicProof),
+    poster: text(item.poster),
     video: directVideo,
-    url: item.permalink || (/instagram\.com\/(reel|p|tv)\//i.test(String(item.url || '')) ? item.url : '') || client?.url || '#',
-    accent: item.accent || client?.accent || '#8b5cf6',
+    permalink,
+    url: permalink || directVideo || text(client?.url),
+    accent: text(item.accent || client?.accent, '#8b5cf6'),
     featured: Boolean(item.featured),
-    publicContext: item.description || client?.publicProof || '',
     active: item.active !== false,
     order: Number(item.order ?? index)
   }
 }
 
-function mergeReels(rows, clientList) {
-  const active = (rows || []).filter(item => item.active !== false)
-  const probable = active.filter(item => /reel|video|motion/i.test(String(item.category || '')))
-  const hasCategories = active.some(item => String(item.category || '').trim())
-  const legacyMedia = active.filter(item => item.video || item.permalink || /\.(mp4|webm)(\?|$)/i.test(String(item.url || '')) || /instagram\.com\/(reel|tv)\//i.test(String(item.url || '')))
-  const source = (probable.length ? probable : hasCategories ? legacyMedia : active.filter(item => item.poster || legacyMedia.includes(item)))
-    .sort((a,b) => Number(a.order ?? 999) - Number(b.order ?? 999))
-  if (!source.length) return fallbackReels
+function mergeReels(rows = [], clientList) {
+  const active = rows.filter(item => item?.active !== false)
+  const reelLike = active.filter(item =>
+    /reel|video|motion/i.test(text(item.category)) ||
+    item.video || item.permalink || item.poster ||
+    /instagram\.com\/(reel|tv|p)\//i.test(text(item.url)) ||
+    /\.(mp4|webm)(\?|$)/i.test(text(item.url))
+  )
 
-  const dynamic = source.map((item, index) => normalizeReel(item, index, clientList))
+  if (!reelLike.length) return fallbackReels
+  const dynamic = reelLike
+    .sort((a, b) => Number(a.order ?? 999) - Number(b.order ?? 999))
+    .map((item, index) => normalizeReel(item, index, clientList))
+
   const result = [...fallbackReels]
   const perClientSlot = new Map()
 
   dynamic.forEach((item, index) => {
     const count = perClientSlot.get(item.clientId) || 0
-    const candidates = result.map((r, i) => ({ r, i })).filter(({ r }) => r.clientId === item.clientId)
+    const candidates = result.map((reel, i) => ({ reel, i })).filter(({ reel }) => reel.clientId === item.clientId)
     const target = candidates[count]?.i ?? -1
     perClientSlot.set(item.clientId, count + 1)
 
@@ -189,18 +246,19 @@ function mergeReels(rows, clientList) {
     }
   })
 
-  return result.map(({ _rawId, _slug, ...item }) => item)
+  return result
+    .map(({ _rawId, _slug, ...item }) => item)
+    .sort((a, b) => Number(a.order ?? 999) - Number(b.order ?? 999))
 }
-
 
 function normalizeBehance(item, index) {
   return {
     id: item.id || `behance-${index + 1}`,
-    title: item.title || `Projeto Behance ${index + 1}`,
-    client: item.client || 'Seeven Projects',
-    theme: item.theme || 'editorial',
-    url: item.url || item.source_url || '#',
-    cover: item.cover || item.poster || '',
+    title: text(item.title, `Projeto Behance ${index + 1}`),
+    client: text(item.client, 'Seeven Projects'),
+    theme: text(item.theme, 'editorial'),
+    url: text(item.url || item.source_url),
+    cover: text(item.cover || item.poster),
     tools: parseList(item.tools),
     active: item.active !== false,
     order: Number(item.order ?? index)
@@ -208,40 +266,93 @@ function normalizeBehance(item, index) {
 }
 
 function mergeBehance(rows = []) {
-  const active = rows.filter(item => item.active !== false).sort((a,b) => Number(a.order ?? 999) - Number(b.order ?? 999))
+  const active = rows
+    .filter(item => item?.active !== false)
+    .sort((a, b) => Number(a.order ?? 999) - Number(b.order ?? 999))
   if (!active.length) return fallbackBehance
-  const dynamic = active.map(normalizeBehance)
-  const byUrl = new Map(fallbackBehance.map(item => [item.url, item]))
-  dynamic.forEach(item => byUrl.set(item.url || `cms-${item.id}`, { ...(byUrl.get(item.url) || {}), ...item }))
-  return [...byUrl.values()].sort((a,b) => Number(a.order ?? 999) - Number(b.order ?? 999))
+
+  const byUrl = new Map(fallbackBehance.filter(item => item.url).map(item => [item.url, item]))
+  active.map(normalizeBehance).forEach(item => {
+    const key = item.url || `cms-${item.id}`
+    byUrl.set(key, { ...(byUrl.get(key) || {}), ...item })
+  })
+  return [...byUrl.values()].sort((a, b) => Number(a.order ?? 999) - Number(b.order ?? 999))
+}
+
+function normalizeServices(rows = []) {
+  const active = rows
+    .filter(row => row?.active !== false)
+    .sort((a, b) => Number(a.order ?? 999) - Number(b.order ?? 999))
+
+  if (!active.length) return fallbackSolutions
+  return active.map((row, index) => ({
+    id: row.id || `service-${index}`,
+    problem: text(row.title, 'Qual problema precisa resolver?'),
+    answer: text(row.description),
+    stack: parseList(row.stack || row.tags)
+  }))
 }
 
 export function useCmsContent() {
-  const [content, setContent] = useState({ clients: fallbackClients, projects: fallbackProjects, reels: fallbackReels, behance: fallbackBehance, source: 'static' })
+  const [content, setContent] = useState({
+    clients: fallbackClients,
+    projects: fallbackProjects,
+    reels: fallbackReels,
+    behance: fallbackBehance,
+    services: fallbackSolutions,
+    source: 'static',
+    loading: Boolean(supabase),
+    errors: []
+  })
 
   useEffect(() => {
-    if (!supabase) return
+    if (!supabase) return undefined
     let cancelled = false
 
     const load = async () => {
-      const [clientResult, projectResult, contentResult, behanceResult] = await Promise.all([
-        supabase.from('clients').select('*'),
-        supabase.from('projects').select('*'),
-        supabase.from('contents').select('*'),
-        supabase.from('behance_items').select('*')
-      ])
+      // Always scope the public experience to published rows explicitly.
+      // This prevents drafts from leaking into the LP when an admin session is
+      // stored in the same browser and RLS also grants that admin draft access.
+      const publicRows = table => supabase.from(table).select('*').or('active.is.null,active.eq.true').order('order', { ascending: true })
+      const resources = [
+        ['clients', publicRows('clients')],
+        ['projects', publicRows('projects')],
+        ['contents', publicRows('contents')],
+        ['behance_items', publicRows('behance_items')],
+        ['services', publicRows('services')]
+      ]
+      const results = await Promise.all(resources.map(([, request]) => request))
       if (cancelled) return
 
-      const clientList = !clientResult.error ? mergeClients(clientResult.data || []) : fallbackClients
-      const projects = !projectResult.error ? mergeProjects(projectResult.data || [], clientList) : fallbackProjects
-      const reelItems = !contentResult.error ? mergeReels(contentResult.data || [], clientList) : fallbackReels
-      const behance = !behanceResult.error ? mergeBehance(behanceResult.data || []) : fallbackBehance
-      const anyCms = [clientResult, projectResult, contentResult, behanceResult].some(result => !result.error && result.data?.length)
+      const map = Object.fromEntries(resources.map(([name], index) => [name, results[index]]))
+      const errors = Object.entries(map)
+        .filter(([, result]) => result.error)
+        .map(([name, result]) => `${name}: ${result.error.message}`)
 
-      setContent({ clients: clientList, projects, reels: reelItems, behance, source: anyCms ? 'supabase+fallback' : 'static' })
+      const clientList = map.clients.error ? fallbackClients : mergeClients(map.clients.data || [])
+      const projects = map.projects.error ? fallbackProjects : mergeProjects(map.projects.data || [], clientList)
+      const reelItems = map.contents.error ? fallbackReels : mergeReels(map.contents.data || [], clientList)
+      const behance = map.behance_items.error ? fallbackBehance : mergeBehance(map.behance_items.data || [])
+      const services = map.services.error ? fallbackSolutions : normalizeServices(map.services.data || [])
+      const anyCms = Object.values(map).some(result => !result.error && result.data?.length)
+
+      setContent({
+        clients: clientList,
+        projects,
+        reels: reelItems,
+        behance,
+        services,
+        source: anyCms ? 'supabase+fallback' : 'static',
+        loading: false,
+        errors
+      })
     }
 
-    load().catch(() => {})
+    load().catch(error => {
+      if (cancelled) return
+      setContent(current => ({ ...current, loading: false, errors: [error?.message || 'Falha ao carregar CMS'] }))
+    })
+
     return () => { cancelled = true }
   }, [])
 

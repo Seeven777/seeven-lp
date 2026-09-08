@@ -1,74 +1,93 @@
-# SEE7VEN / ADMIN — configuração rápida
+# SEE7VEN / ADMIN — configuração V8
 
-A tela “Supabase não configurado” significa que o `/admin` foi carregado corretamente, mas o build da Vercel não recebeu as credenciais públicas do projeto Supabase.
+A rota administrativa é:
 
-## Se você ainda NÃO criou um projeto Supabase
+```text
+/admin
+```
 
-1. Acesse https://supabase.com/dashboard e crie um projeto.
-2. No projeto, abra **SQL Editor**.
-3. Cole e execute o arquivo `SUPABASE_V7_4_SETUP.sql` deste pacote.
-4. Vá em **Authentication → Users** e crie o usuário/e-mail que será usado para entrar no `/admin`.
-5. Abra **Connect** ou **Settings → API Keys**.
-6. Copie:
-   - Project URL;
-   - Publishable key (`sb_publishable_...`).
+## Projeto existente (seu caso)
 
-## Vercel
+Você já configurou a URL/Publishable Key e o login do Supabase. Para atualizar da V7.4 para a V8:
 
-No projeto da Seeven:
+1. Faça **Backup JSON** no Control Room atual.
+2. Abra **Supabase → SQL Editor**.
+3. Execute **uma vez**:
 
-1. **Settings → Environment Variables**.
-2. Adicione:
+```text
+SUPABASE_V8_MIGRATION.sql
+```
+
+4. Faça o deploy da V8.
+5. Entre em `/admin`.
+
+A migration cria `cms_admins` e restringe a edição a administradores explícitos. Se houver apenas um usuário em Authentication, ele é preservado automaticamente. Se houver mais de um, o próprio `/admin` mostra o SQL para autorizar a conta correta.
+
+## Instalação nova
+
+Se for um Supabase vazio, use:
+
+```text
+SUPABASE_V8_BOOTSTRAP.sql
+```
+
+Depois:
+
+1. crie o usuário em **Authentication → Users**;
+2. entre em `/admin`;
+3. se a conta ainda não estiver em `cms_admins`, copie o SQL mostrado na tela de acesso e execute no SQL Editor.
+
+## Variáveis Vercel
 
 ```text
 VITE_SUPABASE_URL = https://SEU-PROJETO.supabase.co
 VITE_SUPABASE_PUBLISHABLE_KEY = sb_publishable_...
+VITE_KAREN_WHATSAPP = 55...
+VITE_GUSTAVO_WHATSAPP = 55...   # opcional
 ```
 
-3. Marque **Production** e **Preview**.
-4. Salve.
-5. Vá em **Deployments** e faça um **Redeploy** do último commit.
+Use Production + Preview e faça redeploy depois de alterar qualquer variável `VITE_*`.
 
-Importante: em Vite, as variáveis `VITE_*` entram durante o build. Por isso é necessário redeploy depois de adicioná-las.
+Nunca use a Secret Key em variável exposta ao navegador.
 
-## Entrar
+## Adicionar Reel em poucos segundos
 
-Depois do redeploy:
+No Instagram:
+
+**Reel específico → Compartilhar → Copiar link**
+
+No Control Room:
 
 ```text
-https://SEU-DOMINIO/admin
+/admin → Reels & mídia → QUICK ADD / REEL
 ```
 
-Use o e-mail e senha criados em **Supabase → Authentication → Users**.
-
-## Adicionar Reels
-
-Abra:
+Escolha a marca, cole:
 
 ```text
-/admin → contents
+https://www.instagram.com/reel/XXXXXXXX/
 ```
 
-Para cada Reel:
+e salve.
 
-- `client`: slug do cliente, por exemplo `sindpetshop`;
-- `category`: `reel`;
-- `title`: nome interno;
-- `permalink`: link exato do Reel do Instagram;
-- `video`: opcional, arquivo `.mp4/.webm`;
-- `poster`: capa;
-- `featured`: Sim para aparecer nos destaques;
-- `active`: Sim;
-- `order`: posição.
+Depois edite o item para adicionar:
 
-## Adicionar projetos do Behance
+- capa real;
+- MP4/WebM próprio, se existir;
+- destaque;
+- ordem.
 
-Abra:
+## Behance
 
 ```text
-/admin → behance
+/admin → Behance → VERIFICAR NOVIDADES
 ```
 
-A V7.4 possui **BEHANCE WATCH**. Clique em **VERIFICAR NOVIDADES**. O painel consulta o perfil público da Seeven e mostra projetos que ainda não estão no fallback estático nem no CMS. Clique em **IMPORTAR PARA O CMS** e depois revise cliente, ferramentas, capa e ordem.
+O Behance Watch compara o perfil público da Seeven com o CMS. Quando detectar algo novo:
 
-Se a consulta automática falhar por bloqueio temporário do Behance, cadastre manualmente os mesmos campos na aba Behance.
+1. abra o projeto para conferir;
+2. importe;
+3. revise título, cliente, ferramentas, capa e ordem;
+4. publique.
+
+Se o Behance bloquear temporariamente a consulta automática, o cadastro manual continua disponível.

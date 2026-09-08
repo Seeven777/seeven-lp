@@ -1,127 +1,118 @@
-# Auditoria estratégica — SEE7VEN Presence System V7.2
+# Auditoria estratégica — SEE7VEN V8
 
-## Diagnóstico da V6.1
+## Problema que a V8 resolve
 
-A identidade visual já tinha força, mas quatro problemas criavam a sensação de página “bugada” ou “pela metade”:
+As versões anteriores tinham boas ideias visuais, mas alguns elementos competiam com a compreensão:
 
-1. **mídia sem fonte real:** os 32 slots existiam, mas sem os 32 posters/permalinks individuais;
-2. **CMS parcialmente migrado:** poucos registros do Supabase podiam substituir listas estáticas inteiras;
-3. **composição pesada em página longa:** fixed layers + blend modes aumentavam risco de glitches em captura/mobile;
-4. **narrativa interrompida:** alguns blocos chegavam ao conceito e pulavam direto para a conclusão.
+- tipografia extrema em determinados breakpoints;
+- contraste inconsistente;
+- filtros com pouca sensação de mudança;
+- muitas seções funcionando como demonstração técnica ao mesmo tempo;
+- fallbacks de Reel parecendo mídia real;
+- motion e composição criando risco de bugs em captura/scroll longo;
+- Admin com aparência de CRUD e formulário excessivamente longo;
+- segurança Supabase permissiva para qualquer usuário autenticado;
+- documentação acumulada e `node_modules` rastreado no Git.
 
-## Decisão de produto
+A V8 prioriza **clareza → prova → profundidade → ação**.
 
-A V7.2 não tenta resolver essas lacunas adicionando apenas mais efeitos. A regra agora é:
+## Princípios usados
 
-**ESTABILIDADE → CONTEÚDO REAL → PROVA → INTERAÇÃO → CONVERSÃO**
+### 1. Trabalho antes de discurso
 
-O site passa a atuar como:
+Selected Work aparece cedo. O visitante deve perceber repertório antes de ler uma longa lista de serviços.
 
-- portfólio;
-- sistema de cases;
-- arquivo audiovisual;
-- showreel;
-- capability map;
-- ferramenta de prospecção;
-- mini-brief;
-- CMS de mídia.
+### 2. Case é uma história comercial
 
-## Correções da captura longa
+Projeto forte responde:
 
-O código anterior continha elementos fixed com blend/compositing durante uma página muito extensa. Isso não significava necessariamente que o React estivesse duplicando seções, mas era uma fonte plausível de artefatos em long screenshots e certos browsers.
+`qual era o problema → qual decisão foi tomada → como foi executada → o que mudou`
 
-V7.2:
+A estética é apresentada como consequência, não como justificativa suficiente.
 
-- remove o blend do header;
-- troca o noise global fixed por camada do documento;
-- usa detecção explícita de fase clara/escura;
-- cria Motion Lite em dispositivos menos adequados a efeitos pesados.
+### 3. Prova sem inventar prova
 
-## Reels / capas
+A V8 não adiciona depoimentos fictícios, clientes não confirmados ou métricas não suportadas.
 
-A correção central é separar **slot de conteúdo** de **mídia real**.
+- escala do Sindpetshop = contexto público do cliente;
+- métricas de agosto/2026 = performance identificada pelo recorte fornecido;
+- Capability OS diferencia uso/ferramenta de evidência pública.
 
-Cada Reel pode ter:
+### 4. Problema antes do nome do serviço
 
-- poster;
-- arquivo de vídeo;
-- permalink;
-- cliente;
-- categoria;
-- título;
-- featured;
-- ordem.
+Empresário não deveria precisar decidir entre “branding”, “LP”, “motion” e “tráfego” antes de explicar o que está errado.
 
-Enquanto o asset real não existe, o visitante vê a identidade da marca e não um retângulo vazio.
+A seção de soluções começa por frases como:
 
-Isso não substitui as capas originais. É um fallback temporário deliberado.
+- Quero vender mais.
+- Minha marca está ultrapassada.
+- Ninguém entende o que eu faço.
+- Preciso parecer maior.
+- Preciso chamar atenção.
 
-## CMS híbrido
+### 5. Mobile é outra composição
 
-A migração de conteúdo não precisa mais acontecer toda de uma vez.
+No celular, a V8 troca complexidade espacial por interação direta:
 
-V7.1 preserva o portfólio seeded e sobrepõe os dados do Supabase progressivamente. Esse detalhe é importante porque evita a situação em que cadastrar 3 Reels no banco faz os outros 29 desaparecerem.
+- órbita → grid;
+- mosaico → uma coluna;
+- painéis laterais → fluxo vertical;
+- CTA final distante → ação persistente.
 
-## Cases
+### 6. Motion é enhancement
 
-Selected Work deixa de ser apenas uma grade que joga o visitante para Instagram.
+Nada importante depende de IntersectionObserver para existir.
 
-A camada de case responde:
+Se animação falhar ou o usuário pedir reduced motion, a informação continua acessível.
 
-1. qual era o problema;
-2. qual decisão organizou o trabalho;
-3. o que foi executado;
-4. qual foi o resultado;
-5. qual presença pública pode ser consultada.
+## Repositório
 
-Isso é especialmente importante no Sindpetshop, onde o valor do trabalho está na integração de diferentes jornadas e não em uma única peça.
+Auditoria pública realizada sobre:
 
-## Reelful / Capability OS
+`https://github.com/Seeven777/seeven-lp`
 
-O projeto Reelful foi analisado como referência de **linguagem de produto**: módulos, hierarquia, estados e fluxo. A Seeven adapta essa lógica para apresentar repertório técnico.
+O branch main ainda expõe `node_modules` rastreado e documentação de versões V7 antigas. A V8 entrega `.gitignore`, Quality Gate e instruções explícitas para limpar o índice.
 
-Por isso o visitante não recebe “20 logos de programas”. Ele pode navegar por capacidades e entender como Photoshop, After Effects, Blender, React, Supabase, Codex etc. entram em entregas diferentes.
+## Behance
 
-## As 20 funções
+Perfil observado:
 
-As 20 funções propostas foram transformadas em recursos ativos ou infraestrutura concreta. O único bloqueio relevante que permanece é conteúdo proprietário que ainda não foi fornecido, sobretudo os 32 Reels/capas exatos.
+`https://www.behance.net/wedeseeven`
 
-Ver tabela de status no `README.md`.
+A indexação pública recente já mostra novos projetos além do seed estático, incluindo trabalhos de eventos, web, 3D, food e identidade. A V8 não tenta congelar essa lista em código: o Behance Watch existe justamente para detectar/importar novas publicações.
 
-## Próximo salto qualitativo
+## O que foi removido ou reduzido
 
-A partir daqui, a maior evolução não virá de mais JavaScript. Virá de **substituir fallbacks por provas reais**:
+- efeitos globais de blend/invert;
+- dependência visual de conteúdo escondido por observer;
+- promessa de “32 vídeos reproduzíveis” enquanto os permalinks não existem;
+- textos internos de fallback nos SVGs;
+- formulário administrativo monolítico;
+- escrita Supabase para qualquer conta autenticada;
+- documentação V7 redundante no pacote final.
 
-- 32 capas;
-- 32 permalinks/arquivos;
-- screenshots de sites;
-- mockups físicos reais;
-- 3–5 cases com processo e métricas documentadas.
+## O que foi acrescentado
 
-Com isso, a mesma arquitetura deixa de apenas parecer avançada e passa a carregar evidência suficiente para sustentar a promessa comercial.
+- Client Rail;
+- filtros dinâmicos;
+- Case Drawer mais claro;
+- Reel readiness honesto;
+- Decision/FAQ;
+- Brief de 60 segundos;
+- Control Room;
+- Content Health;
+- editor por etapas;
+- Behance Watch;
+- RLS administrativo explícito;
+- preflight;
+- GitHub Actions Quality Gate;
+- guia de migração.
 
+## Prioridade de conteúdo após o deploy
 
-## NEXTSTEP / case study como produto
-
-A referência NEXTSTEP reforça uma lacuna que ainda existia: portfólios fortes de UI/UX não tratam pesquisa, público e decisão como bastidores descartáveis. Eles fazem isso virar parte da própria apresentação. O projeto público é categorizado no Behance com **user persona, research e Case Study**, além de landing page, Web Design, UI/UX e Mobile app.
-
-A V7.2 traduz esse princípio para uma agência multidisciplinar por meio do **Project Intelligence / Strategy OS**. O visitante consegue alternar projetos e percorrer:
-
-**Contexto → Público → Insight → Decisão → Sistema → Resultado**
-
-A intenção é resolver a sensação de “informação pela metade”: em vez de mostrar uma estética forte e pular direto para o resultado, a página revela a lógica que conectou problema e execução.
-
-O mesmo raciocínio entra dentro dos cases e no Admin 2.3, para que novos projetos possam receber esse nível de profundidade sem alteração de código.
-
-## V7.2 — correção adicional do Motion Archive
-
-O fallback anterior podia usar a mesma mídia pública de um cliente em vários slots e dar a impressão de que aquela imagem era a capa específica de cada Reel. Isso foi corrigido.
-
-Agora:
-
-- `poster` = capa específica do Reel;
-- `video` = arquivo próprio;
-- `permalink` = URL pública específica;
-- ausência de poster = **capa editorial claramente marcada como pendente**, usando a identidade da marca apenas como apoio visual.
-
-Essa distinção é menos “mágica”, porém comercialmente e tecnicamente mais correta.
+1. colocar capa real nos cases mais importantes;
+2. cadastrar os permalinks corretos dos Reels;
+3. transformar 3–5 projetos em cases completos;
+4. importar os novos projetos Behance;
+5. substituir hotlinks por arquivos próprios;
+6. adicionar provas/métricas somente quando verificáveis.

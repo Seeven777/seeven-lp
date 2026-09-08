@@ -1,5 +1,10 @@
-node_modules
-dist
-.env
-.env.local
+node_modules/
+dist/
+.vercel/
+coverage/
+*.log
+npm-debug.log*
 .DS_Store
+.env
+.env.*
+!.env.example

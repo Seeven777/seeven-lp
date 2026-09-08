@@ -1,0 +1,42 @@
+SEE7VEN Presence System V8 — release manifest
+
+Core
+- src/App.jsx
+- src/admin.jsx
+- src/data.js
+- src/main.jsx
+- src/styles.css
+- src/supabase.js
+- src/useCmsContent.js
+
+Backend / deploy
+- api/behance-profile.js
+- api/behance-meta.js
+- vercel.json
+- vite.config.js
+- package.json
+- .github/workflows/quality.yml
+- scripts/preflight.mjs
+
+Supabase
+- SUPABASE_V8_MIGRATION.sql      (upgrade da base V7.4 atual)
+- SUPABASE_V8_BOOTSTRAP.sql      (instalação nova)
+
+Operação
+- ADMIN_GUIDE.md
+- ADMIN_SETUP.md
+- MIGRATION_V8.md
+- DEPLOY_CHECKLIST.md
+- QA_V8.md
+- README.md
+
+Assets
+- public/favicon.svg
+- public/og-see7ven.png
+- public/portfolio/brands/*.svg
+
+Não incluídos deliberadamente
+- node_modules/
+- dist/
+- .env / .env.local
+- package-lock.json antigo da V7
