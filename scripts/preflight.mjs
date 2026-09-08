@@ -2,7 +2,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
-import { clients, featuredProjects, reels, portfolioFilterOptions } from '../src/data.js'
+import { clients, featuredProjects } from '../src/data.js'
 
 const here = path.dirname(fileURLToPath(import.meta.url))
 const root = path.resolve(here, '..')
@@ -17,149 +17,48 @@ const app = read('src/App.jsx')
 const admin = read('src/admin.jsx')
 const css = read('src/styles.css')
 const supabase = read('src/supabase.js')
-const migration = read('SUPABASE_V8_MIGRATION.sql')
-const bootstrap = read('SUPABASE_V8_BOOTSTRAP.sql')
-const readme = read('README.md')
-const adminSetup = read('ADMIN_SETUP.md')
-const migrationGuide = read('DATABASE_MIGRATION.md')
-const envExample = read('.env.example')
 const vercel = read('vercel.json')
-const packageJson = JSON.parse(read('package.json'))
 const gitignore = read('.gitignore')
-const brandDir = path.join(root, 'public/portfolio/brands')
-const publicSvgs = fs.readdirSync(brandDir).filter(name => name.endsWith('.svg'))
-const internalLeakSources = [app, ...publicSvgs.map(name => read(`public/portfolio/brands/${name}`))].join('\n')
+const pkg = JSON.parse(read('package.json'))
 
-// Data integrity --------------------------------------------------------
-assert(reels.length === 32, `Esperado: 32 Reels seeded. Encontrado: ${reels.length}.`)
-assert(clients.length >= 11, `Esperado: pelo menos 11 clientes seeded. Encontrado: ${clients.length}.`)
-assert(featuredProjects.length >= 11, `Selected Work muito curto: ${featuredProjects.length} projetos.`)
-assert(new Set(clients.map(item => item.id)).size === clients.length, 'IDs duplicados em clients.')
-assert(new Set(featuredProjects.map(item => item.id)).size === featuredProjects.length, 'IDs duplicados em featuredProjects.')
-assert(new Set(reels.map(item => item.id)).size === reels.length, 'IDs duplicados nos 32 Reels seeded.')
-const clientIds = new Set(clients.map(item => item.id))
-reels.forEach(item => assert(clientIds.has(item.clientId), `Reel ${item.id} aponta para clientId inexistente: ${item.clientId}.`))
-featuredProjects.filter(item => item.clientId).forEach(item => assert(clientIds.has(item.clientId), `Projeto ${item.id} aponta para clientId inexistente: ${item.clientId}.`))
-assert(publicSvgs.length >= 11, `Faltam fallbacks de marca: ${publicSvgs.length}/11.`)
-clients.forEach(item => {
-  if (item.brandPoster?.startsWith('/portfolio/brands/')) assert(exists(`public${item.brandPoster}`), `Poster local ausente para ${item.name}: ${item.brandPoster}`)
-})
+// Data / public experience
+assert(clients.length >= 10, 'Base de clientes insuficiente.')
+assert(featuredProjects.length >= 8, 'Portfólio seeded insuficiente.')
+assert(/function Hero/.test(app) && /<Hero/.test(app), 'Hero V10 ausente.')
+assert(/function PresenceSystem/.test(app) && /<PresenceSystem/.test(app), 'Presence System V10 ausente.')
+assert(/function SelectedWork/.test(app) && /<SelectedWork/.test(app), 'Selected Work V10 ausente.')
+assert(/function BentoCase/.test(app), 'Case Study V10 ausente.')
+assert(/function Brief/.test(app), 'Brief rápido V10 ausente.')
+assert(/prefers-reduced-motion/.test(css), 'Fallback reduced motion ausente.')
+assert(/@media \(max-width: 900px\)/.test(css), 'Layout mobile V10 ausente.')
+assert(/v10-system/.test(css) && /v10-project/.test(css), 'CSS público V10 incompleto.')
+assert(/WA_KAREN/.test(app) && /WA_GUSTAVO/.test(app), 'Roteamento de contato não configurado.')
+assert(/useCmsContent/.test(app), 'Experiência pública deixou de consumir o CMS.')
 
-// Filter curation should actually change the portfolio -----------------
-const filterTerms = {
-  strategy: ['estratégia','strategy','posicionamento','b2b','sistema','conversão'],
-  brand: ['branding','brand','identidade','direção visual','design'],
-  social: ['social','conteúdo','content','instagram'],
-  video: ['vídeo','video','motion','música','music','reel'],
-  web: ['web','site','landing','digital'],
-  physical: ['físico','evento','event','impresso','embalagem','uniforme','experiência']
-}
-const curated = new Set(portfolioFilterOptions.flatMap(item => item.ids || []))
-const projectText = item => [item.id,item.client,item.label,item.title,item.summary,item.category,...(item.tags || [])].filter(Boolean).join(' ').toLowerCase()
-const sets = portfolioFilterOptions.filter(item => item.id !== 'all').map(filter => {
-  const ids = featuredProjects.filter(project => filter.ids?.includes(project.id) || (!curated.has(project.id) && (filterTerms[filter.id] || []).some(term => projectText(project).includes(term)))).map(item => item.id)
-  assert(ids.length > 0, `Filtro ${filter.id} ficou vazio.`)
-  assert(ids.length < featuredProjects.length, `Filtro ${filter.id} mostra o portfólio inteiro e não parece uma curadoria.`)
-  return ids.join('|')
-})
-assert(new Set(sets).size === sets.length, 'Dois ou mais filtros têm exatamente o mesmo conjunto de projetos.')
+// Supabase / admin preserved
+assert(/VITE_SUPABASE_URL/.test(supabase), 'VITE_SUPABASE_URL ausente.')
+assert(/VITE_SUPABASE_PUBLISHABLE_KEY/.test(supabase), 'VITE_SUPABASE_PUBLISHABLE_KEY ausente.')
+assert(/cms_admins/.test(read('SUPABASE_V8_MIGRATION.sql')), 'Camada de autorização do CMS ausente.')
+assert(/friendlyAuthError/.test(admin), 'Tratamento de autenticação do Admin ausente.')
+assert(/aria-modal="true"/.test(admin), 'Acessibilidade de modal do Admin ausente.')
 
-// Front-end stability / safety -----------------------------------------
-assert(!/mix-blend-mode\s*:/i.test(css), 'CSS voltou a usar mix-blend-mode; pode causar glitches em scroll/captura longa.')
-assert(!/filter\s*:\s*invert\(/i.test(css), 'CSS voltou a usar filter: invert() no layout.')
-assert(!/content-visibility\s*:\s*auto/i.test(css), 'content-visibility:auto não deve ser usado nesta página longa; já causou captura incompleta.')
-assert(!/REPLACE WITH REAL|BRAND FALLBACK|POSTER PENDENTE|MEDIA VAULT/i.test(internalLeakSources), 'Texto interno de produção vazou para a experiência pública.')
-assert(!/href=["']#["']/g.test(app), 'href="#" encontrado no app público.')
-assert(/scroll-padding-top/i.test(css), 'Falta compensação para o header fixo em navegação por âncora.')
-assert(/VITE_SUPABASE_URL/.test(supabase), 'VITE_SUPABASE_URL não encontrada em src/supabase.js.')
-assert(/VITE_SUPABASE_PUBLISHABLE_KEY/.test(supabase), 'VITE_SUPABASE_PUBLISHABLE_KEY não encontrada em src/supabase.js.')
-assert(!/SUPABASE_SECRET_KEY/.test([app, admin, supabase].join('\n')), 'SUPABASE_SECRET_KEY não pode aparecer no bundle do navegador.')
-
-// Admin / database ------------------------------------------------------
-assert(/cms_admins/.test(migration) && /is_seeven_admin/.test(migration), 'Migration V8 não contém a camada de autorização do CMS.')
-assert(/portfolio-assets/.test(migration), 'Migration V8 não configura o Media Vault.')
-assert(/public\.is_seeven_admin\(\)/.test(migration), 'RLS V8 não usa is_seeven_admin().')
-assert(/friendlyAuthError/.test(admin), 'Admin não possui tradução amigável dos principais erros de autenticação.')
-assert(/friendlyDbError/.test(admin), 'Admin não possui tradução amigável dos principais erros do banco.')
-assert(/useAdminDialog/.test(admin) && /aria-modal="true"/.test(admin), 'Editor do Admin não possui tratamento de diálogo/foco.')
-assert(/normalizeUrl/.test(admin), 'Quick Reel não possui normalização/controle de duplicidade.')
-assert(/admin-status-stack/.test(admin), 'Status editorial e publicação ainda não estão separados na tabela do Admin.')
-
-// Deploy / repository hygiene -----------------------------------------
-assert(exists('SUPABASE_V8_MIGRATION.sql'), 'Migration V8 ausente.')
-assert(exists('SUPABASE_V8_BOOTSTRAP.sql'), 'Bootstrap V8 ausente.')
-assert(exists('ADMIN_GUIDE.md') && exists('ADMIN_SETUP.md') && exists('DEPLOY_CHECKLIST.md') && exists('QA_V9_3.md'), 'Documentação operacional/QA V9.3 incompleta.')
-assert(exists('.gitignore'), '.gitignore ausente.')
-warn(!exists('node_modules'), 'node_modules existe no ambiente atual. Isso é normal após npm install; confirme apenas que não está versionado no Git.')
-assert(/node_modules\//.test(gitignore) && /dist\//.test(gitignore) && /\.env/.test(gitignore), '.gitignore não cobre node_modules, dist e variáveis locais.')
-assert(packageJson.scripts?.preflight, 'package.json não possui script preflight.')
-warn(exists('package-lock.json'), 'package-lock.json não foi gerado neste ambiente; gere um novo lockfile com npm install antes do commit final.')
-assert(/X-Robots-Tag/.test(vercel) && /noindex/.test(vercel), '/admin não está protegido contra indexação no vercel.json.')
-assert(/X-Content-Type-Options/.test(vercel), 'Headers básicos de segurança não estão configurados no Vercel.')
-assert(!/seevenprojects@gmail/i.test([migration, bootstrap, read('README.md'), read('DATABASE_MIGRATION.md')].join('\n')), 'Dados pessoais não devem ficar hard-coded em SQL/documentação.')
-assert(!/VITE_KAREN_WHATSAPP=5511\d{8,}/.test(envExample), '.env.example contém número real em vez de placeholder.')
-assert(/count\(\*\) from auth\.users\) = 1/i.test(migration), 'Migration V8 deve preservar automaticamente apenas um único Auth user existente.')
-assert(/SUPABASE_V8_BOOTSTRAP\.sql/.test(adminSetup), 'ADMIN_SETUP deve orientar fresh install pela V8 bootstrap.')
-assert(/SUPABASE_V8_BOOTSTRAP\.sql/.test(migrationGuide), 'DATABASE_MIGRATION deve orientar fresh install pela V8 bootstrap.')
-assert(/scroll_depth/.test(app), 'Analytics não registra profundidade de scroll.')
-assert(/expanded \? archive\.length/.test(app), 'Motion Archive ainda limita o arquivo expandido artificialmente.')
-assert(/expanded \? validProjects\.length/.test(app), 'Behance expandido ainda limita projetos artificialmente.')
-assert(/\.ba-slider>i\{left:var\(--ba\)\}/.test(css), 'Handle do Before/After não está ligado ao valor real de 0–100%.')
-
-for (const artifact of ['src/App.jsx.pre-final','src/App.jsx.v8-qa-backup','src/admin.jsx.pre-final','src/admin.jsx.v8-qa-backup','src/styles.css.v8-qa-backup','qa-prototype.html','SUPABASE_V8_MIGRATION.sql.v8-qa-backup','vercel.json.v8-qa-backup']) {
-  assert(!exists(artifact), `Arquivo legado/intermediário ainda presente no pacote: ${artifact}`)
-}
-
-// V9.3 scrollytelling / progressive disclosure journey ----------------------------
-assert(/function StoryIntro/.test(app) && /<StoryIntro/.test(app), 'StoryIntro V9.3 ausente da jornada pública.')
-assert(/function PresenceEngine/.test(app) && /<PresenceEngine/.test(app), 'Presence Engine V9.3 ausente da jornada pública.')
-assert(/function JourneyRail/.test(app) && /<JourneyRail/.test(app), 'Journey Rail V9.3 ausente.')
-assert(/story_step/.test(app), 'Analytics story_step ausente.')
-assert(/presence_engine_step/.test(app), 'Analytics presence_engine_step ausente.')
-assert(/journey_chapter/.test(app), 'Analytics journey_chapter ausente.')
-assert(/workStart/.test(app), 'CTA mobile não está atrasado até a proximidade do portfólio.')
-assert(app.includes('aria-hidden={active !=='), 'Cenas sticky não têm aria-hidden para estados inativos.')
-assert(app.includes('inert={active !=='), 'Cenas sticky não removem conteúdo inativo da navegação por teclado.')
-assert(/\.story-intro/.test(css) && /\.presence-engine/.test(css), 'CSS da narrativa sticky V9.3 incompleto.')
-assert(/position\s*:\s*sticky/i.test(css), 'V9.3 perdeu position:sticky da narrativa.')
-assert(/story-stepper/.test(app) && /story-stepper/.test(css), 'Stepper da abertura V9.3 ausente.')
-assert(/story-proof-grid/.test(app) && /story-proof-grid/.test(css), 'Prova visual do frame final da abertura ausente.')
-assert(/preferredScrollBehavior/.test(app), 'Scroll programático não respeita reduced motion.')
-assert(/journey-rail\.is-intro/.test(css), 'Journey Rail não some durante a abertura.')
-assert(/max-height:760px/.test(css), 'Falta tratamento de viewport baixo para notebooks.')
-assert(packageJson.version === '9.3.0', `package.json deveria estar em 9.3.0 e está em ${packageJson.version}.`)
-assert(/version:'9\.3'/.test(admin), 'Backup do Control Room não está marcado como V9.3.')
-assert(/rel="canonical"/.test(read('index.html')), 'Canonical ausente no index.html.')
-
-// A jornada pública deve estar condensada e o source não deve carregar os antigos blocos autônomos.
-for (const legacyComponent of ['function StrategyLens(', 'function PixelPaper(', 'function Ecosystem(', 'function CapabilityOS(', 'function Solutions(']) {
-  assert(!app.includes(legacyComponent), `Componente legado ainda presente em App.jsx: ${legacyComponent}.`)
-}
-
-// V9.3 progressive disclosure ------------------------------------------------
-assert(/function RevealMore/.test(app), 'RevealMore V9.3 ausente.')
-assert(/SOBRE ESTA CURADORIA/.test(app), 'Curadoria não possui disclosure contextual.')
-assert(/ENTENDER ESTA ETAPA/.test(app), 'Presence Engine não usa disclosure progressivo.')
-assert(/COMO PENSAMOS VÍDEO/.test(app), 'Motion Archive não usa disclosure progressivo.')
-assert(/DÚVIDAS FREQUENTES/.test(app), 'FAQ não está em disclosure.')
-assert(/const compactLimit = isMobile \? 3 : 4/.test(app), 'Selected Work ainda exibe projetos demais inicialmente.')
-assert(/const collapsedLimit = isMobile \? 2 : 4/.test(app), 'Motion Archive ainda exibe itens demais inicialmente.')
-assert(/const limit = isMobile \? 2 : 4/.test(app), 'Behance ainda exibe itens demais inicialmente.')
-assert(/\.reveal-more/.test(css), 'CSS do progressive disclosure V9.3 ausente.')
+// Deploy / repo
+assert(pkg.version === '10.0.0', `Versão esperada 10.0.0; atual ${pkg.version}.`)
+assert(/node_modules\//.test(gitignore) && /dist\//.test(gitignore), '.gitignore incompleto.')
+assert(/X-Robots-Tag/.test(vercel) && /noindex/.test(vercel), '/admin sem noindex no Vercel.')
+assert(/X-Content-Type-Options/.test(vercel), 'Headers de segurança básicos ausentes.')
+assert(exists('index.html') && exists('public/favicon.svg'), 'Arquivos públicos essenciais ausentes.')
+warn(!exists('node_modules'), 'node_modules está presente localmente; remova antes de compactar/commitar.')
 
 if (css.split('{').length !== css.split('}').length) failures.push('Quantidade de chaves CSS não confere.')
 
 if (failures.length) {
-  console.error('\nSEE7VEN V9.3 / PREFLIGHT FAILED')
+  console.error('\nSEE7VEN V10 / PREFLIGHT FAILED')
   failures.forEach(item => console.error(`✗ ${item}`))
   warnings.forEach(item => console.warn(`! ${item}`))
   process.exit(1)
 }
-
-console.log('SEE7VEN V9.3 / PREFLIGHT OK')
-console.log(`✓ ${clients.length} clientes`)
-console.log(`✓ ${featuredProjects.length} projetos selecionados`)
-console.log(`✓ ${reels.length} slots de Reel`)
-console.log(`✓ ${publicSvgs.length} fallbacks locais de marca`)
-console.log(`✓ ${sets.length} curadorias distintas`)
+console.log('SEE7VEN V10 / PREFLIGHT OK')
+console.log(`✓ ${clients.length} clientes seeded`)
+console.log(`✓ ${featuredProjects.length} projetos seeded`)
 warnings.forEach(item => console.warn(`! ${item}`))

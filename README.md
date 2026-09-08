@@ -239,3 +239,7 @@ scripts/preflight.mjs    quality gate local/Vercel
 4. importar os projetos novos do Behance pelo Control Room;
 5. aprofundar 3–5 cases com material real;
 6. adicionar resultados apenas quando houver período/fonte/contexto verificável.
+
+
+## V10 / Interactive Presence
+A experiência pública foi reformulada na V10. Consulte `V10_RELEASE.md` para deploy e principais mudanças.
