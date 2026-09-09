@@ -166,9 +166,26 @@ function pickVisual(project, clients, behance) {
 
 function Header({ onBrief }) {
   const [open, setOpen] = useState(false)
+  const [hidden, setHidden] = useState(false)
   useBodyLock(open)
+  useEffect(() => {
+    let last = window.scrollY
+    let raf = 0
+    const update = () => {
+      raf = 0
+      if (window.innerWidth > 900 || open) { setHidden(false); last = window.scrollY; return }
+      const now = window.scrollY
+      const delta = now - last
+      if (Math.abs(delta) > 8) setHidden(now > 110 && delta > 0)
+      last = now
+    }
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(update) }
+    window.addEventListener('scroll', onScroll, { passive:true })
+    window.addEventListener('resize', onScroll)
+    return () => { cancelAnimationFrame(raf); window.removeEventListener('scroll', onScroll); window.removeEventListener('resize', onScroll) }
+  }, [open])
   return <>
-    <header className="v10-header">
+    <header className={`v10-header ${hidden && !open ? 'is-hidden' : ''}`}>
       <a href="#top" className="v10-brand"><LogoMark/></a>
       <nav className="v10-nav" aria-label="Principal">
         <a href="#work">Projetos</a>
@@ -178,12 +195,12 @@ function Header({ onBrief }) {
         <a href="#contact">Contato</a>
       </nav>
       <button className="v10-start" onClick={() => onBrief()}>Começar projeto <span>{arrow}</span></button>
-      <button className="v10-menu-btn" aria-expanded={open} onClick={() => setOpen(v => !v)}>{open ? 'FECHAR' : 'MENU'}</button>
+      <button className="v10-menu-btn" aria-expanded={open} aria-label={open ? 'Fechar menu' : 'Abrir menu'} onClick={() => setOpen(v => !v)}>{open ? 'FECHAR' : 'MENU'}</button>
     </header>
     <div className={`v10-menu ${open ? 'is-open' : ''}`} aria-hidden={!open}>
       <div className="v10-menu-inner">
         <span className="v10-kicker">NAVEGAÇÃO</span>
-        {[['01','Projetos','#work'],['02','O que fazemos','#capabilities'],['03','Como pensamos','#system'],['04','Motion','#motion'],['05','Parceiros','#partners'],['06','Contato','#contact']].map(([n,l,h]) => <a key={h} href={h} onClick={() => setOpen(false)}><small>{n}</small><strong>{l}</strong><span>↘</span></a>)}
+        {[['01','Projetos','#work'],['02','O que fazemos','#capabilities'],['03','Como conectamos','#system'],['04','Motion','#motion'],['05','Parceiros','#partners'],['06','Contato','#contact']].map(([n,l,h]) => <a key={h} href={h} onClick={() => setOpen(false)}><small>{n}</small><strong>{l}</strong><span>↘</span></a>)}
         <button onClick={() => { setOpen(false); onBrief() }}>Tenho um projeto em mente <span>{arrow}</span></button>
       </div>
     </div>
@@ -208,9 +225,9 @@ function Hero({ projects, clients, behance }) {
       <div className="v10-ambient"/>
       <div className="v10-hero-meta"><span>CREATIVE PRESENCE STUDIO</span><span>SÃO PAULO · BRASIL</span><span>ESTRATÉGIA → ENTREGA</span></div>
       <div className="v10-hero-copy">
-        <span className="v10-kicker">ESTRATÉGIA · DESIGN · CONTEÚDO · TECNOLOGIA · PRODUÇÃO</span>
+        <span className="v10-kicker">ESTRATÉGIA · CRIAÇÃO · PRODUÇÃO · TECNOLOGIA</span>
         <h1><span>TUDO QUE</span><span>UMA MARCA</span><em>PRECISA.</em></h1>
-        <p>Uma única direção para transformar ideia em marca, site, conteúdo, campanha, vídeo, tecnologia, impresso, evento e presença real.</p>
+        <p>Do nome ao site. Do conteúdo ao evento. Do anúncio ao impresso. Você traz o objetivo; a Seeven conecta o resto.</p>
         <div className="v10-hero-tags"><span>Branding</span><span>Web</span><span>Social</span><span>Motion</span><span>Performance</span><span>Físico</span><span>Tecnologia</span></div>
         <div className="v10-hero-actions"><a href="#work">Ver projetos <b>↓</b></a><a href="#capabilities">Ver tudo que fazemos <b>↘</b></a></div>
       </div>
@@ -239,26 +256,26 @@ function CapabilityUniverse({ onBrief }) {
   const group = capabilityGroups[active]
   return <section className="v10-universe" id="capabilities" style={{ '--accent': group.accent }}>
     <div className="v10-universe-head">
-      <span className="v10-kicker">01 / O QUE FAZEMOS</span>
-      <h2>Do pixel ao papel.<br/><em>E tudo entre eles.</em></h2>
-      <p>Você não precisa chegar sabendo qual serviço contratar. Pode chegar com uma meta, um problema ou uma ideia. A gente monta o conjunto certo.</p>
+      <span className="v10-kicker">01 / ENTREGAS</span>
+      <h2>Do digital ao físico.<br/><em>Sem trocar de direção.</em></h2>
+      <p>Se a ideia precisa existir, a gente define o formato e executa: marca, produto digital, conteúdo, audiovisual, experiência física ou automação.</p>
     </div>
     <div className="v10-universe-shell">
-      <div className="v10-universe-tabs" role="group" aria-label="Áreas de atuação">
-        {capabilityGroups.map((item, i) => <button key={item.id} className={active === i ? 'is-active' : ''} onClick={() => setActive(i)} onMouseEnter={() => setActive(i)}>
+      <div className="v10-universe-tabs" role="tablist" aria-label="Áreas de atuação">
+        {capabilityGroups.map((item, i) => <button key={item.id} role="tab" aria-selected={active === i} className={active === i ? 'is-active' : ''} onClick={() => setActive(i)} onMouseEnter={() => setActive(i)}>
           <small>0{i+1}</small><strong>{item.label}</strong><span>↗</span>
         </button>)}
       </div>
-      <div className="v10-universe-detail">
+      <div className="v10-universe-detail" role="tabpanel">
         <div className="v10-universe-number">0{active+1}</div>
         <span className="v10-kicker">{group.label}</span>
         <h3>{group.lead}</h3>
         <div className="v10-universe-items">{group.items.map(item => <span key={item}>{item}</span>)}</div>
-        <div className="v10-universe-flow"><span>BRIEF</span><i>→</i><span>{group.label}</span><i>→</i><strong>ENTREGA</strong></div>
+        <div className="v10-universe-flow"><span>IDEIA</span><i>→</i><span>{group.label}</span><i>→</i><strong>NO MUNDO</strong></div>
         <button onClick={() => onBrief(group.label)}>Preciso disso {arrow}</button>
       </div>
     </div>
-    <div className="v10-universe-foot"><span>UMA AGÊNCIA.</span><span>VÁRIAS DISCIPLINAS.</span><strong>UM SISTEMA.</strong></div>
+    <div className="v10-universe-foot"><span>PLANEJAR.</span><span>CRIAR.</span><strong>FAZER ACONTECER.</strong></div>
   </section>
 }
 
@@ -275,6 +292,7 @@ function PresenceSystem({ projects, clients, behance, onOpen }) {
   const ref = useRef(null)
   const [scrollActive, setScrollActive] = useState(0)
   useScrollDirector(ref, 1, progress => {
+    if (window.matchMedia?.('(max-width: 900px)').matches) return
     const next = Math.min(systemNodes.length - 1, Math.floor(clamp(progress * 1.01) * systemNodes.length))
     setScrollActive(current => current === next ? current : next)
   })
@@ -287,18 +305,30 @@ function PresenceSystem({ projects, clients, behance, onOpen }) {
   return <section className="v10-system" id="system" ref={ref} style={{ '--p': 0, '--system-accent': relatedClient.accent || '#7b61ff' }}>
     <div className="v10-system-sticky">
       <div className="v10-section-head">
-        <span className="v10-kicker">02 / PRESENCE SYSTEM</span>
-        <h2>Uma marca.<br/><em>Muitos pontos de contato.</em></h2>
-        <p>O cliente não deveria sentir que contratou seis fornecedores. Estratégia, conteúdo, web, motion e físico precisam parecer uma única decisão.</p>
-        <div className="v10-system-promise"><span>1</span><strong>direção</strong><i>→</i><span>6+</span><strong>frentes</strong><i>→</i><span>1</span><strong>marca</strong></div>
+        <span className="v10-kicker">02 / COMO CONECTAMOS</span>
+        <h2>Um briefing.<br/><em>Uma direção.</em></h2>
+        <p>Você não coordena seis fornecedores. A Seeven organiza as frentes e mantém a mesma lógica da estratégia até a entrega.</p>
+        <div className="v10-system-promise"><span>1</span><strong>briefing</strong><i>→</i><span>1</span><strong>direção</strong><i>→</i><span>6+</span><strong>frentes</strong></div>
       </div>
+
+      <div className="v10-system-mobile">
+        <div className="v10-system-mobile-tabs" role="tablist" aria-label="Frentes conectadas">
+          {systemNodes.map(([nodeTitle], i) => <button key={nodeTitle} role="tab" aria-selected={i===active} className={i===active?'is-active':''} onClick={() => setManual(i)}><span>{String(i+1).padStart(2,'0')}</span>{nodeTitle}</button>)}
+        </div>
+        <button className="v10-system-mobile-card" onClick={() => related && onOpen?.(related)} aria-label={related ? `Abrir projeto ${related.client}` : 'Ver projeto relacionado'}>
+          <div className="v10-system-mobile-media">{visual ? <SmartImage src={visual} alt="" loading="lazy"/> : null}<i/></div>
+          <div className="v10-system-mobile-copy"><small>FRENTE {String(active+1).padStart(2,'0')} / 06</small><h3>{title}</h3><p>{desc}</p><span>{relatedClient.name || related?.client || 'Projeto Seeven'} · {related?.title || 'Exemplo real'}</span><b>Ver exemplo {arrow}</b></div>
+        </button>
+        <div className="v10-system-mobile-summary"><span><b>01</b>Brief</span><i>→</i><span><b>02</b>Direção</span><i>→</i><span><b>03</b>Entrega</span></div>
+      </div>
+
       <div className="v10-network" aria-label="Mapa de capacidades">
         <button className="v10-network-preview" onClick={() => related && onOpen?.(related)} aria-label={related ? `Abrir projeto ${related.client}` : 'Ver projetos'}>
           {visual ? <SmartImage src={visual} alt="" loading="lazy"/> : null}
           <div><small>EXEMPLO REAL / {String(active+1).padStart(2,'0')}</small><strong>{relatedClient.name || related?.client || title}</strong><span>{related?.title || desc}</span><b>VER RACIOCÍNIO ↗</b></div>
         </button>
         <div className="v10-network-core"><b>SEE7VEN</b><small>ONE<br/>CONNECTED<br/>SYSTEM</small></div>
-        {systemNodes.map(([nodeTitle,nodeDesc], i) => <button key={nodeTitle} onMouseEnter={() => setManual(i)} onMouseLeave={() => setManual(null)} onFocus={() => setManual(i)} onBlur={() => setManual(null)} onClick={() => setManual(i)} className={`v10-service-node n${i+1} ${i === active ? 'is-active' : ''}`}><span>{String(i+1).padStart(2,'0')}</span><b>{nodeTitle}</b><small>{nodeDesc}</small></button>)}
+        {systemNodes.map(([nodeTitle,nodeDesc], i) => <button key={nodeTitle} aria-pressed={i===active} onMouseEnter={() => setManual(i)} onMouseLeave={() => setManual(null)} onFocus={() => setManual(i)} onBlur={() => setManual(null)} onClick={() => setManual(i)} className={`v10-service-node n${i+1} ${i === active ? 'is-active' : ''}`}><span>{String(i+1).padStart(2,'0')}</span><b>{nodeTitle}</b><small>{nodeDesc}</small></button>)}
         <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d="M50 50 L18 20 M50 50 L50 13 M50 50 L82 22 M50 50 L17 76 M50 50 L50 88 M50 50 L84 76"/></svg>
         <small className="v10-network-hint">PASSE / TOQUE PARA EXPLORAR</small>
       </div>
@@ -342,7 +372,7 @@ function SelectedWork({ projects, clients, behance, onOpen }) {
 function WorkArchive({ clients, projects, onOpen }) {
   const visible = clients.slice(0, 12)
   return <section className="v10-archive" aria-labelledby="archive-title">
-    <div className="v10-archive-head"><span className="v10-kicker">ARQUIVO / PRESENÇAS</span><h2 id="archive-title">Marcas diferentes.<br/><em>Problemas diferentes.</em></h2><p>Do institucional ao entretenimento, do food ao B2B. A direção muda com o contexto — não com uma fórmula pronta.</p></div>
+    <div className="v10-archive-head"><span className="v10-kicker">ARQUIVO / PRESENÇAS</span><h2 id="archive-title">Mais marcas.<br/><em>Mais contextos.</em></h2><p>Um recorte rápido do repertório: institucional, entretenimento, food, B2B e outros universos.</p></div>
     <div className="v10-archive-grid">
       {visible.map((client, index) => {
         const project = projects.find(row => row.clientId === client.id)
@@ -355,13 +385,19 @@ function WorkArchive({ clients, projects, onOpen }) {
         </article>
       })}
     </div>
+    <div className="v10-archive-mobile" aria-label="Arquivo compacto de marcas">
+      {visible.map((client,index) => {
+        const project = projects.find(row => row.clientId === client.id)
+        return <button key={client.id} disabled={!project} onClick={() => project && onOpen(project)}><span>{String(index+1).padStart(2,'0')}</span><strong>{client.name}</strong><small>{client.category || 'Projeto'}</small><i>{project?'↗':'·'}</i></button>
+      })}
+    </div>
   </section>
 }
 
 function ThinkingBento({ behance }) {
   const visual = behance[4]?.cover || behance[0]?.cover || ''
   return <section className="v10-thinking">
-    <div className="v10-thinking-head"><span className="v10-kicker">04 / COMO PENSAMOS</span><h2>Você chega com um problema.<br/><em>A gente conecta o resto.</em></h2></div>
+    <div className="v10-thinking-head"><span className="v10-kicker">04 / COMO PENSAMOS</span><h2>Antes de criar,<br/><em>a gente organiza.</em></h2></div>
     <div className="v10-thinking-bento">
       <div className="v10-thinking-left">
         {[['01','Informação demais','Muita coisa para dizer e pouca hierarquia para decidir o que vem primeiro.'],['02','Jornada confusa','Site, social, anúncio, atendimento e material físico parecem marcas diferentes.'],['03','Execução sem sistema','A produção cresce, mas a percepção da marca não cresce junto.']].map(([n,t,d]) => <article key={n}><span>{n}</span><div><strong>{t}</strong><p>{d}</p></div></article>)}
@@ -397,7 +433,7 @@ function Capabilities({ services, onBrief }) {
     <div className="v10-cap-title"><span className="v10-kicker">05 / COMECE PELO PROBLEMA</span><h2>Não sabe o nome<br/>do serviço? <em>Melhor ainda.</em></h2></div>
     <div className="v10-cap-grid">
       <div className="v10-cap-menu">{items.map((row,i) => <button key={`${row.problem}-${i}`} className={safeActive===i?'is-active':''} onClick={() => setActive(i)}><small>0{i+1}</small><strong>{row.problem}</strong><span>+</span></button>)}</div>
-      <div className="v10-cap-detail"><span className="v10-kicker">RESPOSTA / {String(safeActive+1).padStart(2,'0')}</span><h3>{item.problem}</h3><p>{item.answer}</p><div>{(item.stack || []).map(x => <span key={x}>{x}</span>)}</div><button onClick={() => onBrief(item.problem)}>Vamos resolver isso {arrow}</button></div>
+      <div className="v10-cap-detail"><span className="v10-kicker">RESPOSTA / {String(safeActive+1).padStart(2,'0')}</span><p className="v10-cap-answer">{item.answer}</p><div>{(item.stack || []).map(x => <span key={x}>{x}</span>)}</div><button onClick={() => onBrief(item.problem)}>Vamos resolver isso {arrow}</button></div>
     </div>
   </section>
 }
@@ -430,7 +466,7 @@ function Motion({ reels, clients, behance }) {
 function Proof({ behance, clients }) {
   const visualItems = behance.slice(0, 7)
   return <section className="v10-proof">
-    <div className="v10-proof-copy"><span className="v10-kicker">07 / DO DIGITAL AO FÍSICO</span><h2>Uma ideia.<br/><em>Vários formatos.</em></h2><p>Site, campanha, feed, vídeo, apresentação, impresso, evento, sinalização. O formato muda. A lógica da marca continua.</p></div>
+    <div className="v10-proof-copy"><span className="v10-kicker">07 / FORMATO NÃO É LIMITE</span><h2>Tela, rua,<br/><em>palco, papel.</em></h2><p>O meio muda conforme a ideia pede. A direção continua reconhecível.</p></div>
     <div className="v10-proof-wall">
       {visualItems.map((item,i) => <a key={item.id || i} href={safeLink(item.url)||'#work'} target={safeLink(item.url)?'_blank':undefined} rel="noreferrer" className={`v10-proof-tile t${i+1}`}><SmartImage src={item.cover} alt={item.title || item.client || 'Projeto Seeven'} loading="lazy"/><span><small>{item.client}</small><strong>{item.title}</strong></span></a>)}
       <div className="v10-proof-tile v10-proof-cap"><strong>PIXEL</strong><span>↔</span><strong>PAPEL</strong><small>e tudo entre eles</small></div>
@@ -512,26 +548,25 @@ function Partners({ partners = [] }) {
   const marquee = [...items, ...items]
   return <section className="v10-partners" id="partners">
     <div className="v10-partners-head">
-      <div><span className="v10-kicker">08 / CREATIVE NETWORK</span><h2>O projeto cresce.<br/><em>A rede cresce junto.</em></h2></div>
-      <div><p>Um contato, uma direção. Quando a entrega pede novos braços, conectamos parceiros à ideia sem transformar o projeto em um quebra-cabeça de fornecedores.</p><div className="v10-partner-stats"><span><strong>{items.length || 25}</strong> parceiros</span><span><strong>1</strong> direção</span><span><strong>∞</strong> combinações</span></div></div>
+      <div><span className="v10-kicker">08 / CREATIVE NETWORK</span><h2>Mais projeto.<br/><em>Mais rede.</em></h2></div>
+      <div><p>Quando a entrega pede novas especialidades, a Seeven conecta parceiros sem transferir para você a gestão de vários fornecedores.</p><div className="v10-partner-stats"><span><strong>{items.length || 25}</strong> parceiros</span><span><strong>1</strong> direção</span><span><strong>1</strong> contato</span></div></div>
     </div>
     <div className="v10-partner-featured">
-      {items.slice(0,6).map((partner,index)=><a href={safeLink(partner.url)||'#contact'} target={safeLink(partner.url)?'_blank':undefined} rel="noreferrer" key={partner.id || partner.handle} style={{'--i':index}}><PartnerAvatar partner={partner}/><div><small>PARTNER / NETWORK</small><strong>{partner.handle || partner.name}</strong><span>{partner.role || 'Parceiro Seeven'}</span></div><i>↗</i></a>)}
+      {items.slice(0,6).map((partner,index)=><a href={safeLink(partner.url)||'#contact'} target={safeLink(partner.url)?'_blank':undefined} rel="noreferrer" key={partner.id || partner.handle} style={{'--i':index}}><PartnerAvatar partner={partner}/><div><small>PARTNER / NETWORK</small><strong>{partner.handle || partner.name}</strong><span>{partner.role || 'Rede Seeven'}</span></div><i>↗</i></a>)}
     </div>
     <div className="v10-partner-marquee" aria-label="Rede de parceiros Seeven"><div>{marquee.map((partner,index)=><a href={safeLink(partner.url)||'#contact'} target={safeLink(partner.url)?'_blank':undefined} rel="noreferrer" key={`${partner.id || partner.handle}-${index}`}><span>{partner.handle || partner.name}</span><i>↗</i></a>)}</div></div>
-    <p className="v10-partner-note">A rede é modular: entra quando o projeto precisa. A direção criativa continua centralizada na Seeven.</p>
+    <div className="v10-partner-mobile-rail" aria-label="Todos os parceiros">{items.map(partner => <a href={safeLink(partner.url)||'#contact'} target={safeLink(partner.url)?'_blank':undefined} rel="noreferrer" key={partner.id || partner.handle}><PartnerAvatar partner={partner}/><span>{partner.handle || partner.name}</span><i>↗</i></a>)}</div>
+    <p className="v10-partner-note">A rede entra quando o projeto precisa. A direção continua centralizada na Seeven.</p>
   </section>
 }
 
 function Contact({ onBrief }) {
   const text = encodeURIComponent('Olá! Conheci a Seeven pelo site e quero conversar sobre um projeto.')
-  const quick = ['Projeto 360° / várias frentes','Marca / identidade','Site / landing / sistema','Campanha / mídia','Conteúdo / social','Vídeo / motion','Impresso / evento','Ainda não sei']
   return <section className="v10-contact" id="contact">
     <span className="v10-kicker">09 / START SOMETHING</span>
-    <h2>O que a sua marca<br/><em>precisa agora?</em></h2>
-    <p>Escolha um ponto de partida ou simplesmente conte o problema. A gente organiza o resto.</p>
-    <div className="v10-contact-quick">{quick.map(item => <button key={item} onClick={() => onBrief(item)}>{item}<span>+</span></button>)}</div>
-    <button className="v10-contact-main" onClick={() => onBrief()}>Começar um projeto <span>{arrow}</span></button>
+    <h2>Tem uma ideia?<br/><em>Coloca na mesa.</em></h2>
+    <p>Não precisa montar o escopo antes de falar com a gente. Conte o objetivo, o problema ou o que você quer colocar no mundo.</p>
+    <div className="v10-contact-actions"><button className="v10-contact-main" onClick={() => onBrief()}>Brief rápido · 60s <span>{arrow}</span></button><a href={`https://wa.me/${WA_KAREN}?text=${text}`} target="_blank" rel="noreferrer">Conversar agora <span>{arrow}</span></a></div>
     <div className="v10-contact-people">
       <a href={`https://wa.me/${WA_GUSTAVO}?text=${text}`} target="_blank" rel="noreferrer"><small>DIREÇÃO</small><strong>Gustavo</strong><span>+55 11 92062-6850 {arrow}</span></a>
       <a href={`https://wa.me/${WA_KAREN}?text=${text}`} target="_blank" rel="noreferrer"><small>NOVOS PROJETOS</small><strong>Karen</strong><span>+55 11 97149-3985 {arrow}</span></a>
@@ -594,7 +629,7 @@ export default function App() {
     return () => document.documentElement.classList.remove('seeven-v10')
   }, [])
 
-  useEffect(() => { track('page_view',{source:cms.source,version:'v10.3'}) }, [cms.source])
+  useEffect(() => { track('page_view',{source:cms.source,version:'v10.4'}) }, [cms.source])
 
   useEffect(() => {
     const resolvePath = () => {

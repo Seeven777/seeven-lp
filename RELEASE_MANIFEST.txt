@@ -1,4 +1,4 @@
-SEE7VEN Presence System V10.3 — release manifest
+SEE7VEN Presence System V10.4 — release manifest
 
 Core
 - src/App.jsx
@@ -9,39 +9,25 @@ Core
 - src/supabase.js
 - src/useCmsContent.js
 
-Public experience V10.3
-- Hero / connected orbit
-- Capability Universe
-- Presence System
-- Selected Work
-- Living Work Archive
+Public experience V10.4
+- Faster Hero / bounded mobile orbit
+- Capability Universe / compact touch tabs
+- Presence System / desktop network + mobile selector
+- Selected Work / desktop narrative + mobile snap rail
+- Living Work Archive / desktop visual wall + mobile compact index
 - Bento reasoning
 - Problem-first solutions
-- Motion & Content
-- Digital ↔ Physical proof
+- Motion & Content / tactile mobile rail
+- Format proof / mobile swipe gallery
 - Creative Network / 25 partners
 - Contact + 60s brief
 - Shareable /work/:slug cases
 
 Backend / deploy
-- api/behance-profile.js
-- api/behance-meta.js
-- vercel.json
-- vite.config.js
-- package.json
-- .github/workflows/quality.yml
-- scripts/preflight.mjs
-
-Supabase
-- Existing V8 structure preserved
-- Partners reuse public.contents with category=partner
-- No new SQL migration required for V10.3
-
-Assets
-- public/favicon.svg
-- public/og-see7ven.png
-- public/portfolio/brands/*.svg
-- public/assets/posters/*.jpg (fallback only)
+- Existing Vercel setup preserved
+- Existing Supabase setup preserved
+- Control Room preserved
+- No new SQL migration required for V10.4
 
 Deliberately excluded
 - node_modules/

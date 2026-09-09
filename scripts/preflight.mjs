@@ -46,7 +46,7 @@ assert(/friendlyAuthError/.test(admin), 'Tratamento de autenticação do Admin a
 assert(/aria-modal="true"/.test(admin), 'Acessibilidade de modal do Admin ausente.')
 
 // Deploy / repo
-assert(pkg.version === '10.3.0', `Versão esperada 10.3.0; atual ${pkg.version}.`)
+assert(pkg.version === '10.4.0', `Versão esperada 10.4.0; atual ${pkg.version}.`)
 assert(/node_modules\//.test(gitignore) && /dist\//.test(gitignore), '.gitignore incompleto.')
 assert(/X-Robots-Tag/.test(vercel) && /noindex/.test(vercel), '/admin sem noindex no Vercel.')
 assert(/X-Content-Type-Options/.test(vercel), 'Headers de segurança básicos ausentes.')
@@ -61,7 +61,7 @@ if (failures.length) {
   warnings.forEach(item => console.warn(`! ${item}`))
   process.exit(1)
 }
-console.log('SEE7VEN V10.3 / PREFLIGHT OK')
+console.log('SEE7VEN V10.4 / PREFLIGHT OK')
 console.log(`✓ ${clients.length} clientes seeded`)
 console.log(`✓ ${featuredProjects.length} projetos seeded`)
 console.log(`✓ ${partners.length} parceiros seeded`)
