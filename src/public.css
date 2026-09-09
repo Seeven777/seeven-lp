@@ -447,3 +447,357 @@ body{overflow-x:hidden}
   .v11-hero-orbit{width:278px;height:206px}
   .v11-hero-orbit>button{width:80px}
 }
+
+/* v11.3 polish ------------------------------------------------------------- */
+
+/* card safety / typography */
+.v11-cap-card{
+  height:auto;
+  min-height:680px;
+  display:flex;
+  flex-direction:column;
+}
+.v11-cap-card h3{
+  flex:0 0 auto;
+  margin:42px 0 34px;
+}
+.v11-cap-card-grid{
+  flex:1 1 auto;
+  min-height:250px;
+  margin-bottom:24px;
+  align-items:stretch;
+}
+.v11-cap-card-grid>div:first-child{
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+}
+.v11-cap-card-grid>div:first-child>p{
+  flex:0 0 auto;
+  margin-bottom:22px;
+}
+.v11-cap-pills{
+  margin-top:0;
+  align-content:flex-start;
+}
+.v11-cap-output{
+  flex:0 0 auto;
+  margin-top:auto;
+  min-height:62px;
+  align-items:start;
+}
+.v11-cap-card>button{
+  flex:0 0 auto;
+}
+
+.v11-thinking-grid article{
+  min-width:0;
+}
+.v11-thinking-grid article h3,
+.v11-thinking-grid article p{
+  max-width:min(100%, 34ch);
+}
+.t-context>div,
+.v11-mini-wire,
+.v11-mini-system,
+.v11-mini-deliver{
+  position:relative;
+  left:auto;
+  right:auto;
+  top:auto;
+  bottom:auto;
+  margin-top:auto;
+}
+.t-context>div{
+  width:100%;
+  height:200px;
+}
+.v11-mini-wire{
+  width:145px;
+  height:145px;
+  align-self:flex-end;
+  margin-top:18px;
+}
+.v11-mini-system{
+  width:100%;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  margin-top:28px;
+}
+.v11-mini-deliver{
+  width:100%;
+  margin-top:26px;
+}
+
+/* public presence carousel */
+.v11-company-carousel-shell{
+  position:relative;
+  overflow:hidden;
+}
+.v11-company-carousel-toolbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:16px;
+  color:#6d6d6d;
+  font-size:7px;
+  letter-spacing:.14em;
+}
+.v11-company-carousel-toolbar>div{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.v11-company-carousel-toolbar button{
+  width:36px;
+  height:36px;
+  border-radius:50%;
+  border:1px solid #2f2f2f;
+  background:#0d0d0d;
+  color:#fff;
+}
+.v11-company-carousel-toolbar strong{
+  color:#aaa;
+  font-size:8px;
+  font-weight:700;
+}
+.v11-company-carousel{
+  display:flex;
+  gap:12px;
+  overflow-x:auto;
+  scroll-snap-type:x mandatory;
+  scroll-behavior:smooth;
+  scrollbar-width:none;
+  padding:2px 1px 12px;
+}
+.v11-company-carousel::-webkit-scrollbar{display:none}
+.v11-company-card{
+  flex:0 0 clamp(280px,26vw,390px);
+  min-height:520px;
+  scroll-snap-align:center;
+  border:1px solid #2d2d2d;
+  border-radius:26px;
+  overflow:hidden;
+  background:#0d0d0d;
+  color:#fff;
+  transition:transform .28s ease,border-color .28s ease,opacity .28s ease;
+  opacity:.6;
+  cursor:pointer;
+}
+.v11-company-card.is-active{
+  border-color:var(--accent);
+  opacity:1;
+  transform:translateY(-4px);
+}
+.v11-company-card-media{
+  position:relative;
+  height:310px;
+  overflow:hidden;
+  background:radial-gradient(circle at 70% 18%,color-mix(in srgb,var(--accent) 32%,transparent),transparent 30%),#101010;
+}
+.v11-company-card-media img,
+.v11-company-card-media .v11-generated-art{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+.v11-company-card-media:after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(to top,#0d0d0d 0%,transparent 44%);
+}
+.v11-company-card-media>span{
+  position:absolute;
+  z-index:2;
+  left:18px;
+  top:18px;
+  padding:7px 9px;
+  border-radius:999px;
+  background:rgba(8,8,8,.72);
+  border:1px solid rgba(255,255,255,.11);
+  color:#d8d8d8;
+  font-size:7px;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+}
+.v11-company-card-copy{
+  padding:18px 18px 20px;
+  display:flex;
+  flex-direction:column;
+  min-height:210px;
+}
+.v11-company-card-copy>small{
+  color:var(--accent);
+  font-size:8px;
+}
+.v11-company-card-copy h3{
+  margin:10px 0 8px;
+  font-size:clamp(30px,2.5vw,44px);
+  line-height:.95;
+  letter-spacing:-.05em;
+  overflow-wrap:anywhere;
+}
+.v11-company-card-copy p{
+  margin:0 0 18px;
+  color:#7f7f7f;
+  font-size:10px;
+  line-height:1.5;
+  max-width:34ch;
+}
+.v11-company-card-copy .v11-company-actions{
+  margin-top:auto;
+}
+.v11-company-progress{
+  height:2px;
+  background:#1f1f1f;
+  margin-top:14px;
+  overflow:hidden;
+}
+.v11-company-progress i{
+  display:block;
+  height:100%;
+  background:linear-gradient(90deg,var(--violet),var(--acid));
+  transition:width .35s ease;
+}
+
+/* spline prototype */
+.v11-spline-prototype{
+  position:relative;
+  min-height:100%;
+  overflow:hidden;
+}
+.v11-spline-prototype iframe{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  border:0;
+  background:#090909;
+  z-index:1;
+}
+.v11-spline-prototype:after{
+  content:"";
+  position:absolute;
+  z-index:2;
+  inset:0;
+  pointer-events:none;
+  background:linear-gradient(to top,rgba(7,7,7,.34),transparent 20%);
+}
+.v11-spline-prototype .v11-spline-tags{
+  z-index:3;
+}
+
+@media(max-width:900px){
+  /* two columns for the first company selector + detail reveal */
+  .v11-atlas{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:8px;
+  }
+  .v11-atlas-node{
+    min-height:70px;
+    grid-template-columns:38px minmax(0,1fr) 10px;
+    padding:7px;
+  }
+  .v11-atlas-node>span{
+    width:38px;
+    height:38px;
+  }
+  .v11-atlas-node>div strong{
+    font-size:8px;
+  }
+  .v11-atlas-inspector{
+    scroll-margin-top:80px;
+    grid-column:1/-1;
+    min-height:250px;
+  }
+
+  /* selecting a capability reveals the actual card instead of leaving it below */
+  .v11-cap-card{
+    min-height:0;
+    scroll-margin-top:78px;
+    padding:24px 20px 22px;
+  }
+  .v11-cap-card h3{
+    margin:38px 0 26px;
+  }
+  .v11-cap-card-grid{
+    min-height:0;
+    margin-bottom:20px;
+  }
+  .v11-cap-output{
+    margin-top:18px;
+    min-height:0;
+  }
+
+  /* thinking cards: no absolute overlays on copy */
+  .v11-thinking-grid article,
+  .v11-thinking-grid article:nth-child(1),
+  .v11-thinking-grid article:nth-child(4){
+    display:flex;
+    flex-direction:column;
+    height:500px;
+  }
+  .t-context>div{
+    height:190px;
+  }
+  .v11-mini-wire{
+    width:130px;
+    height:130px;
+  }
+  .v11-mini-system span{
+    height:58px;
+  }
+
+  /* rotating brand cards instead of a second long list */
+  .v11-company-index{
+    padding:95px 20px 78px;
+  }
+  .v11-company-carousel-toolbar{
+    margin-bottom:12px;
+  }
+  .v11-company-carousel{
+    margin:0 -20px;
+    padding:2px 20px 14px;
+    gap:10px;
+  }
+  .v11-company-card{
+    flex:0 0 82vw;
+    min-height:500px;
+  }
+  .v11-company-card-media{
+    height:285px;
+  }
+  .v11-company-card-copy{
+    min-height:200px;
+  }
+
+  .v11-lab-stage{
+    scroll-margin-top:76px;
+  }
+  .v11-spline-prototype{
+    height:500px;
+    min-height:500px;
+  }
+}
+
+@media(max-width:460px){
+  .v11-atlas{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+  .v11-atlas-node{
+    min-width:0;
+  }
+  .v11-atlas-node>b{
+    display:none;
+  }
+  .v11-company-card{
+    flex-basis:86vw;
+  }
+  .v11-company-card-copy h3{
+    font-size:34px;
+  }
+  .v11-company-card-media{
+    height:260px;
+  }
+}

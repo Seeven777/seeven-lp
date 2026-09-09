@@ -1,4 +1,4 @@
-# SEE7VEN V11.2 — Responsive Hero Hotfix
+# SEE7VEN V11.3 — Interaction & Clarity Polish
 
 Esta versão substitui a lógica visual da V10 no site público. O Control Room, Supabase, Vercel e as rotas existentes foram preservados.
 
@@ -67,3 +67,12 @@ O rodapé mostra discretamente `V11.1`, o que facilita confirmar visualmente que
 - Define margens seguras e escalonamento tipográfico para faixas abaixo de 900px, 480px, 390px e 360px.
 - Remove o comportamento de órbita absolutamente posicionada nos celulares menores e passa a revelar o bloco visual abaixo do texto principal.
 - Refina o hero também em tablets intermediários para reduzir colisões entre tipografia e visual orbital.
+
+## Ajustes V11.3
+
+- Corrige colisões de texto no card de capacidades e nos cards de processo.
+- Troca o protótipo 3D por uma cena Spline interativa com o foguete indicado.
+- No atlas mobile, empresas passam a ocupar duas colunas e a seleção rola automaticamente até o detalhe da marca.
+- Nos filtros de `O que fazemos` e `Creative Lab`, tocar em uma opção no mobile revela automaticamente o card atualizado.
+- `Mais marcas. Mais contextos.` deixa de repetir a lista anterior e vira um carrossel rotativo de presença pública, com Case, Site e Instagram por marca.
+- Adiciona progresso visual e controles anterior/próximo ao carrossel de empresas.

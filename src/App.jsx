@@ -451,6 +451,7 @@ function CompanyActions({ client, project, onOpen, compact = false }) {
 
 function CompaniesAtlas({ clients = [], projects = [], onOpen }) {
   const ref = useRef(null)
+  const inspectorRef = useRef(null)
   const [selectedId, setSelectedId] = useState('')
   useScrollProgress(ref, p => {
     const el = ref.current
@@ -478,6 +479,12 @@ function CompaniesAtlas({ clients = [], projects = [], onOpen }) {
   }, [clients])
   const selected = clients.find(client => client.id === selectedId) || featured[0] || {}
   const selectedProject = projectForClient(projects, selected)
+  const selectCompany = (id, reveal = false) => {
+    setSelectedId(id)
+    if (reveal && typeof window !== 'undefined' && window.matchMedia('(max-width: 900px)').matches) {
+      window.setTimeout(() => inspectorRef.current?.scrollIntoView({ behavior:'smooth', block:'center' }), 120)
+    }
+  }
   const positions = [[19,25],[49,15],[80,27],[13,62],[32,47],[72,53],[31,80],[68,82]]
   return <section className="v11-companies" id="companies" ref={ref} data-header-theme="dark" style={{'--p':0,'--introOpacity':1,'--introY':'0px','--mapOpacity':0,'--mapScale':.9,'--inspectorOpacity':0}}>
     <div className="v11-companies-sticky">
@@ -492,11 +499,11 @@ function CompaniesAtlas({ clients = [], projects = [], onOpen }) {
         {featured.map((client,index)=>{
           const [x,y]=positions[index]
           const image = clientVisual(client)
-          return <button key={client.id} className={`v11-atlas-node ${selected.id===client.id?'is-selected':''}`} style={{'--x':`${x}%`,'--y':`${y}%`,'--i':index,'--accent':client.accent||'#c9ff32'}} onMouseEnter={()=>setSelectedId(client.id)} onFocus={()=>setSelectedId(client.id)} onClick={()=>setSelectedId(client.id)} data-cursor="EXPLORAR">
+          return <button key={client.id} className={`v11-atlas-node ${selected.id===client.id?'is-selected':''}`} style={{'--x':`${x}%`,'--y':`${y}%`,'--i':index,'--accent':client.accent||'#c9ff32'}} onMouseEnter={()=>selectCompany(client.id)} onFocus={()=>selectCompany(client.id)} onClick={()=>selectCompany(client.id,true)} data-cursor="EXPLORAR">
             <span>{image?<SmartImage src={image} alt="" loading="lazy"/>:<i/>}</span><div><small>{client.category||'PROJETO'}</small><strong>{client.name}</strong></div><b>↗</b>
           </button>
         })}
-        <aside className="v11-atlas-inspector" style={{'--accent':selected.accent||'#c9ff32'}}>
+        <aside ref={inspectorRef} className="v11-atlas-inspector" style={{'--accent':selected.accent||'#c9ff32'}}>
           <small>PRESENÇA PÚBLICA / {selected.category||'MARCA'}</small><strong>{selected.name||'SEE7VEN'}</strong><p>{selected.publicProof || selected.handle || 'Explore a empresa, o projeto e a presença pública.'}</p>
           <CompanyActions client={selected} project={selectedProject} onOpen={onOpen}/>
         </aside>
@@ -512,14 +519,21 @@ function CapabilityVisual({ group }) {
 
 function Capabilities({ onBrief }) {
   const [active, setActive] = useState(0)
+  const cardRef = useRef(null)
   const group = capabilityGroups[active]
+  const selectCapability = (index, reveal = false) => {
+    setActive(index)
+    if (reveal && typeof window !== 'undefined' && window.matchMedia('(max-width: 900px)').matches) {
+      window.setTimeout(() => cardRef.current?.scrollIntoView({ behavior:'smooth', block:'start' }), 120)
+    }
+  }
   return <section className="v11-capabilities" id="capabilities" data-header-theme="light" style={{'--accent':group.accent}}>
     <div className="v11-cap-head"><span>02 / O QUE FAZEMOS</span><h2>SE EXISTE UM<br/>PONTO DE CONTATO,<br/><em>A GENTE PENSA NELE.</em></h2><p>Não existe pacote obrigatório. A gente entende o objetivo e combina as disciplinas necessárias para chegar lá.</p></div>
     <div className="v11-cap-shell">
       <div className="v11-cap-tabs" role="tablist" aria-label="Áreas de atuação">
-        {capabilityGroups.map((item,index)=><button key={item.id} role="tab" aria-selected={index===active} className={index===active?'is-active':''} onClick={()=>setActive(index)} onMouseEnter={()=>setActive(index)}><small>0{index+1}</small><strong>{item.label}</strong><span>↗</span></button>)}
+        {capabilityGroups.map((item,index)=><button key={item.id} role="tab" aria-selected={index===active} className={index===active?'is-active':''} onClick={()=>selectCapability(index,true)} onMouseEnter={()=>selectCapability(index)}><small>0{index+1}</small><strong>{item.label}</strong><span>↗</span></button>)}
       </div>
-      <div className="v11-cap-card" role="tabpanel" key={group.id}>
+      <div ref={cardRef} className="v11-cap-card" role="tabpanel" key={group.id}>
         <div className="v11-cap-card-top"><span>{group.label}</span><small>0{active+1} / 06</small></div>
         <h3>{group.lead}</h3>
         <div className="v11-cap-card-grid">
@@ -602,14 +616,41 @@ function LiveSites() {
 }
 
 function CompanyIndex({ clients = [], projects = [], onOpen }) {
-  const [active, setActive] = useState(clients[0]?.id || '')
-  const selected = clients.find(client=>client.id===active) || clients[0] || {}
-  const project = projectForClient(projects,selected)
+  const [active, setActive] = useState(0)
+  const [paused, setPaused] = useState(false)
+  const trackRef = useRef(null)
+  const cardRefs = useRef([])
+  const rows = clients.filter(item => item.active !== false)
+
+  useEffect(() => {
+    if (paused || rows.length < 2) return
+    const timer = window.setInterval(() => setActive(current => (current + 1) % rows.length), 4200)
+    return () => window.clearInterval(timer)
+  }, [paused, rows.length])
+
+  useEffect(() => {
+    const node = cardRefs.current[active]
+    if (!node) return
+    node.scrollIntoView({ behavior:'smooth', block:'nearest', inline:'center' })
+  }, [active])
+
+  const move = direction => setActive(current => (current + direction + rows.length) % rows.length)
+
   return <section className="v11-company-index" data-header-theme="dark">
-    <div className="v11-company-index-head"><span>06 / PUBLIC PRESENCE INDEX</span><h2>MAIS MARCAS.<br/><em>MAIS CONTEXTOS.</em></h2><p>Aqui você pode sair do portfólio e conhecer as empresas no mundo real: site, Instagram e case quando existir.</p></div>
-    <div className="v11-company-index-shell">
-      <div className="v11-company-list">{clients.map((client,index)=><button key={client.id} style={{'--accent':client.accent||'#c9ff32'}} className={active===client.id?'is-active':''} onMouseEnter={()=>setActive(client.id)} onFocus={()=>setActive(client.id)} onClick={()=>setActive(client.id)}><small>{String(index+1).padStart(2,'0')}</small><strong>{client.name}</strong><span>{client.category||'Projeto'}</span><i>↗</i></button>)}</div>
-      <aside style={{'--accent':selected.accent||'#c9ff32'}}><small>AGORA / {selected.category||'MARCA'}</small><h3>{selected.name}</h3><p>{selected.publicProof || `Conheça a presença pública de ${selected.name}.`}</p><div className="v11-company-handle">{selected.handle}</div><CompanyActions client={selected} project={project} onOpen={onOpen}/></aside>
+    <div className="v11-company-index-head"><span>06 / PRESENÇA PÚBLICA</span><h2>MAIS MARCAS.<br/><em>MAIS CONTEXTOS.</em></h2><p>Não é outra lista de clientes. É um atalho para conhecer marcas reais, abrir seus canais e ver como cada contexto pede uma presença diferente.</p></div>
+    <div className="v11-company-carousel-shell" onMouseEnter={()=>setPaused(true)} onMouseLeave={()=>setPaused(false)} onTouchStart={()=>setPaused(true)}>
+      <div className="v11-company-carousel-toolbar"><span>DESLIZE / EXPLORE</span><div><button onClick={()=>move(-1)} aria-label="Marca anterior">←</button><strong>{String(active+1).padStart(2,'0')} / {String(rows.length).padStart(2,'0')}</strong><button onClick={()=>move(1)} aria-label="Próxima marca">→</button></div></div>
+      <div className="v11-company-carousel" ref={trackRef}>
+        {rows.map((client,index)=>{
+          const project = projectForClient(projects, client)
+          const visual = clientVisual(client)
+          return <article ref={node => { cardRefs.current[index] = node }} key={client.id} className={`v11-company-card ${index===active?'is-active':''}`} style={{'--accent':client.accent||'#c9ff32'}} onClick={()=>setActive(index)} onFocus={()=>setActive(index)} tabIndex={0}>
+            <div className="v11-company-card-media">{visual?<SmartImage src={visual} alt="" loading="lazy"/>:<GeneratedProjectArt project={project||{client:client.name}} client={client}/>}<span>{String(index+1).padStart(2,'0')} / {client.category||'MARCA'}</span></div>
+            <div className="v11-company-card-copy"><small>{client.handle||'PRESENÇA PÚBLICA'}</small><h3>{client.name}</h3><p>{client.publicProof || `Conheça a presença pública de ${client.name}.`}</p><CompanyActions client={client} project={project} onOpen={onOpen}/></div>
+          </article>
+        })}
+      </div>
+      <div className="v11-company-progress" aria-hidden="true"><i style={{width:`${rows.length ? ((active+1)/rows.length)*100 : 0}%`}}/></div>
     </div>
   </section>
 }
@@ -633,13 +674,29 @@ function LabVisualMaterial() {
 }
 
 function LabVisual3D() {
-  return <div className="v11-3d-scene"><div className="v11-wire-object"><i/><i/><i/><i/><b>7</b></div><div className="v11-3d-grid"/><span>BLENDER / MODEL / LIGHT / RENDER</span></div>
+  return <div className="v11-3d-scene v11-spline-prototype">
+    <div className="v11-spline-glow"/>
+    <iframe
+      src="https://my.spline.design/rocket-rZ67U8pm49bdMrOqI2oyK72d/"
+      title="Spline 3D prototype"
+      loading="lazy"
+      allow="fullscreen"
+    />
+    <div className="v11-spline-tags"><span>BLENDER</span><span>3D</span><span>PROTÓTIPO</span><span>VALIDAÇÃO</span></div>
+  </div>
 }
 
 function CreativeLab({ reels = [], behance = [] }) {
   const ref = useRef(null)
+  const stageRef = useRef(null)
   usePointerTilt(ref, 16)
   const [mode,setMode]=useState('material')
+  const selectLabMode = id => {
+    setMode(id)
+    if (typeof window !== 'undefined' && window.matchMedia('(max-width: 900px)').matches) {
+      window.setTimeout(() => stageRef.current?.scrollIntoView({ behavior:'smooth', block:'start' }), 120)
+    }
+  }
   const motionItems = useMemo(()=>{
     const output=[]; const usedSrc=new Set(); const usedClient=new Set()
     const add=(item, allowSameClient=false)=>{
@@ -662,8 +719,8 @@ function CreativeLab({ reels = [], behance = [] }) {
   return <section className="v11-lab" id="lab" ref={ref} data-header-theme="dark" style={{'--rx':'0deg','--ry':'0deg','--px':'50%','--py':'50%'}}>
     <div className="v11-lab-head"><span>07 / CREATIVE LAB</span><h2>{copy.title.split('\n').map((line,index)=><React.Fragment key={line}>{index===1?<em>{line}</em>:line}{index===0?<br/>:null}</React.Fragment>)}</h2><p>{copy.text}</p></div>
     <div className="v11-lab-shell">
-      <div className="v11-lab-tabs">{[['material','MATERIAL'],['three','3D / PROTÓTIPO'],['motion','MOTION']].map(([id,label])=><button key={id} className={mode===id?'is-active':''} onClick={()=>setMode(id)}>{label}</button>)}</div>
-      <div className="v11-lab-stage" key={mode}>
+      <div className="v11-lab-tabs">{[['material','MATERIAL'],['three','3D / PROTÓTIPO'],['motion','MOTION']].map(([id,label])=><button key={id} className={mode===id?'is-active':''} onClick={()=>selectLabMode(id)}>{label}</button>)}</div>
+      <div ref={stageRef} className="v11-lab-stage" key={mode}>
         <div className="v11-lab-caption"><small>{copy.kicker}</small><strong>{copy.cta}</strong>{mode==='three'&&modelProject?<a href={safeLink(modelProject.url)} target="_blank" rel="noreferrer">VER ESTUDO 3D ↗</a>:null}</div>
         {mode==='material'?<LabVisualMaterial/>:mode==='three'?<LabVisual3D/>:<div className="v11-motion-board">{motionItems.map((item,index)=>{const href=safeLink(item.permalink||item.video||item.url||'');return <a key={item.id||index} href={href||undefined} target={href?'_blank':undefined} rel="noreferrer"><div>{item.poster?<SmartImage src={item.poster} alt="" loading="lazy"/>:null}<span>0{index+1}</span><i>{item.video||item.permalink?'▶':'↗'}</i></div><small>{item.client||'SEE7VEN'}</small><strong>{item.title||'Motion study'}</strong></a>})}</div>}
       </div>
@@ -762,7 +819,7 @@ function Brief({ open, onClose, initial = '' }) {
 }
 
 function Footer() {
-  return <footer className="v11-footer"><LogoMark/><div><a href="https://www.behance.net/wedeseeven" target="_blank" rel="noreferrer">BEHANCE ↗</a><a href="#top">VOLTAR AO TOPO ↑</a></div><small>© {new Date().getFullYear()} SEE7VEN · V11.2 · PRESENCE FROM PIXEL TO PAPER.</small></footer>
+  return <footer className="v11-footer"><LogoMark/><div><a href="https://www.behance.net/wedeseeven" target="_blank" rel="noreferrer">BEHANCE ↗</a><a href="#top">VOLTAR AO TOPO ↑</a></div><small>© {new Date().getFullYear()} SEE7VEN · V11.3 · PRESENCE FROM PIXEL TO PAPER.</small></footer>
 }
 
 export default function App() {
@@ -775,7 +832,7 @@ export default function App() {
   const closeCase=(push=true)=>{setCaseProject(null);if(push&&/^\/work\//.test(window.location.pathname))history.pushState({},'',`/${window.location.search||''}${window.location.hash||''}`)}
 
   useEffect(()=>{document.documentElement.classList.add('seeven-v11');const meta=document.querySelector('meta[name="theme-color"]')||document.head.appendChild(Object.assign(document.createElement('meta'),{name:'theme-color'}));meta.content='#080808';return()=>document.documentElement.classList.remove('seeven-v11')},[])
-  useEffect(()=>{track('page_view',{source:cms.source,version:'v11.2-responsive-hotfix'})},[cms.source])
+  useEffect(()=>{track('page_view',{source:cms.source,version:'v11.3-polish'})},[cms.source])
   useEffect(()=>{const resolvePath=()=>{const match=decodeURIComponent(window.location.pathname).match(/^\/work\/([^/]+)\/?$/);if(!match){setCaseProject(null);return}const project=cms.projects.find(item=>item.id===match[1]);if(project)setCaseProject(project)};resolvePath();window.addEventListener('popstate',resolvePath);return()=>window.removeEventListener('popstate',resolvePath)},[cms.projects])
   useEffect(()=>{const defaultTitle='SEE7VEN — Creative Presence Studio';const defaultDescription='Estratégia, branding, web, conteúdo, motion, performance, tecnologia e presença física conectadas em uma única direção.';if(caseProject){const description=caseProject.summary||caseProject.title||defaultDescription;const visual=projectVisual(caseProject,cms.behance)||clientVisual(cms.clients.find(item=>item.id===caseProject.clientId)||{});const image=visual?(visual.startsWith('http')?visual:`${window.location.origin}${visual.startsWith('/')?'':'/'}${visual}`):`${window.location.origin}/og-see7ven.png`;const canonical=`${window.location.origin}/work/${encodeURIComponent(caseProject.id)}`;document.title=`${caseProject.client} — Case SEE7VEN`;setMeta('description',description);setMeta('og:title',document.title,true);setMeta('og:description',description,true);setMeta('og:url',canonical,true);setMeta('og:image',image,true);setMeta('twitter:title',document.title);setMeta('twitter:description',description);setMeta('twitter:image',image);setCanonical(canonical)}else{document.title=defaultTitle;const canonical=window.location.origin+'/';const image=`${window.location.origin}/og-see7ven.png`;setMeta('description',defaultDescription);setMeta('og:title',defaultTitle,true);setMeta('og:description',defaultDescription,true);setMeta('og:url',canonical,true);setMeta('og:image',image,true);setMeta('twitter:title',defaultTitle);setMeta('twitter:description',defaultDescription);setMeta('twitter:image',image);setCanonical(canonical)}},[caseProject,cms.clients,cms.behance])
 
