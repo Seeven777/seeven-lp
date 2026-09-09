@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useCmsContent } from './useCmsContent'
-import { caseStudies, projectIntelligence } from './data'
+import { caseStudies, projectIntelligence, pitchPresets, pitchCopy } from './data'
 
 const WA_KAREN = '5511971493985'
 const WA_GUSTAVO = '5511920626850'
@@ -116,10 +116,52 @@ const liveSiteShowcases = [
   }
 ]
 
+const pitchCtaCopy = {
+  food: { title:'FAZER DESEJO\nVIRAR PEDIDO.', brief:'Quero melhorar presença e conversão de uma marca de food' },
+  eventos: { title:'FAZER CAPACIDADE\nVIRAR PRESENÇA.', brief:'Quero organizar a presença de uma empresa de eventos' },
+  b2b: { title:'FAZER COMPLEXIDADE\nVIRAR CLAREZA.', brief:'Quero melhorar a comunicação de uma empresa B2B' },
+  institucional: { title:'FAZER INFORMAÇÃO\nVIRAR AÇÃO.', brief:'Quero organizar uma presença institucional' },
+  nightlife: { title:'FAZER ATENÇÃO\nVIRAR PRESENÇA.', brief:'Quero construir presença para entretenimento / nightlife' },
+  pet: { title:'FAZER CUIDADO\nVIRAR PRESENÇA.', brief:'Quero construir uma presença para o setor pet' },
+  web: { title:'FAZER INTERESSE\nVIRAR EXPERIÊNCIA.', brief:'Quero construir ou melhorar um site / produto digital' },
+  social: { title:'FAZER CONTEÚDO\nVIRAR PRESENÇA.', brief:'Quero estruturar conteúdo e presença social' }
+}
+
+function readPitchContext() {
+  if (typeof window === 'undefined') return { active:false, segment:'', prospect:'', ids:[], copy:null, cta:null, pitchId:'' }
+  const params = new URLSearchParams(window.location.search)
+  const segment = String(params.get('for') || '').trim().toLowerCase()
+  const prospect = String(params.get('prospect') || '').trim().slice(0,80)
+  const ids = pitchPresets[segment] || []
+  const copy = pitchCopy[segment] || null
+  const cta = pitchCtaCopy[segment] || null
+  const pitchId = String(params.get('pitch') || [segment, prospect].filter(Boolean).join(':')).trim().slice(0,120)
+  return { active:Boolean(segment || prospect), segment, prospect, ids, copy, cta, pitchId }
+}
+
+function pitchClientIds(projects = [], ids = []) {
+  return ids.map(id => projects.find(project => project.id === id)?.clientId).filter(Boolean)
+}
+
+function prioritizeRows(rows = [], ids = [], key = row => row.id) {
+  if (!ids?.length) return rows
+  const rank = new Map(ids.map((id,index)=>[id,index]))
+  return [...rows].sort((a,b) => {
+    const ar = rank.has(key(a)) ? rank.get(key(a)) : 999
+    const br = rank.has(key(b)) ? rank.get(key(b)) : 999
+    return ar - br
+  })
+}
+
 function track(event, detail = {}) {
   try {
+    const pitch = readPitchContext()
     window.dataLayer = window.dataLayer || []
-    window.dataLayer.push({ event, ...detail })
+    window.dataLayer.push({
+      event,
+      ...(pitch.active ? { pitch_segment:pitch.segment || undefined, pitch_prospect:pitch.prospect || undefined, pitch_id:pitch.pitchId || undefined } : {}),
+      ...detail
+    })
   } catch (_) {}
 }
 
@@ -459,7 +501,7 @@ function Header({ onBrief }) {
   </>
 }
 
-function Hero({ onBrief }) {
+function Hero({ onBrief, pitch }) {
   const ref = useRef(null)
   usePointerTilt(ref, 8)
   const reducedMotion = useReducedMotion()
@@ -474,6 +516,7 @@ function Hero({ onBrief }) {
   return <section className="v11-hero" id="top" ref={ref} data-header-theme="dark" style={{'--accent':group.accent,'--rx':'0deg','--ry':'0deg','--px':'50%','--py':'50%'}}>
     <div className="v11-hero-grid"/>
     <div className="v11-hero-meta"><span>CREATIVE PRESENCE STUDIO</span><span>SÃO PAULO · BRASIL</span><span>ESTRATÉGIA → ENTREGA</span></div>
+    {pitch?.active ? <div className="v12-pitch-ribbon"><small>{pitch.copy?.kicker || `RECORTE / ${pitch.segment || 'PROSPECÇÃO'}`}</small><strong>{pitch.prospect ? `PARA ${pitch.prospect}` : 'REPERTÓRIO PRIORIZADO'}</strong><span>{pitch.copy?.line || 'Projetos e provas reorganizados para este contexto.'}</span></div> : null}
     <div className="v11-hero-copy">
       <span>UMA DIREÇÃO. TODOS OS FORMATOS.</span>
       <h1>TUDO QUE<br/>UMA MARCA<br/><em>PRECISA.</em></h1>
@@ -499,7 +542,7 @@ function CompanyActions({ client, project, onOpen, compact = false }) {
   </div>
 }
 
-function CompaniesAtlas({ clients = [], projects = [], onOpen }) {
+function CompaniesAtlas({ clients = [], projects = [], onOpen, priorityClientIds = [] }) {
   const ref = useRef(null)
   const inspectorRef = useRef(null)
   const [selectedId, setSelectedId] = useState('')
@@ -520,13 +563,14 @@ function CompaniesAtlas({ clients = [], projects = [], onOpen }) {
       node.style.setProperty('--nodeScale', String(.84 + reveal * .16))
     })
   })
-  const priority = ['sindpetshop','eventos','czk','venancio','eazy','seon','mibis','pufinho']
+  const defaultPriority = ['sindpetshop','eventos','czk','venancio','eazy','seon','mibis','pufinho']
+  const priority = [...new Set([...priorityClientIds, ...defaultPriority])]
   const featured = useMemo(() => {
     const map = new Map(clients.map(client => [client.id,client]))
     const rows = priority.map(id=>map.get(id)).filter(Boolean)
     clients.forEach(client => { if (!rows.some(row=>row.id===client.id)) rows.push(client) })
     return rows.slice(0,8)
-  }, [clients])
+  }, [clients, priorityClientIds.join('|')])
   const selected = clients.find(client => client.id === selectedId) || featured[0] || {}
   const selectedProject = projectForClient(projects, selected)
   const selectCompany = (id, reveal = false) => {
@@ -631,20 +675,23 @@ function GeneratedProjectArt({ project, client }) {
   return <div className="v11-generated-art" style={{'--accent':accent}}><i/><i/><i/><span>{project.client || client?.name || 'SEE7VEN'}</span><b>7</b></div>
 }
 
-function FeaturedWork({ projects = [], clients = [], behance = [], onOpen }) {
+function FeaturedWork({ projects = [], clients = [], behance = [], onOpen, priorityIds = [], pitch }) {
   const selected = useMemo(() => {
     const scored = projects.map(project => ({ project, score:(project.caseStudy||caseStudies[project.id]?4:0)+(project.cover?3:0)+(findRelatedBehance(project,behance)?2:0)+(project.tags?.length||0)*.05 }))
       .sort((a,b)=>b.score-a.score)
-    const rows=[]; const used=new Set()
-    for (const item of scored) {
-      if (used.has(item.project.clientId)) continue
-      rows.push(item.project); used.add(item.project.clientId)
+    const priority = priorityIds.map(id => projects.find(project => project.id === id)).filter(Boolean)
+    const candidates = [...priority, ...scored.map(item=>item.project)]
+    const rows=[]; const usedProjects=new Set(); const usedClients=new Set()
+    for (const project of candidates) {
+      if (!project || usedProjects.has(project.id)) continue
+      if (project.clientId && usedClients.has(project.clientId)) continue
+      rows.push(project); usedProjects.add(project.id); if (project.clientId) usedClients.add(project.clientId)
       if (rows.length===3) break
     }
     return rows
-  }, [projects,behance])
+  }, [projects,behance,priorityIds.join('|')])
   return <section className="v11-work" id="work" data-header-theme="light">
-    <div className="v11-work-head"><span>04 / SELECTED WORK</span><h2>PROJETO BOM<br/><em>EXPLICA O QUE A GENTE FAZ.</em></h2><p>Três recortes. Três contextos. O ponto não é repetir um estilo — é mostrar como a direção muda quando o problema muda.</p></div>
+    <div className="v11-work-head"><span>04 / SELECTED WORK{pitch?.active ? ` · ${pitch.segment.toUpperCase()}` : ''}</span><h2>PROJETO BOM<br/><em>EXPLICA O QUE A GENTE FAZ.</em></h2><p>{pitch?.active ? `Este recorte começa pelo repertório mais próximo de ${pitch.prospect || `um contexto de ${pitch.segment}`}. O restante da experiência continua disponível logo abaixo.` : 'Três recortes. Três contextos. O ponto não é repetir um estilo — é mostrar como a direção muda quando o problema muda.'}</p></div>
     <div className="v11-work-grid">{selected.map((project,index)=>{
       const client=clients.find(item=>item.id===project.clientId)||{}
       const visual=projectVisual(project,behance)
@@ -656,16 +703,18 @@ function FeaturedWork({ projects = [], clients = [], behance = [], onOpen }) {
   </section>
 }
 
-function LiveSites() {
+function LiveSites({ segment = '' }) {
+  const sitePriority = { food:['caprichae','starprint','insights'], institucional:['insights','starprint','caprichae'], pet:['insights','caprichae','starprint'], b2b:['starprint','insights','caprichae'], web:['caprichae','starprint','insights'], eventos:['starprint','caprichae','insights'], nightlife:['caprichae','starprint','insights'] }
+  const sites = prioritizeRows(liveSiteShowcases, sitePriority[segment] || [], site=>site.id)
   return <section className="v11-sites" id="sites" data-header-theme="light">
     <div className="v11-sites-head"><span>05 / SITES NO AR</span><h2>SITES QUE JÁ<br/><em>COLOCAMOS NO MUNDO.</em></h2><p>Alguns projetos pedem mais que layout bonito: precisam de navegação clara, conversão, dados e operação funcionando em produção.</p></div>
     <div className="v11-sites-grid">
-      {liveSiteShowcases.map((site, index) => <article key={site.id} className="v11-site-card" style={{'--accent':site.accent}}><div className="v11-site-browser"><div className="v11-site-browser-bar"><i/><i/><i/><span>{readableHost(site.url)}</span><a href={site.url} target="_blank" rel="noreferrer" onClick={()=>track('live_site_opened',{site:site.id})}>ABRIR ↗</a></div><div className="v11-site-browser-stage"><iframe src={site.url} title={`Preview ${site.name}`} loading="lazy" referrerPolicy="no-referrer"/><div className="v11-site-browser-shade"/></div></div><div className="v11-site-copy"><small>0{index+1} / {site.label}</small><h3>{site.name}</h3><strong>{site.headline}</strong><p>{site.summary}</p><div>{site.stack.map(tag => <span key={tag}>{tag}</span>)}</div></div></article>)}
+      {sites.map((site, index) => <article key={site.id} className="v11-site-card" style={{'--accent':site.accent}}><div className="v11-site-browser"><div className="v11-site-browser-bar"><i/><i/><i/><span>{readableHost(site.url)}</span><a href={site.url} target="_blank" rel="noreferrer" onClick={()=>track('live_site_opened',{site:site.id})}>ABRIR ↗</a></div><div className="v11-site-browser-stage"><iframe src={site.url} title={`Preview ${site.name}`} loading="lazy" referrerPolicy="no-referrer"/><div className="v11-site-browser-shade"/></div></div><div className="v11-site-copy"><small>0{index+1} / {site.label}</small><h3>{site.name}</h3><strong>{site.headline}</strong><p>{site.summary}</p><div>{site.stack.map(tag => <span key={tag}>{tag}</span>)}</div></div></article>)}
     </div>
   </section>
 }
 
-function CompanyIndex({ clients = [], projects = [], onOpen }) {
+function CompanyIndex({ clients = [], projects = [], onOpen, priorityClientIds = [] }) {
   const sectionRef = useRef(null)
   const [active, setActive] = useState(0)
   const [paused, setPaused] = useState(false)
@@ -673,7 +722,7 @@ function CompanyIndex({ clients = [], projects = [], onOpen }) {
   const cardRefs = useRef([])
   const reducedMotion = useReducedMotion()
   const inView = useInViewport(sectionRef, .08)
-  const rows = clients.filter(item => item.active !== false)
+  const rows = prioritizeRows(clients.filter(item => item.active !== false), priorityClientIds, client=>client.id)
 
   useEffect(() => {
     if (paused || reducedMotion || !inView || rows.length < 2) return undefined
@@ -827,10 +876,12 @@ function ProblemSolver({ services = [], onBrief }) {
   </section>
 }
 
-function Contact({ onBrief }) {
+function Contact({ onBrief, pitch, interest = '' }) {
   const text=encodeURIComponent('Olá! Conheci a Seeven pelo site e quero conversar sobre um projeto.')
+  const contextualTitle = pitch?.cta?.title || (interest==='web' ? 'SEU PRÓXIMO SITE\nPODE COMEÇAR AQUI.' : interest==='brand' ? 'SUA PRÓXIMA MARCA\nPODE COMEÇAR AQUI.' : interest==='network' ? 'PRECISA DE MAIS BRAÇOS?\nA GENTE CONECTA.' : '')
+  const titleParts = contextualTitle ? contextualTitle.split('\n') : []
   return <section className="v11-contact" id="contact" data-header-theme="light">
-    <span>11 / START SOMETHING</span><h2>TEM UMA IDEIA?<br/><em>COLOCA NA MESA.</em></h2><p>Não precisa montar o escopo antes de falar com a gente. Pode chegar com um objetivo, um problema, uma referência ou só uma ideia ainda mal resolvida.</p>
+    <span>11 / START SOMETHING{pitch?.prospect ? ` · ${pitch.prospect}` : ''}</span>{contextualTitle ? <h2>{titleParts[0]}<br/><em>{titleParts[1]}</em></h2> : <h2>TEM UMA IDEIA?<br/><em>COLOCA NA MESA.</em></h2>}<p>{pitch?.active ? `Você já viu um recorte priorizado para ${pitch.prospect || pitch.segment}. Agora podemos transformar objetivo, problema ou oportunidade em um escopo real.` : 'Não precisa montar o escopo antes de falar com a gente. Pode chegar com um objetivo, um problema, uma referência ou só uma ideia ainda mal resolvida.'}</p>
     <div className="v11-contact-actions"><button onClick={()=>onBrief()}>BRIEF RÁPIDO · 60S ↗</button><a href={`https://wa.me/${WA_KAREN}?text=${text}`} target="_blank" rel="noreferrer">CONVERSAR AGORA ↗</a></div>
     <div className="v11-contact-people"><a href={`https://wa.me/${WA_GUSTAVO}?text=${text}`} target="_blank" rel="noreferrer"><small>DIREÇÃO</small><strong>Gustavo</strong><span>+55 11 92062-6850 ↗</span></a><a href={`https://wa.me/${WA_KAREN}?text=${text}`} target="_blank" rel="noreferrer"><small>NOVOS PROJETOS</small><strong>Karen</strong><span>+55 11 97149-3985 ↗</span></a></div>
   </section>
@@ -874,20 +925,24 @@ function Brief({ open, onClose, initial = '' }) {
 }
 
 function Footer() {
-  return <footer className="v11-footer"><LogoMark/><div><a href="https://www.behance.net/wedeseeven" target="_blank" rel="noreferrer">BEHANCE ↗</a><a href="#top">VOLTAR AO TOPO ↑</a></div><small>© {new Date().getFullYear()} SEE7VEN · V11.4 · PRESENCE FROM PIXEL TO PAPER.</small></footer>
+  return <footer className="v11-footer"><LogoMark/><div><a href="https://www.behance.net/wedeseeven" target="_blank" rel="noreferrer">BEHANCE ↗</a><a href="#top">VOLTAR AO TOPO ↑</a></div><small>© {new Date().getFullYear()} SEE7VEN · V12.0 · PRESENCE FROM PIXEL TO PAPER.</small></footer>
 }
 
 export default function App() {
   const cms=useCmsContent()
+  const pitch=useMemo(()=>readPitchContext(),[])
+  const [interest,setInterest]=useState('')
   const [caseProject,setCaseProject]=useState(null)
   const [brief,setBrief]=useState(false)
   const [briefPreset,setBriefPreset]=useState('')
-  const openBrief=(preset='')=>{setBriefPreset(preset);setBrief(true);track('brief_started',{preset:preset||undefined})}
-  const openCase=(project,source='site',push=true)=>{if(!project)return;setCaseProject(project);if(push&&window.location.pathname!==`/work/${project.id}`)history.pushState({case:project.id},'',`/work/${encodeURIComponent(project.id)}`);track('case_opened',{project:project.id,source})}
+  const openBrief=(preset='')=>{const contextual=preset || pitch.cta?.brief || '';setBriefPreset(contextual);setBrief(true);track('brief_started',{preset:contextual||undefined})}
+  const openCase=(project,source='site',push=true)=>{if(!project)return;const tags=(project.tags||[]).join(' ').toLowerCase();setInterest(tags.includes('web')||tags.includes('site')?'web':tags.includes('brand')||tags.includes('identidade')?'brand':interest);setCaseProject(project);if(push&&window.location.pathname!==`/work/${project.id}`)history.pushState({case:project.id},'',`/work/${encodeURIComponent(project.id)}`);track('case_opened',{project:project.id,source})}
   const closeCase=(push=true)=>{setCaseProject(null);if(push&&/^\/work\//.test(window.location.pathname))history.pushState({},'',`/${window.location.search||''}${window.location.hash||''}`)}
 
   useEffect(()=>{document.documentElement.classList.add('seeven-v11');const meta=document.querySelector('meta[name="theme-color"]')||document.head.appendChild(Object.assign(document.createElement('meta'),{name:'theme-color'}));meta.content='#080808';return()=>document.documentElement.classList.remove('seeven-v11')},[])
-  useEffect(()=>{track('page_view',{source:cms.source,version:'v11.4-production-polish'})},[cms.source])
+  useEffect(()=>{track('page_view',{source:cms.source,version:'v12.0-commercial'})},[cms.source])
+  useEffect(()=>{if(!pitch.active)return;track('pitch_view',{segment:pitch.segment||undefined,prospect:pitch.prospect||undefined,pitch_id:pitch.pitchId||undefined})},[pitch.active])
+  useEffect(()=>{const ids=['top','companies','capabilities','work','sites','partners','contact'];if(!('IntersectionObserver' in window))return;const seen=new Set();const observer=new IntersectionObserver(entries=>entries.forEach(entry=>{if(entry.isIntersecting&&entry.intersectionRatio>=.3&&!seen.has(entry.target.id)){seen.add(entry.target.id);track('section_view',{section:entry.target.id})}}),{threshold:[.3]});ids.map(id=>document.getElementById(id)).filter(Boolean).forEach(node=>observer.observe(node));return()=>observer.disconnect()},[cms.source])
   useEffect(()=>{const resolvePath=()=>{const match=decodeURIComponent(window.location.pathname).match(/^\/work\/([^/]+)\/?$/);if(!match){setCaseProject(null);return}const project=cms.projects.find(item=>item.id===match[1]);if(project)setCaseProject(project)};resolvePath();window.addEventListener('popstate',resolvePath);return()=>window.removeEventListener('popstate',resolvePath)},[cms.projects])
   useEffect(()=>{const defaultTitle='SEE7VEN — Creative Presence Studio';const defaultDescription='Estratégia, branding, web, conteúdo, motion, performance, tecnologia e presença física conectadas em uma única direção.';if(caseProject){const description=caseProject.summary||caseProject.title||defaultDescription;const visual=projectVisual(caseProject,cms.behance)||clientVisual(cms.clients.find(item=>item.id===caseProject.clientId)||{});const image=visual?(visual.startsWith('http')?visual:`${window.location.origin}${visual.startsWith('/')?'':'/'}${visual}`):`${window.location.origin}/og-see7ven.png`;const canonical=`${window.location.origin}/work/${encodeURIComponent(caseProject.id)}`;document.title=`${caseProject.client} — Case SEE7VEN`;setMeta('description',description);setMeta('og:title',document.title,true);setMeta('og:description',description,true);setMeta('og:url',canonical,true);setMeta('og:image',image,true);setMeta('twitter:title',document.title);setMeta('twitter:description',description);setMeta('twitter:image',image);setCanonical(canonical)}else{document.title=defaultTitle;const canonical=window.location.origin+'/';const image=`${window.location.origin}/og-see7ven.png`;setMeta('description',defaultDescription);setMeta('og:title',defaultTitle,true);setMeta('og:description',defaultDescription,true);setMeta('og:url',canonical,true);setMeta('og:image',image,true);setMeta('twitter:title',defaultTitle);setMeta('twitter:description',defaultDescription);setMeta('twitter:image',image);setCanonical(canonical)}},[caseProject,cms.clients,cms.behance])
 
@@ -897,18 +952,18 @@ export default function App() {
     <CursorHalo/>
     <Header onBrief={openBrief}/>
     <main id="main-content">
-      <Hero onBrief={openBrief}/>
-      <CompaniesAtlas clients={cms.clients} projects={cms.projects} onOpen={project=>openCase(project,'company_atlas')}/>
+      <Hero onBrief={openBrief} pitch={pitch}/>
+      <CompaniesAtlas clients={cms.clients} projects={cms.projects} priorityClientIds={pitchClientIds(cms.projects,pitch.ids)} onOpen={project=>openCase(project,'company_atlas')}/>
       <Capabilities onBrief={openBrief}/>
       <Method onBrief={openBrief}/>
-      <FeaturedWork projects={cms.projects} clients={cms.clients} behance={cms.behance} onOpen={project=>openCase(project,'selected_work')}/>
-      <LiveSites/>
-      <CompanyIndex clients={cms.clients} projects={cms.projects} onOpen={project=>openCase(project,'company_index')}/>
+      <FeaturedWork projects={cms.projects} clients={cms.clients} behance={cms.behance} priorityIds={pitch.ids} pitch={pitch} onOpen={project=>openCase(project,'selected_work')}/>
+      <LiveSites segment={pitch.segment}/>
+      <CompanyIndex clients={cms.clients} projects={cms.projects} priorityClientIds={pitchClientIds(cms.projects,pitch.ids)} onOpen={project=>openCase(project,'company_index')}/>
       <CreativeLab reels={cms.reels} behance={cms.behance}/>
       <Thinking/>
       <PartnerNetwork partners={cms.partners}/>
       <ProblemSolver services={cms.services} onBrief={openBrief}/>
-      <Contact onBrief={openBrief}/>
+      <Contact onBrief={openBrief} pitch={pitch} interest={interest}/>
     </main>
     <Footer/>
     {caseProject?<BentoCase project={caseProject} clients={cms.clients} behance={cms.behance} onClose={()=>closeCase()} onBrief={openBrief}/>:null}

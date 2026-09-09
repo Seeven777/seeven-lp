@@ -868,3 +868,35 @@ body{overflow-x:hidden}
   .v11-skip,.v11-site-card,.v11-site-browser-stage iframe,.v11-company-actions a,.v11-company-actions button,.v11-contact-actions a,.v11-contact-actions button,.v11-header-cta{transition:none!important}
   .v11-site-card:hover{transform:none!important}
 }
+
+/* V12 commercial intelligence --------------------------------------------- */
+.v12-pitch-ribbon{
+  position:absolute;
+  z-index:6;
+  right:clamp(28px,3.5vw,64px);
+  top:126px;
+  max-width:340px;
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:18px;
+  background:rgba(10,10,10,.72);
+  backdrop-filter:blur(16px);
+  padding:14px 16px;
+  display:grid;
+  gap:5px;
+}
+.v12-pitch-ribbon small{font-size:7px;letter-spacing:.14em;color:var(--accent);font-weight:800}
+.v12-pitch-ribbon strong{font-size:12px;letter-spacing:.04em;font-weight:650;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v12-pitch-ribbon span{font-size:9px;line-height:1.4;color:#858585}
+@media(max-width:900px){
+  .v12-pitch-ribbon{
+    position:relative;
+    right:auto;
+    top:auto;
+    margin:26px 0 -30px;
+    max-width:none;
+    align-self:stretch;
+    border-radius:14px;
+    padding:11px 12px;
+  }
+  .v12-pitch-ribbon span{font-size:8px}
+}

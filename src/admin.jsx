@@ -263,9 +263,12 @@ function EditorDrawer({ table, item, clients, defaultOrder = 0, onClose, onSaved
 
 function PitchLinkBuilder() {
   const [segment,setSegment]=useState('food'); const [prospect,setProspect]=useState(''); const [copied,setCopied]=useState(false)
-  const origin=typeof window!=='undefined'?window.location.origin:''; const link=`${origin}/?for=${encodeURIComponent(segment)}${prospect.trim()?`&prospect=${encodeURIComponent(prospect.trim())}`:''}`
+  const origin=typeof window!=='undefined'?window.location.origin:''
+  const slug=value=>String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'').slice(0,48)
+  const pitchId=`${segment}-${slug(prospect)||'generic'}`
+  const link=`${origin}/?for=${encodeURIComponent(segment)}${prospect.trim()?`&prospect=${encodeURIComponent(prospect.trim())}`:''}&pitch=${encodeURIComponent(pitchId)}&utm_source=seeven_pitch&utm_medium=direct&utm_campaign=${encodeURIComponent(segment)}`
   const copy=async()=>{ try{await navigator.clipboard.writeText(link);setCopied(true);setTimeout(()=>setCopied(false),1500)}catch{} }
-  return <div className="admin-pitch-builder"><div><b>PITCH LINK BUILDER</b><span>Envie a mesma LP já priorizando o repertório mais próximo do prospect.</span></div><select value={segment} onChange={e=>setSegment(e.target.value)}>{['food','eventos','b2b','institucional','nightlife'].map(x=><option key={x}>{x}</option>)}</select><input value={prospect} onChange={e=>setProspect(e.target.value)} placeholder="Nome do prospect (opcional)"/><button onClick={copy}>{copied?'COPIADO ✓':'COPIAR LINK'}</button><code>{link}</code></div>
+  return <div className="admin-pitch-builder"><div><b>PITCH LINK BUILDER · V12</b><span>Gera uma LP contextual: projetos, empresas, sites e CTA são priorizados para o prospect.</span></div><select value={segment} onChange={e=>setSegment(e.target.value)}>{['food','eventos','b2b','institucional','nightlife','pet','web','social'].map(x=><option key={x}>{x}</option>)}</select><input value={prospect} onChange={e=>setProspect(e.target.value)} placeholder="Nome do prospect (opcional)"/><button onClick={copy}>{copied?'COPIADO ✓':'COPIAR LINK'}</button><code>{link}</code></div>
 }
 
 function BehanceSync({ rows, onImported }) {

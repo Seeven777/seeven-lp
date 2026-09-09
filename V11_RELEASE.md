@@ -1,3 +1,24 @@
+# SEE7VEN V12 — Commercial Intelligence
+
+A V12 preserva a direção visual aprovada e adiciona uma camada comercial para prospecção.
+
+## O que muda
+
+- Pitch Links contextuais por segmento e prospect.
+- Selected Work e empresas priorizados conforme o link enviado.
+- Sites no ar reorganizados de acordo com o contexto comercial.
+- CTA final contextualizado.
+- Eventos de analytics recebem `pitch_segment`, `pitch_prospect` e `pitch_id`.
+- Registro de visualização das principais seções.
+- Pitch Link Builder do Control Room atualizado com UTM e identificador de pitch.
+
+## Compatibilidade
+
+- Vercel preservado.
+- Supabase/CMS preservados.
+- `/admin` preservado.
+- Sem migration SQL nova.
+
 # SEE7VEN V11.4 — Interaction & Clarity Polish
 
 Esta versão substitui a lógica visual da V10 no site público. O Control Room, Supabase, Vercel e as rotas existentes foram preservados.

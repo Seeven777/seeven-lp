@@ -50,7 +50,7 @@ assert(/cms_admins/.test(read('SUPABASE_V8_MIGRATION.sql')), 'Camada de autoriza
 assert(/friendlyAuthError/.test(admin), 'Tratamento de autenticação do Admin ausente.')
 assert(/aria-modal="true"/.test(admin), 'Acessibilidade de modal do Admin ausente.')
 
-assert(/^11\.\d+\.\d+$/.test(pkg.version), `Versão V11 inválida; atual ${pkg.version}.`)
+assert(/^12\.\d+\.\d+$/.test(pkg.version), `Versão V12 inválida; atual ${pkg.version}.`)
 assert(/node_modules\//.test(gitignore) && /dist\//.test(gitignore), '.gitignore incompleto.')
 assert(/X-Robots-Tag/.test(vercel) && /noindex/.test(vercel), '/admin sem noindex no Vercel.')
 assert(/X-Content-Type-Options/.test(vercel), 'Headers de segurança básicos ausentes.')
@@ -60,12 +60,12 @@ if (!process.env.VERCEL) warn(!exists('node_modules'), 'node_modules está prese
 if (allCss.split('{').length !== allCss.split('}').length) failures.push('Quantidade de chaves CSS não confere.')
 
 if (failures.length) {
-  console.error('\nSEE7VEN V11 / PREFLIGHT FAILED')
+  console.error('\nSEE7VEN V12 / PREFLIGHT FAILED')
   failures.forEach(item => console.error(`✗ ${item}`))
   warnings.forEach(item => console.warn(`! ${item}`))
   process.exit(1)
 }
-console.log('SEE7VEN V11 / PREFLIGHT OK')
+console.log('SEE7VEN V12 / PREFLIGHT OK')
 console.log(`✓ ${clients.length} clientes seeded`)
 console.log(`✓ ${featuredProjects.length} projetos seeded`)
 console.log(`✓ ${partners.length} parceiros seeded`)

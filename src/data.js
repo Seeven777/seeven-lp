@@ -341,7 +341,10 @@ export const pitchPresets = {
   eventos: ['eventos-experience', 'eazy-experience', 'pufinho-music'],
   b2b: ['czk-industrial', 'sindpetshop-ecosystem', 'seon-identity'],
   institucional: ['sindpetshop-ecosystem', 'czk-industrial', 'seon-identity'],
-  nightlife: ['eazy-experience', 'salseiro-nightlife', 'pufinho-music', 'dicarias-music']
+  nightlife: ['eazy-experience', 'salseiro-nightlife', 'pufinho-music', 'dicarias-music'],
+  pet: ['sindpetshop-ecosystem', 'mibis-food', 'seon-identity'],
+  web: ['sindpetshop-ecosystem', 'eventos-experience', 'czk-industrial'],
+  social: ['venancio-social', 'eazy-experience', 'mibis-food', 'seon-identity']
 }
 
 // V8 — structured case stories used by the portfolio drawer.
@@ -451,7 +454,10 @@ export const pitchCopy = {
   eventos: { kicker: 'EVENTS / EXPERIENCE', line: 'Fazer capacidade de execução parecer tão grande quanto ela é.' },
   b2b: { kicker: 'B2B / CLARITY', line: 'Transformar complexidade técnica em percepção, confiança e ação.' },
   institucional: { kicker: 'INSTITUTIONAL / SYSTEM', line: 'Organizar complexidade sem transformar a marca em burocracia.' },
-  nightlife: { kicker: 'NIGHTLIFE / ATTENTION', line: 'Energia, frequência e presença para disputar atenção em segundos.' }
+  nightlife: { kicker: 'NIGHTLIFE / ATTENTION', line: 'Energia, frequência e presença para disputar atenção em segundos.' },
+  pet: { kicker: 'PET / PRESENCE', line: 'Cuidado, serviço, conteúdo e experiência trabalhando como uma marca.' },
+  web: { kicker: 'WEB / PRODUCT', line: 'Experiência, conversão e operação funcionando além do layout.' },
+  social: { kicker: 'SOCIAL / FREQUENCY', line: 'Conteúdo recorrente com linguagem, distribuição e reconhecimento.' }
 }
 
 // V8 — PROJECT INTELLIGENCE / STRATEGY OS
