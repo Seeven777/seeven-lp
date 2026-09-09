@@ -147,7 +147,7 @@ export const reels = reelPlan.flatMap(([clientId, count]) => {
       id: `${clientId}-${index + 1}`,
       clientId,
       client: client?.name || clientId,
-      title: index === 0 ? 'Destaque da marca' : `Reel ${String(index + 1).padStart(2, '0')}`,
+      title: `${client?.name || 'Seeven'} em movimento`,
       poster: `/assets/posters/reel-${String(posterNumber).padStart(2, '0')}.jpg`,
       video: '',
       url: client?.url || '#',
