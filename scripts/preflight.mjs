@@ -15,7 +15,7 @@ const read = file => fs.readFileSync(path.join(root, file), 'utf8')
 
 const app = read('src/App.jsx')
 const admin = read('src/admin.jsx')
-const css = read('src/styles.css')
+const css = read('src/admin.css')
 const publicCss = read('src/public.css')
 const allCss = `${publicCss}\n${css}`
 const supabase = read('src/supabase.js')
@@ -55,6 +55,8 @@ assert(/node_modules\//.test(gitignore) && /dist\//.test(gitignore), '.gitignore
 assert(/X-Robots-Tag/.test(vercel) && /noindex/.test(vercel), '/admin sem noindex no Vercel.')
 assert(/X-Content-Type-Options/.test(vercel), 'Headers de segurança básicos ausentes.')
 assert(exists('index.html') && exists('public/favicon.svg'), 'Arquivos públicos essenciais ausentes.')
+assert(exists('src/public-entry.jsx') && exists('src/admin-entry.jsx'), 'Entrypoints isolados público/admin ausentes.')
+assert(exists('src/public-entry.jsx') && exists('src/admin-entry.jsx'), 'Entrypoints isolados público/admin ausentes.')
 if (!process.env.VERCEL) warn(!exists('node_modules'), 'node_modules está presente localmente; remova antes de compactar/commitar.')
 
 if (allCss.split('{').length !== allCss.split('}').length) failures.push('Quantidade de chaves CSS não confere.')

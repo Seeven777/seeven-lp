@@ -1,4 +1,3 @@
-import './public.css'
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useCmsContent } from './useCmsContent'
 import { caseStudies, projectIntelligence, pitchPresets, pitchCopy } from './data'
