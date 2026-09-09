@@ -1,4 +1,4 @@
-# SEE7VEN V11 — Rebuilt Discovery Experience
+# SEE7VEN V11.2 — Responsive Hero Hotfix
 
 Esta versão substitui a lógica visual da V10 no site público. O Control Room, Supabase, Vercel e as rotas existentes foram preservados.
 
@@ -50,4 +50,20 @@ Não envie `node_modules`, `dist` ou arquivos `.env` para o Git.
 
 A V11 separa o CSS público do CSS legado/administrativo. A home carrega `src/public.css` (~75 KB) e o Control Room continua carregando `src/styles.css` separadamente. Isso evita transferir centenas de KB de estilos históricos para cada prospect.
 
-O rodapé mostra discretamente `V11.0`, o que facilita confirmar visualmente que o deploy novo está ativo.
+O rodapé mostra discretamente `V11.1`, o que facilita confirmar visualmente que o deploy novo está ativo.
+
+## Ajustes V11.1
+
+- Remove a sobreposição do card Eazy Club sobre o núcleo da SEE7VEN no atlas de empresas.
+- Melhora legibilidade e contenção de textos em cards, listas e blocos de pensamento.
+- Troca o mock falso da camisa por uma cena Spline incorporada na aba Material.
+- Adiciona a seção `Sites no ar` com previews ao vivo dos projetos web enviados.
+- Atualiza a navegação principal para incluir o novo bloco de sites.
+
+
+## Ajustes V11.2
+
+- Reestrutura o hero mobile em fluxo vertical para evitar sobreposição em aparelhos menores.
+- Define margens seguras e escalonamento tipográfico para faixas abaixo de 900px, 480px, 390px e 360px.
+- Remove o comportamento de órbita absolutamente posicionada nos celulares menores e passa a revelar o bloco visual abaixo do texto principal.
+- Refina o hero também em tablets intermediários para reduzir colisões entre tipografia e visual orbital.

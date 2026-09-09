@@ -82,6 +82,40 @@ const workflowStages = [
   }
 ]
 
+
+const liveSiteShowcases = [
+  {
+    id: 'caprichae',
+    label: 'FOOD / PEDIDO ONLINE',
+    name: 'Caprichaê',
+    url: 'https://caprichae-site-pedidos-vercel-corri.vercel.app',
+    accent: '#ff7a1a',
+    headline: 'Pedido online com checkout simples e finalização no WhatsApp.',
+    summary: 'Uma jornada pensada para converter rápido: cardápio, carrinho, cupom, checkout e mensagem pronta para o atendimento.',
+    stack: ['UI/UX', 'Pedido online', 'WhatsApp', 'Conversão']
+  },
+  {
+    id: 'starprint',
+    label: 'VAREJO / PAPELARIA',
+    name: 'Star Pri',
+    url: 'https://starprint-psi.vercel.app',
+    accent: '#8065ff',
+    headline: 'Vitrine digital para papelaria, presentes e cestas.',
+    summary: 'Estrutura feita para apresentar catálogo, reforçar a marca e transformar navegação em contato comercial.',
+    stack: ['Institucional', 'Catálogo', 'Marca', 'Experiência digital']
+  },
+  {
+    id: 'insights',
+    label: 'DASHBOARD / ANALYTICS',
+    name: 'Insights SindPetshop-SP',
+    url: 'https://dashbord-de-ensigths-49n3.vercel.app/?view=simple&mode=simple&since=2026-08-13&until=2026-09-09',
+    accent: '#58f5d0',
+    headline: 'Painel para leitura executiva, histórico e inteligência de presença.',
+    summary: 'Um dashboard pensado para transformar dados de visualizações, interações, território e público em leitura prática.',
+    stack: ['Dashboard', 'Meta API', 'Dados', 'Leitura executiva']
+  }
+]
+
 function track(event, detail = {}) {
   try {
     window.dataLayer = window.dataLayer || []
@@ -157,6 +191,12 @@ function safeLink(value = '') {
     const url = new URL(value)
     return ['http:', 'https:'].includes(url.protocol) ? url.toString() : ''
   } catch (_) { return '' }
+}
+
+function readableHost(value = '') {
+  try {
+    return new URL(value).hostname.replace(/^www\./, '')
+  } catch (_) { return value }
 }
 
 function setMeta(name, content, property = false) {
@@ -358,14 +398,14 @@ function Header({ onBrief }) {
   return <>
     <header className={`v11-header is-${theme} ${hidden && !open ? 'is-hidden' : ''}`}>
       <a href="#top"><LogoMark/></a>
-      <nav aria-label="Principal"><a href="#work">Projetos</a><a href="#companies">Empresas</a><a href="#capabilities">O que fazemos</a><a href="#lab">Lab</a><a href="#partners">Rede</a></nav>
+      <nav aria-label="Principal"><a href="#work">Projetos</a><a href="#sites">Sites</a><a href="#companies">Empresas</a><a href="#capabilities">O que fazemos</a><a href="#lab">Lab</a><a href="#partners">Rede</a></nav>
       <button className="v11-header-cta" onClick={() => onBrief()}>COMEÇAR PROJETO <span>↗</span></button>
       <button className="v11-menu-btn" onClick={() => setOpen(v=>!v)} aria-expanded={open}>{open ? 'FECHAR' : 'MENU'}</button>
     </header>
     <div className={`v11-menu ${open ? 'is-open' : ''}`} aria-hidden={!open}>
       <div>
         <span>NAVEGAÇÃO</span>
-        {[['01','Projetos','#work'],['02','Empresas','#companies'],['03','O que fazemos','#capabilities'],['04','Como trabalhamos','#method'],['05','Creative Lab','#lab'],['06','Rede','#partners'],['07','Contato','#contact']].map(([n,label,href]) => <a key={href} href={href} onClick={()=>setOpen(false)}><small>{n}</small><strong>{label}</strong><i>↘</i></a>)}
+        {[['01','Projetos','#work'],['02','Sites','#sites'],['03','Empresas','#companies'],['04','O que fazemos','#capabilities'],['05','Como trabalhamos','#method'],['06','Creative Lab','#lab'],['07','Rede','#partners'],['08','Contato','#contact']].map(([n,label,href]) => <a key={href} href={href} onClick={()=>setOpen(false)}><small>{n}</small><strong>{label}</strong><i>↘</i></a>)}
         <button onClick={() => {setOpen(false); onBrief()}}>Tenho um projeto em mente <span>↗</span></button>
       </div>
     </div>
@@ -438,7 +478,7 @@ function CompaniesAtlas({ clients = [], projects = [], onOpen }) {
   }, [clients])
   const selected = clients.find(client => client.id === selectedId) || featured[0] || {}
   const selectedProject = projectForClient(projects, selected)
-  const positions = [[19,25],[49,15],[80,27],[13,62],[42,48],[72,53],[31,80],[68,82]]
+  const positions = [[19,25],[49,15],[80,27],[13,62],[32,47],[72,53],[31,80],[68,82]]
   return <section className="v11-companies" id="companies" ref={ref} data-header-theme="dark" style={{'--p':0,'--introOpacity':1,'--introY':'0px','--mapOpacity':0,'--mapScale':.9,'--inspectorOpacity':0}}>
     <div className="v11-companies-sticky">
       <div className="v11-companies-intro">
@@ -552,12 +592,21 @@ function FeaturedWork({ projects = [], clients = [], behance = [], onOpen }) {
   </section>
 }
 
+function LiveSites() {
+  return <section className="v11-sites" id="sites" data-header-theme="light">
+    <div className="v11-sites-head"><span>05 / SITES NO AR</span><h2>SITES QUE JÁ<br/><em>COLOCAMOS NO MUNDO.</em></h2><p>Alguns projetos pedem mais que layout bonito: precisam de navegação clara, conversão, dados e operação funcionando em produção.</p></div>
+    <div className="v11-sites-grid">
+      {liveSiteShowcases.map((site, index) => <article key={site.id} className="v11-site-card" style={{'--accent':site.accent}}><div className="v11-site-browser"><div className="v11-site-browser-bar"><i/><i/><i/><span>{readableHost(site.url)}</span><a href={site.url} target="_blank" rel="noreferrer">ABRIR ↗</a></div><div className="v11-site-browser-stage"><iframe src={site.url} title={`Preview ${site.name}`} loading="lazy" referrerPolicy="no-referrer"/><div className="v11-site-browser-shade"/></div></div><div className="v11-site-copy"><small>0{index+1} / {site.label}</small><h3>{site.name}</h3><strong>{site.headline}</strong><p>{site.summary}</p><div>{site.stack.map(tag => <span key={tag}>{tag}</span>)}</div></div></article>)}
+    </div>
+  </section>
+}
+
 function CompanyIndex({ clients = [], projects = [], onOpen }) {
   const [active, setActive] = useState(clients[0]?.id || '')
   const selected = clients.find(client=>client.id===active) || clients[0] || {}
   const project = projectForClient(projects,selected)
   return <section className="v11-company-index" data-header-theme="dark">
-    <div className="v11-company-index-head"><span>05 / PUBLIC PRESENCE INDEX</span><h2>MAIS MARCAS.<br/><em>MAIS CONTEXTOS.</em></h2><p>Aqui você pode sair do portfólio e conhecer as empresas no mundo real: site, Instagram e case quando existir.</p></div>
+    <div className="v11-company-index-head"><span>06 / PUBLIC PRESENCE INDEX</span><h2>MAIS MARCAS.<br/><em>MAIS CONTEXTOS.</em></h2><p>Aqui você pode sair do portfólio e conhecer as empresas no mundo real: site, Instagram e case quando existir.</p></div>
     <div className="v11-company-index-shell">
       <div className="v11-company-list">{clients.map((client,index)=><button key={client.id} style={{'--accent':client.accent||'#c9ff32'}} className={active===client.id?'is-active':''} onMouseEnter={()=>setActive(client.id)} onFocus={()=>setActive(client.id)} onClick={()=>setActive(client.id)}><small>{String(index+1).padStart(2,'0')}</small><strong>{client.name}</strong><span>{client.category||'Projeto'}</span><i>↗</i></button>)}</div>
       <aside style={{'--accent':selected.accent||'#c9ff32'}}><small>AGORA / {selected.category||'MARCA'}</small><h3>{selected.name}</h3><p>{selected.publicProof || `Conheça a presença pública de ${selected.name}.`}</p><div className="v11-company-handle">{selected.handle}</div><CompanyActions client={selected} project={project} onOpen={onOpen}/></aside>
@@ -566,7 +615,21 @@ function CompanyIndex({ clients = [], projects = [], onOpen }) {
 }
 
 function LabVisualMaterial() {
-  return <div className="v11-shirt-scene"><div className="v11-shirt-shadow"/><div className="v11-shirt"><div className="v11-shirt-neck"/><span>7</span></div><div className="v11-material-cards"><i/><i/><i/></div></div>
+  return <div className="v11-shirt-scene v11-spline-scene">
+    <div className="v11-spline-glow"/>
+    <iframe
+      src="https://my.spline.design/darkspideycopy-bv4dKMB6imfvzRHpqhD50j0c/"
+      title="Spline material study"
+      loading="lazy"
+      allow="fullscreen"
+    />
+    <div className="v11-spline-tags">
+      <span>UNIFORME</span>
+      <span>MERCH</span>
+      <span>OBJETO</span>
+      <span>IDENTIDADE</span>
+    </div>
+  </div>
 }
 
 function LabVisual3D() {
@@ -597,7 +660,7 @@ function CreativeLab({ reels = [], behance = [] }) {
     motion:{kicker:'MOTION / AUDIOVISUAL',title:'ALGUMAS IDEIAS\nPRECISAM SE MOVER.',text:'Roteiro, captação, edição e motion para quando tempo, som e ritmo fazem parte da mensagem.',cta:'MOVIMENTO TAMBÉM É IDENTIDADE.'}
   }[mode]
   return <section className="v11-lab" id="lab" ref={ref} data-header-theme="dark" style={{'--rx':'0deg','--ry':'0deg','--px':'50%','--py':'50%'}}>
-    <div className="v11-lab-head"><span>06 / CREATIVE LAB</span><h2>{copy.title.split('\n').map((line,index)=><React.Fragment key={line}>{index===1?<em>{line}</em>:line}{index===0?<br/>:null}</React.Fragment>)}</h2><p>{copy.text}</p></div>
+    <div className="v11-lab-head"><span>07 / CREATIVE LAB</span><h2>{copy.title.split('\n').map((line,index)=><React.Fragment key={line}>{index===1?<em>{line}</em>:line}{index===0?<br/>:null}</React.Fragment>)}</h2><p>{copy.text}</p></div>
     <div className="v11-lab-shell">
       <div className="v11-lab-tabs">{[['material','MATERIAL'],['three','3D / PROTÓTIPO'],['motion','MOTION']].map(([id,label])=><button key={id} className={mode===id?'is-active':''} onClick={()=>setMode(id)}>{label}</button>)}</div>
       <div className="v11-lab-stage" key={mode}>
@@ -611,7 +674,7 @@ function CreativeLab({ reels = [], behance = [] }) {
 
 function Thinking() {
   return <section className="v11-thinking" data-header-theme="dark">
-    <div className="v11-thinking-head"><span>07 / COMO PENSAMOS</span><h2>ANTES DE CRIAR,<br/><em>A GENTE ORGANIZA.</em></h2><p>A ferramenta muda. A lógica vem antes: entender, testar, construir o sistema e só então produzir em escala.</p></div>
+    <div className="v11-thinking-head"><span>08 / COMO PENSAMOS</span><h2>ANTES DE CRIAR,<br/><em>A GENTE ORGANIZA.</em></h2><p>A ferramenta muda. A lógica vem antes: entender, testar, construir o sistema e só então produzir em escala.</p></div>
     <div className="v11-thinking-grid">
       <article className="t-context"><small>01 / CONTEXTO</small><h3>Informação demais vira hierarquia.</h3><p>Pesquisa, público, prioridade e mensagem antes da composição.</p><div><i/><i/><i/><i/></div></article>
       <article className="t-prototype"><small>02 / PROTÓTIPO</small><h3>Testar antes de produzir.</h3><p>Wireframe, mockup, Blender e protótipos quando a forma precisa ser validada.</p><div className="v11-mini-wire"><i/><i/><i/><b>7</b></div></article>
@@ -630,7 +693,7 @@ function PartnerNetwork({ partners = [] }) {
     return <div className={`v11-partner-row ${reverse?'is-reverse':''}`}><div>{loop.map((partner,index)=>{const href=safeLink(partner.url);return <a key={`${partner.id||partner.handle}-${index}`} href={href||'#contact'} target={href?'_blank':undefined} rel="noreferrer"><span>{partner.handle||partner.name}</span><i>↗</i></a>})}</div></div>
   }
   return <section className="v11-network" id="partners" data-header-theme="dark">
-    <div className="v11-network-head"><span>08 / CREATIVE NETWORK</span><h2>MAIS PROJETO.<br/><em>MAIS REDE.</em></h2><p>Quando a entrega pede novas mãos, conectamos criadores, influenciadores e empresas parceiras sem transformar o projeto em um quebra-cabeça de fornecedores.</p><div><strong>{items.length||25}</strong><small>CONEXÕES</small><i>1</i><small>DIREÇÃO</small><b>∞</b><small>COMBINAÇÕES</small></div></div>
+    <div className="v11-network-head"><span>09 / CREATIVE NETWORK</span><h2>MAIS PROJETO.<br/><em>MAIS REDE.</em></h2><p>Quando a entrega pede novas mãos, conectamos criadores, influenciadores e empresas parceiras sem transformar o projeto em um quebra-cabeça de fornecedores.</p><div><strong>{items.length||25}</strong><small>CONEXÕES</small><i>1</i><small>DIREÇÃO</small><b>∞</b><small>COMBINAÇÕES</small></div></div>
     <div className="v11-partner-marquees">{row(first)}{row(second,true)}</div>
     <p>TOQUE OU CLIQUE EM UM NOME PARA ABRIR A PRESENÇA PÚBLICA DO PARCEIRO.</p>
   </section>
@@ -647,7 +710,7 @@ function ProblemSolver({ services = [], onBrief }) {
   const [active,setActive]=useState(0)
   const item=list[active]||fallback[0]
   return <section className="v11-solver" data-header-theme="light">
-    <div className="v11-solver-head"><span>09 / COMEÇAR PELO PROBLEMA</span><h2>VOCÊ NÃO PRECISA<br/>SABER O NOME<br/><em>DO SERVIÇO.</em></h2><p>Conte o que precisa acontecer. A gente ajuda a descobrir quais frentes fazem sentido.</p></div>
+    <div className="v11-solver-head"><span>10 / COMEÇAR PELO PROBLEMA</span><h2>VOCÊ NÃO PRECISA<br/>SABER O NOME<br/><em>DO SERVIÇO.</em></h2><p>Conte o que precisa acontecer. A gente ajuda a descobrir quais frentes fazem sentido.</p></div>
     <div className="v11-solver-shell"><div>{list.map((row,index)=><button key={row.id||index} className={index===active?'is-active':''} onClick={()=>setActive(index)}><small>0{index+1}</small><strong>{row.problem}</strong><span>↗</span></button>)}</div><article key={item.id||active}><span>SE FOSSE ESSE O PROBLEMA</span><h3>{item.answer}</h3><div>{(item.stack||[]).map(tag=><b key={tag}>{tag}</b>)}</div><button onClick={()=>onBrief(item.problem)}>QUERO CONVERSAR SOBRE ISSO ↗</button></article></div>
   </section>
 }
@@ -655,7 +718,7 @@ function ProblemSolver({ services = [], onBrief }) {
 function Contact({ onBrief }) {
   const text=encodeURIComponent('Olá! Conheci a Seeven pelo site e quero conversar sobre um projeto.')
   return <section className="v11-contact" id="contact" data-header-theme="light">
-    <span>10 / START SOMETHING</span><h2>TEM UMA IDEIA?<br/><em>COLOCA NA MESA.</em></h2><p>Não precisa montar o escopo antes de falar com a gente. Pode chegar com um objetivo, um problema, uma referência ou só uma ideia ainda mal resolvida.</p>
+    <span>11 / START SOMETHING</span><h2>TEM UMA IDEIA?<br/><em>COLOCA NA MESA.</em></h2><p>Não precisa montar o escopo antes de falar com a gente. Pode chegar com um objetivo, um problema, uma referência ou só uma ideia ainda mal resolvida.</p>
     <div className="v11-contact-actions"><button onClick={()=>onBrief()}>BRIEF RÁPIDO · 60S ↗</button><a href={`https://wa.me/${WA_KAREN}?text=${text}`} target="_blank" rel="noreferrer">CONVERSAR AGORA ↗</a></div>
     <div className="v11-contact-people"><a href={`https://wa.me/${WA_GUSTAVO}?text=${text}`} target="_blank" rel="noreferrer"><small>DIREÇÃO</small><strong>Gustavo</strong><span>+55 11 92062-6850 ↗</span></a><a href={`https://wa.me/${WA_KAREN}?text=${text}`} target="_blank" rel="noreferrer"><small>NOVOS PROJETOS</small><strong>Karen</strong><span>+55 11 97149-3985 ↗</span></a></div>
   </section>
@@ -699,7 +762,7 @@ function Brief({ open, onClose, initial = '' }) {
 }
 
 function Footer() {
-  return <footer className="v11-footer"><LogoMark/><div><a href="https://www.behance.net/wedeseeven" target="_blank" rel="noreferrer">BEHANCE ↗</a><a href="#top">VOLTAR AO TOPO ↑</a></div><small>© {new Date().getFullYear()} SEE7VEN · V11.0 · PRESENCE FROM PIXEL TO PAPER.</small></footer>
+  return <footer className="v11-footer"><LogoMark/><div><a href="https://www.behance.net/wedeseeven" target="_blank" rel="noreferrer">BEHANCE ↗</a><a href="#top">VOLTAR AO TOPO ↑</a></div><small>© {new Date().getFullYear()} SEE7VEN · V11.2 · PRESENCE FROM PIXEL TO PAPER.</small></footer>
 }
 
 export default function App() {
@@ -712,7 +775,7 @@ export default function App() {
   const closeCase=(push=true)=>{setCaseProject(null);if(push&&/^\/work\//.test(window.location.pathname))history.pushState({},'',`/${window.location.search||''}${window.location.hash||''}`)}
 
   useEffect(()=>{document.documentElement.classList.add('seeven-v11');const meta=document.querySelector('meta[name="theme-color"]')||document.head.appendChild(Object.assign(document.createElement('meta'),{name:'theme-color'}));meta.content='#080808';return()=>document.documentElement.classList.remove('seeven-v11')},[])
-  useEffect(()=>{track('page_view',{source:cms.source,version:'v11.0-rebuilt'})},[cms.source])
+  useEffect(()=>{track('page_view',{source:cms.source,version:'v11.2-responsive-hotfix'})},[cms.source])
   useEffect(()=>{const resolvePath=()=>{const match=decodeURIComponent(window.location.pathname).match(/^\/work\/([^/]+)\/?$/);if(!match){setCaseProject(null);return}const project=cms.projects.find(item=>item.id===match[1]);if(project)setCaseProject(project)};resolvePath();window.addEventListener('popstate',resolvePath);return()=>window.removeEventListener('popstate',resolvePath)},[cms.projects])
   useEffect(()=>{const defaultTitle='SEE7VEN — Creative Presence Studio';const defaultDescription='Estratégia, branding, web, conteúdo, motion, performance, tecnologia e presença física conectadas em uma única direção.';if(caseProject){const description=caseProject.summary||caseProject.title||defaultDescription;const visual=projectVisual(caseProject,cms.behance)||clientVisual(cms.clients.find(item=>item.id===caseProject.clientId)||{});const image=visual?(visual.startsWith('http')?visual:`${window.location.origin}${visual.startsWith('/')?'':'/'}${visual}`):`${window.location.origin}/og-see7ven.png`;const canonical=`${window.location.origin}/work/${encodeURIComponent(caseProject.id)}`;document.title=`${caseProject.client} — Case SEE7VEN`;setMeta('description',description);setMeta('og:title',document.title,true);setMeta('og:description',description,true);setMeta('og:url',canonical,true);setMeta('og:image',image,true);setMeta('twitter:title',document.title);setMeta('twitter:description',description);setMeta('twitter:image',image);setCanonical(canonical)}else{document.title=defaultTitle;const canonical=window.location.origin+'/';const image=`${window.location.origin}/og-see7ven.png`;setMeta('description',defaultDescription);setMeta('og:title',defaultTitle,true);setMeta('og:description',defaultDescription,true);setMeta('og:url',canonical,true);setMeta('og:image',image,true);setMeta('twitter:title',defaultTitle);setMeta('twitter:description',defaultDescription);setMeta('twitter:image',image);setCanonical(canonical)}},[caseProject,cms.clients,cms.behance])
 
@@ -726,6 +789,7 @@ export default function App() {
       <Capabilities onBrief={openBrief}/>
       <Method onBrief={openBrief}/>
       <FeaturedWork projects={cms.projects} clients={cms.clients} behance={cms.behance} onOpen={project=>openCase(project,'selected_work')}/>
+      <LiveSites/>
       <CompanyIndex clients={cms.clients} projects={cms.projects} onOpen={project=>openCase(project,'company_index')}/>
       <CreativeLab reels={cms.reels} behance={cms.behance}/>
       <Thinking/>
