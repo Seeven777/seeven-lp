@@ -12,3 +12,9 @@
 
 ## Infra
 - Vercel, Supabase, CMS, Behance, pitch links, parceiros e contatos permanecem inalterados.
+
+## 12.1.1 — Admin CSS hotfix
+
+- O stylesheet completo do Control Room agora é importado estaticamente pelo entrypoint `main.jsx`.
+- O Admin deixa de depender do carregamento de CSS de um chunk dinâmico.
+- Isso garante que `/admin` receba o layout completo mesmo com cache/chunk splitting no Vercel.

@@ -1,4 +1,3 @@
-import './styles.css'
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { supabase, supabaseEnabled, supabaseDiagnostics } from './supabase'
 import { behanceProjects as seededBehance, clients as seededClients, featuredProjects as seededProjects, solutions as seededSolutions, partners as seededPartners } from './data'
