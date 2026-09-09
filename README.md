@@ -1,60 +1,68 @@
-# SEE7VEN — Presence System V10.4
+# SEE7VEN — Presence System V10.5
 
-Landing page + portfólio + apresentação comercial da Seeven.
+Landing page + portfólio + apresentação comercial + captação da Seeven.
 
-A V10.4 mantém a infraestrutura existente de **Vercel + Supabase + Control Room** e concentra a evolução na experiência pública, principalmente no mobile: menos repetição, menos scroll obrigatório e mais exploração por toque, swipe e progressive disclosure.
+A V10.5 preserva a infraestrutura existente de **Vercel + Supabase + Control Room** e reorganiza a experiência pública para uma jornada de descoberta: primeiro gerar curiosidade, depois explicar capacidade, provar repertório, apresentar a rede e só então pedir contato.
 
 ## Tese comercial
 
 A Seeven conecta **estratégia, marca, produto digital, conteúdo, performance, audiovisual, tecnologia e execução física** sob uma única direção.
 
-O visitante não precisa saber o nome do serviço antes de entrar em contato. Pode chegar com um objetivo, problema ou ideia; a Seeven organiza a combinação necessária.
+O visitante não precisa descobrir sozinho qual serviço contratar. Pode chegar com um objetivo, problema ou ideia; a Seeven organiza as frentes e a execução necessária.
 
-## Jornada pública V10.4
+## Jornada pública V10.5
 
 ```text
-Hero / promessa
+Loading 0–100
+→ Gateway: quem somos / projetos / empresas & rede / ver tudo
+→ Hero / promessa
+→ Empresas que passaram por aqui / mapa mental em camadas
 → Entregas / capability universe
-→ Como conectamos / system
+→ Um briefing, uma direção / WHY + HOW por frente
+→ Physical Lab / vestuário, impresso e 3D
 → Selected Work
-→ Arquivo compacto de marcas
-→ Como pensamos / Bento
+→ Mais marcas, mais contextos / case + site + Instagram
+→ Como pensamos / Bento + Blender / 3D
+→ Motion & Content / curadoria sem capas repetidas
+→ Tela, rua, palco, papel / formatos sem repetir clientes
+→ Creative Network / parceiros em rails cinéticos
 → Comece pelo problema
-→ Motion & Content
-→ Formato não é limite
-→ Creative Network / parceiros
-→ Contato + Brief 60s
+→ Contato + Brief rápido
 ```
 
-### Desktop
+## Desktop
 
-- storytelling por scroll sem scroll hijacking;
-- Presence System visual e interativo;
+- loader e gateway de descoberta na primeira visita da sessão;
+- mapa de marcas em camadas, com empresas clicáveis;
+- cards de capacidades com geometria estável;
+- Presence System com contexto dinâmico de **por que** e **como** cada frente entra;
+- Physical Lab interativo antes dos cases;
 - cases em formato Bento;
-- arquivo editorial de marcas;
-- rede de parceiros;
+- links públicos para site e Instagram das marcas;
+- seção de formatos separada de Motion;
+- rede de parceiros cinética;
 - URLs compartilháveis `/work/:slug`.
 
-### Mobile
+## Mobile
 
-A versão mobile não é apenas o desktop empilhado:
+A versão mobile é coreografada especificamente para toque:
 
-- header se recolhe ao rolar para baixo e retorna ao subir;
-- Hero mais curto e com orbit contido no viewport;
-- áreas de atuação em tabs horizontais nativas;
-- Presence System vira ferramenta de toque em vez de sticky de múltiplas telas;
-- Selected Work vira rail com snap;
-- arquivo de marcas vira índice compacto;
-- Bento mantém a direção visual com cartões swipeáveis;
-- soluções por problema usam seleção horizontal + uma única resposta;
-- Motion, prova e parceiros usam rails táteis;
-- contato não repete a lista de serviços — as escolhas ficam no Brief.
+- loader e gateway em três escolhas táteis;
+- mapa de marcas mostra todas as principais empresas, sem esconder nós por CSS;
+- tabs de entregas têm snap e largura suficiente para os títulos completos;
+- o card de entrega mantém altura fixa ao trocar de área;
+- Presence System mostra explicação antes do exemplo real;
+- Physical Lab vira um palco compacto;
+- projetos, marcas e formatos usam rails com snap;
+- rede de parceiros não usa cards vazios;
+- perguntas por problema ficam próximas da conversão;
+- opções de escolha única do Brief avançam automaticamente.
 
 ## CMS / Control Room
 
 Preservado em `/admin`.
 
-Conteúdos públicos continuam consumindo Supabase quando configurado, com fallback local seguro. Parceiros reutilizam `public.contents` com `category = partner`, portanto **V10.4 não exige nova migration SQL**.
+Conteúdos públicos continuam consumindo Supabase quando configurado, com fallback local seguro. Parceiros reutilizam `public.contents` com `category = partner`, portanto **V10.5 não exige nova migration SQL**.
 
 ## Contatos
 
@@ -77,7 +85,3 @@ Não versione:
 - `dist/`
 - `.env`
 - `.env.local`
-
-## Variáveis de ambiente
-
-Use `.env.example` como referência. As integrações existentes de Supabase/Vercel foram preservadas.

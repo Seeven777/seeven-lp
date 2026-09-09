@@ -1,4 +1,4 @@
-SEE7VEN Presence System V10.4 — release manifest
+SEE7VEN Presence System V10.5 — Discovery Flow release manifest
 
 Core
 - src/App.jsx
@@ -9,25 +9,28 @@ Core
 - src/supabase.js
 - src/useCmsContent.js
 
-Public experience V10.4
-- Faster Hero / bounded mobile orbit
-- Capability Universe / compact touch tabs
-- Presence System / desktop network + mobile selector
-- Selected Work / desktop narrative + mobile snap rail
-- Living Work Archive / desktop visual wall + mobile compact index
-- Bento reasoning
-- Problem-first solutions
-- Motion & Content / tactile mobile rail
-- Format proof / mobile swipe gallery
-- Creative Network / 25 partners
-- Contact + 60s brief
-- Shareable /work/:slug cases
+Public experience V10.5
+- 0–100 intro loader + interactive discovery gateway
+- Hero preserved as chapter one + layered brand mental map as chapter two
+- Capability Universe with fixed card geometry and mobile-readable tabs
+- Presence System with dynamic WHY / HOW context for every front
+- Physical Lab: apparel / print / 3D prototyping before selected work
+- Brands archive with case + public site / Instagram destinations
+- Bento reasoning with Blender / 3D process context
+- Curated Motion section with visual deduplication
+- Format Spectrum separated from Motion (screen / street / stage / paper / object)
+- Partner network reduced to contextual copy + kinetic rails
+- Problem-first questions moved to the end of the narrative
+- Brief single-choice steps auto-advance on tap
+- Mobile-specific layout and interaction refinements
+- Shareable /work/:slug cases preserved
 
 Backend / deploy
 - Existing Vercel setup preserved
 - Existing Supabase setup preserved
 - Control Room preserved
-- No new SQL migration required for V10.4
+- Existing CMS / Behance / partner data preserved
+- No new SQL migration required for V10.5
 
 Deliberately excluded
 - node_modules/
