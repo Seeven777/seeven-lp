@@ -618,25 +618,37 @@ function LiveSites() {
 function CompanyIndex({ clients = [], projects = [], onOpen }) {
   const [active, setActive] = useState(0)
   const [paused, setPaused] = useState(false)
+  const [inView, setInView] = useState(false)
+  const sectionRef = useRef(null)
   const trackRef = useRef(null)
   const cardRefs = useRef([])
   const rows = clients.filter(item => item.active !== false)
 
   useEffect(() => {
-    if (paused || rows.length < 2) return
-    const timer = window.setInterval(() => setActive(current => (current + 1) % rows.length), 4200)
-    return () => window.clearInterval(timer)
-  }, [paused, rows.length])
+    const section = sectionRef.current
+    if (!section || typeof IntersectionObserver === 'undefined') return
+    const observer = new IntersectionObserver(([entry]) => setInView(entry.isIntersecting), { threshold: 0.18 })
+    observer.observe(section)
+    return () => observer.disconnect()
+  }, [])
 
   useEffect(() => {
+    if (paused || !inView || rows.length < 2) return
+    const timer = window.setInterval(() => setActive(current => (current + 1) % rows.length), 4200)
+    return () => window.clearInterval(timer)
+  }, [paused, inView, rows.length])
+
+  useEffect(() => {
+    const track = trackRef.current
     const node = cardRefs.current[active]
-    if (!node) return
-    node.scrollIntoView({ behavior:'smooth', block:'nearest', inline:'center' })
+    if (!track || !node) return
+    const left = node.offsetLeft - Math.max(0, (track.clientWidth - node.offsetWidth) / 2)
+    track.scrollTo({ left: Math.max(0, left), behavior: 'smooth' })
   }, [active])
 
   const move = direction => setActive(current => (current + direction + rows.length) % rows.length)
 
-  return <section className="v11-company-index" data-header-theme="dark">
+  return <section ref={sectionRef} className="v11-company-index" data-header-theme="dark">
     <div className="v11-company-index-head"><span>06 / PRESENÇA PÚBLICA</span><h2>MAIS MARCAS.<br/><em>MAIS CONTEXTOS.</em></h2><p>Não é outra lista de clientes. É um atalho para conhecer marcas reais, abrir seus canais e ver como cada contexto pede uma presença diferente.</p></div>
     <div className="v11-company-carousel-shell" onMouseEnter={()=>setPaused(true)} onMouseLeave={()=>setPaused(false)} onTouchStart={()=>setPaused(true)}>
       <div className="v11-company-carousel-toolbar"><span>DESLIZE / EXPLORE</span><div><button onClick={()=>move(-1)} aria-label="Marca anterior">←</button><strong>{String(active+1).padStart(2,'0')} / {String(rows.length).padStart(2,'0')}</strong><button onClick={()=>move(1)} aria-label="Próxima marca">→</button></div></div>
@@ -819,7 +831,7 @@ function Brief({ open, onClose, initial = '' }) {
 }
 
 function Footer() {
-  return <footer className="v11-footer"><LogoMark/><div><a href="https://www.behance.net/wedeseeven" target="_blank" rel="noreferrer">BEHANCE ↗</a><a href="#top">VOLTAR AO TOPO ↑</a></div><small>© {new Date().getFullYear()} SEE7VEN · V11.3 · PRESENCE FROM PIXEL TO PAPER.</small></footer>
+  return <footer className="v11-footer"><LogoMark/><div><a href="https://www.behance.net/wedeseeven" target="_blank" rel="noreferrer">BEHANCE ↗</a><a href="#top">VOLTAR AO TOPO ↑</a></div><small>© {new Date().getFullYear()} SEE7VEN · V11.3.1 · PRESENCE FROM PIXEL TO PAPER.</small></footer>
 }
 
 export default function App() {

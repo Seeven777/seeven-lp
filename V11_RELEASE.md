@@ -76,3 +76,9 @@ O rodapé mostra discretamente `V11.1`, o que facilita confirmar visualmente que
 - Nos filtros de `O que fazemos` e `Creative Lab`, tocar em uma opção no mobile revela automaticamente o card atualizado.
 - `Mais marcas. Mais contextos.` deixa de repetir a lista anterior e vira um carrossel rotativo de presença pública, com Case, Site e Instagram por marca.
 - Adiciona progresso visual e controles anterior/próximo ao carrossel de empresas.
+
+## Ajustes V11.3.1
+
+- Corrige o carrossel de Presença Pública para não mover a página verticalmente durante a rotação automática.
+- A rotação agora movimenta somente o trilho horizontal do carrossel.
+- O autoplay só roda enquanto a seção está visível na viewport e continua pausando durante interação do usuário.
