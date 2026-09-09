@@ -1,8 +1,37 @@
+import adminCssUrl from './admin.css?url'
+import publicCssUrl from './public.css?url'
+
 const normalizedPath = window.location.pathname.replace(/\/+$/, '') || '/'
 const isAdmin = normalizedPath === '/admin' || normalizedPath.startsWith('/admin/')
 
+function ensureStylesheet(href, id) {
+  return new Promise((resolve, reject) => {
+    const existing = document.getElementById(id)
+    if (existing) {
+      if (existing.dataset.loaded === 'true') return resolve()
+      existing.addEventListener('load', () => resolve(), { once: true })
+      existing.addEventListener('error', reject, { once: true })
+      return
+    }
+
+    const link = document.createElement('link')
+    link.id = id
+    link.rel = 'stylesheet'
+    link.href = href
+    link.addEventListener('load', () => {
+      link.dataset.loaded = 'true'
+      resolve()
+    }, { once: true })
+    link.addEventListener('error', reject, { once: true })
+    document.head.appendChild(link)
+  })
+}
+
 if (isAdmin) {
+  document.documentElement.dataset.app = 'admin'
+  document.body.classList.add('admin-route')
   document.title = 'Seeven Control Room'
+
   let robots = document.querySelector('meta[name="robots"]')
   if (!robots) {
     robots = document.createElement('meta')
@@ -10,11 +39,24 @@ if (isAdmin) {
     document.head.appendChild(robots)
   }
   robots.content = 'noindex,nofollow,noarchive'
+} else {
+  document.documentElement.dataset.app = 'public'
+  document.body.classList.add('public-route')
 }
 
-const entryPromise = isAdmin ? import('./admin-entry.jsx') : import('./public-entry.jsx')
+async function boot() {
+  const cssHref = isAdmin ? adminCssUrl : publicCssUrl
+  const cssId = isAdmin ? 'seeven-admin-css' : 'seeven-public-css'
+  await ensureStylesheet(cssHref, cssId)
 
-entryPromise.catch(error => {
+  if (isAdmin) {
+    await import('./admin-entry.jsx')
+  } else {
+    await import('./public-entry.jsx')
+  }
+}
+
+boot().catch(error => {
   console.error(error)
   const root = document.getElementById('root')
   if (!root) return

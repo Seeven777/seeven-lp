@@ -56,7 +56,9 @@ assert(/X-Robots-Tag/.test(vercel) && /noindex/.test(vercel), '/admin sem noinde
 assert(/X-Content-Type-Options/.test(vercel), 'Headers de segurança básicos ausentes.')
 assert(exists('index.html') && exists('public/favicon.svg'), 'Arquivos públicos essenciais ausentes.')
 assert(exists('src/public-entry.jsx') && exists('src/admin-entry.jsx'), 'Entrypoints isolados público/admin ausentes.')
+assert(/adminCssUrl/.test(read('src/main.jsx')) && /publicCssUrl/.test(read('src/main.jsx')) && /ensureStylesheet/.test(read('src/main.jsx')), 'Carregamento explícito de CSS por rota ausente.')
 assert(exists('src/public-entry.jsx') && exists('src/admin-entry.jsx'), 'Entrypoints isolados público/admin ausentes.')
+assert(/adminCssUrl/.test(read('src/main.jsx')) && /publicCssUrl/.test(read('src/main.jsx')) && /ensureStylesheet/.test(read('src/main.jsx')), 'Carregamento explícito de CSS por rota ausente.')
 if (!process.env.VERCEL) warn(!exists('node_modules'), 'node_modules está presente localmente; remova antes de compactar/commitar.')
 
 if (allCss.split('{').length !== allCss.split('}').length) failures.push('Quantidade de chaves CSS não confere.')
