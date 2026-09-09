@@ -1,7 +1,7 @@
 {
   "name": "seeven-presence-v11",
   "private": true,
-  "version": "11.3.1",
+  "version": "11.4.0",
   "type": "module",
   "scripts": {
     "dev": "vite",

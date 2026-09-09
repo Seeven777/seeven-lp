@@ -1,4 +1,4 @@
-# SEE7VEN V11.3 — Interaction & Clarity Polish
+# SEE7VEN V11.4 — Interaction & Clarity Polish
 
 Esta versão substitui a lógica visual da V10 no site público. O Control Room, Supabase, Vercel e as rotas existentes foram preservados.
 
@@ -77,8 +77,19 @@ O rodapé mostra discretamente `V11.1`, o que facilita confirmar visualmente que
 - `Mais marcas. Mais contextos.` deixa de repetir a lista anterior e vira um carrossel rotativo de presença pública, com Case, Site e Instagram por marca.
 - Adiciona progresso visual e controles anterior/próximo ao carrossel de empresas.
 
-## Ajustes V11.3.1
+## Ajustes V11.4 — Production polish
 
-- Corrige o carrossel de Presença Pública para não mover a página verticalmente durante a rotação automática.
-- A rotação agora movimenta somente o trilho horizontal do carrossel.
-- O autoplay só roda enquanto a seção está visível na viewport e continua pausando durante interação do usuário.
+- Autoplays do hero e do carrossel público deixam de trabalhar quando a seção está fora da viewport e respeitam `prefers-reduced-motion`.
+- O carrossel centraliza somente dentro do próprio trilho, sem interferir na posição vertical da página.
+- Menu mobile fecha com `Esc` e recebeu relações ARIA mais claras.
+- Adicionado atalho de teclado “Pular para o conteúdo”.
+- Safe areas de iPhone/iPad aplicadas ao header, menu, overlays e rodapé.
+- Áreas horizontais receberam overscroll containment e touch targets mais confortáveis.
+- Estados de foco, hover e pressão foram refinados sem alterar a direção visual aprovada.
+- Hover dos projetos web ficou mais responsivo, mantendo fallback completo para touch/reduced motion.
+
+### Ajustes adicionais de produção
+
+- Evita layout shift ao abrir menu, case ou brief bloqueando o scroll sem remover visualmente a largura da barra do navegador.
+- Scroll-driven scenes só calculam progresso enquanto estão próximas da viewport.
+- Cliques em Case, Site, Instagram, sites publicados e parceiros agora entram no `dataLayer` para leitura de interesse comercial.

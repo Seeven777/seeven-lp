@@ -801,3 +801,70 @@ body{overflow-x:hidden}
     height:260px;
   }
 }
+
+/* v11.4 production polish -------------------------------------------------- */
+.v11-skip{
+  position:fixed;
+  z-index:1200;
+  left:16px;
+  top:12px;
+  transform:translateY(-160%);
+  border-radius:999px;
+  background:var(--acid);
+  color:#080808;
+  padding:10px 13px;
+  font-size:8px;
+  font-weight:900;
+  letter-spacing:.1em;
+  transition:transform .18s ease;
+}
+.v11-skip:focus{transform:none}
+.v11-shell button,.v11-shell a{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.v11-company-carousel,.v11-sites-grid{overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}
+.v11-company-carousel{scroll-padding-inline:clamp(16px,4vw,64px)}
+.v11-company-card:focus-visible{border-color:var(--accent);opacity:1;outline:2px solid var(--accent);outline-offset:4px}
+.v11-company-carousel-toolbar button:focus-visible,.v11-lab-tabs button:focus-visible,.v11-cap-tabs button:focus-visible,.v11-method-nav button:focus-visible,.v11-solver-shell button:focus-visible{outline:2px solid var(--acid);outline-offset:3px}
+.v11-site-card{transition:transform .28s cubic-bezier(.2,.8,.2,1),box-shadow .28s ease,border-color .28s ease}
+.v11-site-browser-stage iframe{transition:transform .45s cubic-bezier(.2,.8,.2,1),filter .35s ease}
+.v11-company-actions a,.v11-company-actions button,.v11-contact-actions a,.v11-contact-actions button,.v11-header-cta{transition:transform .18s ease,background .18s ease,border-color .18s ease,color .18s ease}
+.v11-company-actions a:active,.v11-company-actions button:active,.v11-contact-actions a:active,.v11-contact-actions button:active,.v11-header-cta:active{transform:scale(.97)}
+
+@media(hover:hover) and (pointer:fine){
+  .v11-site-card:hover{transform:translateY(-6px);border-color:#aaa49a;box-shadow:0 26px 60px rgba(0,0,0,.09)}
+  .v11-site-card:hover .v11-site-browser-stage iframe{transform:scale(.9);filter:saturate(1.05)}
+  .v11-company-actions a:hover,.v11-company-actions button:hover{transform:translateY(-1px)}
+}
+
+@media(max-width:900px){
+  .v11-header{
+    min-height:calc(64px + env(safe-area-inset-top));
+    height:calc(64px + env(safe-area-inset-top));
+    padding-top:env(safe-area-inset-top);
+    padding-left:max(18px,env(safe-area-inset-left));
+    padding-right:max(18px,env(safe-area-inset-right));
+  }
+  .v11-menu>div{padding-top:calc(92px + env(safe-area-inset-top));padding-bottom:max(24px,env(safe-area-inset-bottom))}
+  .v10-case>header,.v10-brief>header{
+    height:calc(64px + env(safe-area-inset-top));
+    padding-top:env(safe-area-inset-top);
+    padding-left:max(18px,env(safe-area-inset-left));
+    padding-right:max(18px,env(safe-area-inset-right));
+  }
+  .v10-brief-card{padding-bottom:calc(8vh + env(safe-area-inset-bottom))}
+  .v11-footer{padding-bottom:max(30px,calc(18px + env(safe-area-inset-bottom)))}
+  .v11-company-carousel-toolbar button{width:42px;height:42px}
+  .v11-company-actions a,.v11-company-actions button{min-height:38px;display:inline-flex;align-items:center;justify-content:center}
+  .v11-lab-tabs button,.v11-cap-tabs button,.v11-method-nav button{min-height:44px}
+}
+
+@media(max-width:460px){
+  .v11-company-carousel-toolbar>span{font-size:6px}
+  .v11-company-carousel-toolbar strong{font-size:7px}
+  .v11-company-card{scroll-snap-stop:always}
+}
+
+@media(prefers-reduced-motion:reduce){
+  html.seeven-v11{scroll-behavior:auto!important}
+  .v11-skip,.v11-site-card,.v11-site-browser-stage iframe,.v11-company-actions a,.v11-company-actions button,.v11-contact-actions a,.v11-contact-actions button,.v11-header-cta{transition:none!important}
+  .v11-site-card:hover{transform:none!important}
+}

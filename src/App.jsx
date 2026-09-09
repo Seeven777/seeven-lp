@@ -125,13 +125,40 @@ function track(event, detail = {}) {
 
 function clamp(value, min = 0, max = 1) { return Math.min(max, Math.max(min, value)) }
 
+function useReducedMotion() {
+  const [reduced, setReduced] = useState(() => typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches)
+  useEffect(() => {
+    const media = window.matchMedia?.('(prefers-reduced-motion: reduce)')
+    if (!media) return undefined
+    const update = () => setReduced(media.matches)
+    update()
+    media.addEventListener?.('change', update)
+    return () => media.removeEventListener?.('change', update)
+  }, [])
+  return reduced
+}
+
+function useInViewport(ref, threshold = .12) {
+  const [visible, setVisible] = useState(true)
+  useEffect(() => {
+    const node = ref.current
+    if (!node || !('IntersectionObserver' in window)) return undefined
+    const observer = new IntersectionObserver(([entry]) => setVisible(entry.isIntersecting), { threshold })
+    observer.observe(node)
+    return () => observer.disconnect()
+  }, [ref, threshold])
+  return visible
+}
+
 function useScrollProgress(ref, onProgress) {
   const callbackRef = useRef(onProgress)
   callbackRef.current = onProgress
   useEffect(() => {
     let raf = 0
+    let active = true
     const update = () => {
       raf = 0
+      if (!active) return
       const el = ref.current
       if (!el) return
       const rect = el.getBoundingClientRect()
@@ -140,12 +167,19 @@ function useScrollProgress(ref, onProgress) {
       el.style.setProperty('--p', p.toFixed(4))
       callbackRef.current?.(p)
     }
-    const request = () => { if (!raf) raf = requestAnimationFrame(update) }
+    const request = () => { if (active && !raf) raf = requestAnimationFrame(update) }
+    const node = ref.current
+    let observer
+    if (node && 'IntersectionObserver' in window) {
+      observer = new IntersectionObserver(([entry]) => { active = entry.isIntersecting; if (active) request() }, { rootMargin: '160px 0px' })
+      observer.observe(node)
+    }
     update()
     window.addEventListener('scroll', request, { passive: true })
     window.addEventListener('resize', request)
     return () => {
       cancelAnimationFrame(raf)
+      observer?.disconnect()
       window.removeEventListener('scroll', request)
       window.removeEventListener('resize', request)
     }
@@ -155,16 +189,22 @@ function useScrollProgress(ref, onProgress) {
 function useBodyLock(locked) {
   useEffect(() => {
     if (!locked) return undefined
-    const previous = document.body.style.overflow
+    const previousOverflow = document.body.style.overflow
+    const previousPadding = document.body.style.paddingRight
+    const scrollbar = Math.max(0, window.innerWidth - document.documentElement.clientWidth)
     document.body.style.overflow = 'hidden'
-    return () => { document.body.style.overflow = previous }
+    if (scrollbar) document.body.style.paddingRight = `${scrollbar}px`
+    return () => {
+      document.body.style.overflow = previousOverflow
+      document.body.style.paddingRight = previousPadding
+    }
   }, [locked])
 }
 
 function usePointerTilt(ref, amount = 12) {
   useEffect(() => {
     const el = ref.current
-    if (!el || window.matchMedia('(pointer: coarse)').matches) return undefined
+    if (!el || window.matchMedia('(pointer: coarse)').matches || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined
     let raf = 0
     let event = null
     const paint = () => {
@@ -266,7 +306,7 @@ function jumpTo(target) {
 function CursorHalo() {
   const ref = useRef(null)
   useEffect(() => {
-    if (window.matchMedia('(pointer: coarse)').matches) return undefined
+    if (window.matchMedia('(pointer: coarse)').matches || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined
     const cursor = ref.current
     if (!cursor) return undefined
     let raf = 0
@@ -368,6 +408,13 @@ function Header({ onBrief }) {
   useBodyLock(open)
 
   useEffect(() => {
+    if (!open) return undefined
+    const close = event => { if (event.key === 'Escape') setOpen(false) }
+    window.addEventListener('keydown', close)
+    return () => window.removeEventListener('keydown', close)
+  }, [open])
+
+  useEffect(() => {
     let last = window.scrollY
     let raf = 0
     const update = () => {
@@ -400,9 +447,9 @@ function Header({ onBrief }) {
       <a href="#top"><LogoMark/></a>
       <nav aria-label="Principal"><a href="#work">Projetos</a><a href="#sites">Sites</a><a href="#companies">Empresas</a><a href="#capabilities">O que fazemos</a><a href="#lab">Lab</a><a href="#partners">Rede</a></nav>
       <button className="v11-header-cta" onClick={() => onBrief()}>COMEÇAR PROJETO <span>↗</span></button>
-      <button className="v11-menu-btn" onClick={() => setOpen(v=>!v)} aria-expanded={open}>{open ? 'FECHAR' : 'MENU'}</button>
+      <button className="v11-menu-btn" onClick={() => setOpen(v=>!v)} aria-expanded={open} aria-controls="v11-main-menu" aria-label={open ? 'Fechar menu' : 'Abrir menu'}>{open ? 'FECHAR' : 'MENU'}</button>
     </header>
-    <div className={`v11-menu ${open ? 'is-open' : ''}`} aria-hidden={!open}>
+    <div id="v11-main-menu" className={`v11-menu ${open ? 'is-open' : ''}`} aria-hidden={!open}>
       <div>
         <span>NAVEGAÇÃO</span>
         {[['01','Projetos','#work'],['02','Sites','#sites'],['03','Empresas','#companies'],['04','O que fazemos','#capabilities'],['05','Como trabalhamos','#method'],['06','Creative Lab','#lab'],['07','Rede','#partners'],['08','Contato','#contact']].map(([n,label,href]) => <a key={href} href={href} onClick={()=>setOpen(false)}><small>{n}</small><strong>{label}</strong><i>↘</i></a>)}
@@ -415,11 +462,14 @@ function Header({ onBrief }) {
 function Hero({ onBrief }) {
   const ref = useRef(null)
   usePointerTilt(ref, 8)
+  const reducedMotion = useReducedMotion()
+  const inView = useInViewport(ref, .08)
   const [active, setActive] = useState(0)
   useEffect(() => {
-    const timer = setInterval(() => setActive(current => (current + 1) % capabilityGroups.length), 2100)
+    if (reducedMotion || !inView) return undefined
+    const timer = setInterval(() => { if (!document.hidden) setActive(current => (current + 1) % capabilityGroups.length) }, 2100)
     return () => clearInterval(timer)
-  }, [])
+  }, [reducedMotion, inView])
   const group = capabilityGroups[active]
   return <section className="v11-hero" id="top" ref={ref} data-header-theme="dark" style={{'--accent':group.accent,'--rx':'0deg','--ry':'0deg','--px':'50%','--py':'50%'}}>
     <div className="v11-hero-grid"/>
@@ -443,9 +493,9 @@ function CompanyActions({ client, project, onOpen, compact = false }) {
   const website = clientWebsite(client)
   const instagram = clientInstagram(client)
   return <div className={`v11-company-actions ${compact?'is-compact':''}`}>
-    {project ? <button onClick={() => onOpen?.(project)}>CASE ↗</button> : null}
-    {website ? <a href={website} target="_blank" rel="noreferrer">SITE ↗</a> : null}
-    {instagram ? <a href={instagram} target="_blank" rel="noreferrer">INSTAGRAM ↗</a> : null}
+    {project ? <button onClick={() => { track('company_case_click',{company:client.id}); onOpen?.(project) }}>CASE ↗</button> : null}
+    {website ? <a href={website} target="_blank" rel="noreferrer" onClick={()=>track('company_site_click',{company:client.id})}>SITE ↗</a> : null}
+    {instagram ? <a href={instagram} target="_blank" rel="noreferrer" onClick={()=>track('company_instagram_click',{company:client.id})}>INSTAGRAM ↗</a> : null}
   </div>
 }
 
@@ -610,41 +660,34 @@ function LiveSites() {
   return <section className="v11-sites" id="sites" data-header-theme="light">
     <div className="v11-sites-head"><span>05 / SITES NO AR</span><h2>SITES QUE JÁ<br/><em>COLOCAMOS NO MUNDO.</em></h2><p>Alguns projetos pedem mais que layout bonito: precisam de navegação clara, conversão, dados e operação funcionando em produção.</p></div>
     <div className="v11-sites-grid">
-      {liveSiteShowcases.map((site, index) => <article key={site.id} className="v11-site-card" style={{'--accent':site.accent}}><div className="v11-site-browser"><div className="v11-site-browser-bar"><i/><i/><i/><span>{readableHost(site.url)}</span><a href={site.url} target="_blank" rel="noreferrer">ABRIR ↗</a></div><div className="v11-site-browser-stage"><iframe src={site.url} title={`Preview ${site.name}`} loading="lazy" referrerPolicy="no-referrer"/><div className="v11-site-browser-shade"/></div></div><div className="v11-site-copy"><small>0{index+1} / {site.label}</small><h3>{site.name}</h3><strong>{site.headline}</strong><p>{site.summary}</p><div>{site.stack.map(tag => <span key={tag}>{tag}</span>)}</div></div></article>)}
+      {liveSiteShowcases.map((site, index) => <article key={site.id} className="v11-site-card" style={{'--accent':site.accent}}><div className="v11-site-browser"><div className="v11-site-browser-bar"><i/><i/><i/><span>{readableHost(site.url)}</span><a href={site.url} target="_blank" rel="noreferrer" onClick={()=>track('live_site_opened',{site:site.id})}>ABRIR ↗</a></div><div className="v11-site-browser-stage"><iframe src={site.url} title={`Preview ${site.name}`} loading="lazy" referrerPolicy="no-referrer"/><div className="v11-site-browser-shade"/></div></div><div className="v11-site-copy"><small>0{index+1} / {site.label}</small><h3>{site.name}</h3><strong>{site.headline}</strong><p>{site.summary}</p><div>{site.stack.map(tag => <span key={tag}>{tag}</span>)}</div></div></article>)}
     </div>
   </section>
 }
 
 function CompanyIndex({ clients = [], projects = [], onOpen }) {
+  const sectionRef = useRef(null)
   const [active, setActive] = useState(0)
   const [paused, setPaused] = useState(false)
-  const [inView, setInView] = useState(false)
-  const sectionRef = useRef(null)
   const trackRef = useRef(null)
   const cardRefs = useRef([])
+  const reducedMotion = useReducedMotion()
+  const inView = useInViewport(sectionRef, .08)
   const rows = clients.filter(item => item.active !== false)
 
   useEffect(() => {
-    const section = sectionRef.current
-    if (!section || typeof IntersectionObserver === 'undefined') return
-    const observer = new IntersectionObserver(([entry]) => setInView(entry.isIntersecting), { threshold: 0.18 })
-    observer.observe(section)
-    return () => observer.disconnect()
-  }, [])
-
-  useEffect(() => {
-    if (paused || !inView || rows.length < 2) return
-    const timer = window.setInterval(() => setActive(current => (current + 1) % rows.length), 4200)
+    if (paused || reducedMotion || !inView || rows.length < 2) return undefined
+    const timer = window.setInterval(() => { if (!document.hidden) setActive(current => (current + 1) % rows.length) }, 4200)
     return () => window.clearInterval(timer)
-  }, [paused, inView, rows.length])
+  }, [paused, reducedMotion, inView, rows.length])
 
   useEffect(() => {
     const track = trackRef.current
     const node = cardRefs.current[active]
     if (!track || !node) return
-    const left = node.offsetLeft - Math.max(0, (track.clientWidth - node.offsetWidth) / 2)
-    track.scrollTo({ left: Math.max(0, left), behavior: 'smooth' })
-  }, [active])
+    const left = node.offsetLeft - (track.clientWidth - node.clientWidth) / 2
+    track.scrollTo({ left: Math.max(0, left), behavior: reducedMotion ? 'auto' : 'smooth' })
+  }, [active, reducedMotion])
 
   const move = direction => setActive(current => (current + direction + rows.length) % rows.length)
 
@@ -656,7 +699,7 @@ function CompanyIndex({ clients = [], projects = [], onOpen }) {
         {rows.map((client,index)=>{
           const project = projectForClient(projects, client)
           const visual = clientVisual(client)
-          return <article ref={node => { cardRefs.current[index] = node }} key={client.id} className={`v11-company-card ${index===active?'is-active':''}`} style={{'--accent':client.accent||'#c9ff32'}} onClick={()=>setActive(index)} onFocus={()=>setActive(index)} tabIndex={0}>
+          return <article ref={node => { cardRefs.current[index] = node }} key={client.id} className={`v11-company-card ${index===active?'is-active':''}`} style={{'--accent':client.accent||'#c9ff32'}} onClick={()=>setActive(index)} onFocus={()=>setActive(index)} tabIndex={0} aria-current={index===active?'true':undefined}>
             <div className="v11-company-card-media">{visual?<SmartImage src={visual} alt="" loading="lazy"/>:<GeneratedProjectArt project={project||{client:client.name}} client={client}/>}<span>{String(index+1).padStart(2,'0')} / {client.category||'MARCA'}</span></div>
             <div className="v11-company-card-copy"><small>{client.handle||'PRESENÇA PÚBLICA'}</small><h3>{client.name}</h3><p>{client.publicProof || `Conheça a presença pública de ${client.name}.`}</p><CompanyActions client={client} project={project} onOpen={onOpen}/></div>
           </article>
@@ -731,7 +774,7 @@ function CreativeLab({ reels = [], behance = [] }) {
   return <section className="v11-lab" id="lab" ref={ref} data-header-theme="dark" style={{'--rx':'0deg','--ry':'0deg','--px':'50%','--py':'50%'}}>
     <div className="v11-lab-head"><span>07 / CREATIVE LAB</span><h2>{copy.title.split('\n').map((line,index)=><React.Fragment key={line}>{index===1?<em>{line}</em>:line}{index===0?<br/>:null}</React.Fragment>)}</h2><p>{copy.text}</p></div>
     <div className="v11-lab-shell">
-      <div className="v11-lab-tabs">{[['material','MATERIAL'],['three','3D / PROTÓTIPO'],['motion','MOTION']].map(([id,label])=><button key={id} className={mode===id?'is-active':''} onClick={()=>selectLabMode(id)}>{label}</button>)}</div>
+      <div className="v11-lab-tabs">{[['material','MATERIAL'],['three','3D / PROTÓTIPO'],['motion','MOTION']].map(([id,label])=><button key={id} className={mode===id?'is-active':''} aria-pressed={mode===id} onClick={()=>selectLabMode(id)}>{label}</button>)}</div>
       <div ref={stageRef} className="v11-lab-stage" key={mode}>
         <div className="v11-lab-caption"><small>{copy.kicker}</small><strong>{copy.cta}</strong>{mode==='three'&&modelProject?<a href={safeLink(modelProject.url)} target="_blank" rel="noreferrer">VER ESTUDO 3D ↗</a>:null}</div>
         {mode==='material'?<LabVisualMaterial/>:mode==='three'?<LabVisual3D/>:<div className="v11-motion-board">{motionItems.map((item,index)=>{const href=safeLink(item.permalink||item.video||item.url||'');return <a key={item.id||index} href={href||undefined} target={href?'_blank':undefined} rel="noreferrer"><div>{item.poster?<SmartImage src={item.poster} alt="" loading="lazy"/>:null}<span>0{index+1}</span><i>{item.video||item.permalink?'▶':'↗'}</i></div><small>{item.client||'SEE7VEN'}</small><strong>{item.title||'Motion study'}</strong></a>})}</div>}
@@ -759,7 +802,7 @@ function PartnerNetwork({ partners = [] }) {
   const second = items.filter((_,index)=>index%2===1)
   const row = (list,reverse=false) => {
     const loop=[...list,...list]
-    return <div className={`v11-partner-row ${reverse?'is-reverse':''}`}><div>{loop.map((partner,index)=>{const href=safeLink(partner.url);return <a key={`${partner.id||partner.handle}-${index}`} href={href||'#contact'} target={href?'_blank':undefined} rel="noreferrer"><span>{partner.handle||partner.name}</span><i>↗</i></a>})}</div></div>
+    return <div className={`v11-partner-row ${reverse?'is-reverse':''}`}><div>{loop.map((partner,index)=>{const href=safeLink(partner.url);return <a key={`${partner.id||partner.handle}-${index}`} href={href||'#contact'} target={href?'_blank':undefined} rel="noreferrer" onClick={()=>track('partner_opened',{partner:partner.id||partner.handle})}><span>{partner.handle||partner.name}</span><i>↗</i></a>})}</div></div>
   }
   return <section className="v11-network" id="partners" data-header-theme="dark">
     <div className="v11-network-head"><span>09 / CREATIVE NETWORK</span><h2>MAIS PROJETO.<br/><em>MAIS REDE.</em></h2><p>Quando a entrega pede novas mãos, conectamos criadores, influenciadores e empresas parceiras sem transformar o projeto em um quebra-cabeça de fornecedores.</p><div><strong>{items.length||25}</strong><small>CONEXÕES</small><i>1</i><small>DIREÇÃO</small><b>∞</b><small>COMBINAÇÕES</small></div></div>
@@ -780,7 +823,7 @@ function ProblemSolver({ services = [], onBrief }) {
   const item=list[active]||fallback[0]
   return <section className="v11-solver" data-header-theme="light">
     <div className="v11-solver-head"><span>10 / COMEÇAR PELO PROBLEMA</span><h2>VOCÊ NÃO PRECISA<br/>SABER O NOME<br/><em>DO SERVIÇO.</em></h2><p>Conte o que precisa acontecer. A gente ajuda a descobrir quais frentes fazem sentido.</p></div>
-    <div className="v11-solver-shell"><div>{list.map((row,index)=><button key={row.id||index} className={index===active?'is-active':''} onClick={()=>setActive(index)}><small>0{index+1}</small><strong>{row.problem}</strong><span>↗</span></button>)}</div><article key={item.id||active}><span>SE FOSSE ESSE O PROBLEMA</span><h3>{item.answer}</h3><div>{(item.stack||[]).map(tag=><b key={tag}>{tag}</b>)}</div><button onClick={()=>onBrief(item.problem)}>QUERO CONVERSAR SOBRE ISSO ↗</button></article></div>
+    <div className="v11-solver-shell"><div>{list.map((row,index)=><button key={row.id||index} className={index===active?'is-active':''} aria-pressed={index===active} onClick={()=>setActive(index)}><small>0{index+1}</small><strong>{row.problem}</strong><span>↗</span></button>)}</div><article key={item.id||active}><span>SE FOSSE ESSE O PROBLEMA</span><h3>{item.answer}</h3><div>{(item.stack||[]).map(tag=><b key={tag}>{tag}</b>)}</div><button onClick={()=>onBrief(item.problem)}>QUERO CONVERSAR SOBRE ISSO ↗</button></article></div>
   </section>
 }
 
@@ -831,7 +874,7 @@ function Brief({ open, onClose, initial = '' }) {
 }
 
 function Footer() {
-  return <footer className="v11-footer"><LogoMark/><div><a href="https://www.behance.net/wedeseeven" target="_blank" rel="noreferrer">BEHANCE ↗</a><a href="#top">VOLTAR AO TOPO ↑</a></div><small>© {new Date().getFullYear()} SEE7VEN · V11.3.1 · PRESENCE FROM PIXEL TO PAPER.</small></footer>
+  return <footer className="v11-footer"><LogoMark/><div><a href="https://www.behance.net/wedeseeven" target="_blank" rel="noreferrer">BEHANCE ↗</a><a href="#top">VOLTAR AO TOPO ↑</a></div><small>© {new Date().getFullYear()} SEE7VEN · V11.4 · PRESENCE FROM PIXEL TO PAPER.</small></footer>
 }
 
 export default function App() {
@@ -844,15 +887,16 @@ export default function App() {
   const closeCase=(push=true)=>{setCaseProject(null);if(push&&/^\/work\//.test(window.location.pathname))history.pushState({},'',`/${window.location.search||''}${window.location.hash||''}`)}
 
   useEffect(()=>{document.documentElement.classList.add('seeven-v11');const meta=document.querySelector('meta[name="theme-color"]')||document.head.appendChild(Object.assign(document.createElement('meta'),{name:'theme-color'}));meta.content='#080808';return()=>document.documentElement.classList.remove('seeven-v11')},[])
-  useEffect(()=>{track('page_view',{source:cms.source,version:'v11.3-polish'})},[cms.source])
+  useEffect(()=>{track('page_view',{source:cms.source,version:'v11.4-production-polish'})},[cms.source])
   useEffect(()=>{const resolvePath=()=>{const match=decodeURIComponent(window.location.pathname).match(/^\/work\/([^/]+)\/?$/);if(!match){setCaseProject(null);return}const project=cms.projects.find(item=>item.id===match[1]);if(project)setCaseProject(project)};resolvePath();window.addEventListener('popstate',resolvePath);return()=>window.removeEventListener('popstate',resolvePath)},[cms.projects])
   useEffect(()=>{const defaultTitle='SEE7VEN — Creative Presence Studio';const defaultDescription='Estratégia, branding, web, conteúdo, motion, performance, tecnologia e presença física conectadas em uma única direção.';if(caseProject){const description=caseProject.summary||caseProject.title||defaultDescription;const visual=projectVisual(caseProject,cms.behance)||clientVisual(cms.clients.find(item=>item.id===caseProject.clientId)||{});const image=visual?(visual.startsWith('http')?visual:`${window.location.origin}${visual.startsWith('/')?'':'/'}${visual}`):`${window.location.origin}/og-see7ven.png`;const canonical=`${window.location.origin}/work/${encodeURIComponent(caseProject.id)}`;document.title=`${caseProject.client} — Case SEE7VEN`;setMeta('description',description);setMeta('og:title',document.title,true);setMeta('og:description',description,true);setMeta('og:url',canonical,true);setMeta('og:image',image,true);setMeta('twitter:title',document.title);setMeta('twitter:description',description);setMeta('twitter:image',image);setCanonical(canonical)}else{document.title=defaultTitle;const canonical=window.location.origin+'/';const image=`${window.location.origin}/og-see7ven.png`;setMeta('description',defaultDescription);setMeta('og:title',defaultTitle,true);setMeta('og:description',defaultDescription,true);setMeta('og:url',canonical,true);setMeta('og:image',image,true);setMeta('twitter:title',defaultTitle);setMeta('twitter:description',defaultDescription);setMeta('twitter:image',image);setCanonical(canonical)}},[caseProject,cms.clients,cms.behance])
 
   return <div className="v11-shell">
+    <a className="v11-skip" href="#main-content">PULAR PARA O CONTEÚDO</a>
     <ExperienceGate projects={cms.projects} behance={cms.behance}/>
     <CursorHalo/>
     <Header onBrief={openBrief}/>
-    <main>
+    <main id="main-content">
       <Hero onBrief={openBrief}/>
       <CompaniesAtlas clients={cms.clients} projects={cms.projects} onOpen={project=>openCase(project,'company_atlas')}/>
       <Capabilities onBrief={openBrief}/>
