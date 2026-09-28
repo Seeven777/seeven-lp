@@ -113,6 +113,27 @@ const liveSiteShowcases = [
     headline: 'Painel para leitura executiva, histórico e inteligência de presença.',
     summary: 'Um dashboard pensado para transformar dados de visualizações, interações, território e público em leitura prática.',
     stack: ['Dashboard', 'Meta API', 'Dados', 'Leitura executiva']
+  },
+  {
+    id: 'team-management',
+    label: 'SISTEMA / GESTÃO DE EQUIPE',
+    name: 'SindPetshop-SP · Marketing',
+    url: 'https://mkl-sind-petshop-sp.vercel.app',
+    accent: '#c9ff32',
+    headline: 'Gestão de equipe, processos e entregas em um único painel.',
+    summary: 'Um espaço de trabalho com tarefas em Kanban, responsáveis, prazos, relatórios e histórico de ações para acompanhar o desenvolvimento da equipe em tempo real.',
+    stack: ['Gestão de equipe', 'Kanban', 'Tempo real', 'Relatórios']
+  },
+  {
+    id: 'sind-ai',
+    label: 'IA LOCAL / AUTOMAÇÃO',
+    name: 'Sind AI · Jarvis Local',
+    url: 'https://iasind.vercel.app/#start',
+    embed: false,
+    accent: '#73cfff',
+    headline: 'Uma IA pessoal que aprende com o uso e trabalha no seu computador.',
+    summary: 'Assistente local-first com modelos, memória, arquivos e ferramentas executados no próprio dispositivo — com automação do computador e acesso móvel pela rede local.',
+    stack: ['IA local', 'Memória', 'Automação', 'Privacidade']
   }
 ]
 
@@ -487,14 +508,14 @@ function Header({ onBrief }) {
   return <>
     <header className={`v11-header is-${theme} ${hidden && !open ? 'is-hidden' : ''}`}>
       <a href="#top"><LogoMark/></a>
-      <nav aria-label="Principal"><a href="#work">Projetos</a><a href="#sites">Sites</a><a href="#companies">Empresas</a><a href="#capabilities">O que fazemos</a><a href="#lab">Lab</a><a href="#partners">Rede</a></nav>
+      <nav aria-label="Principal"><a href="#work">Projetos</a><a href="#sites">Sites & sistemas</a><a href="#companies">Empresas</a><a href="#capabilities">O que fazemos</a><a href="#lab">Lab</a><a href="#partners">Rede</a></nav>
       <button className="v11-header-cta" onClick={() => onBrief()}>COMEÇAR PROJETO <span>↗</span></button>
       <button className="v11-menu-btn" onClick={() => setOpen(v=>!v)} aria-expanded={open} aria-controls="v11-main-menu" aria-label={open ? 'Fechar menu' : 'Abrir menu'}>{open ? 'FECHAR' : 'MENU'}</button>
     </header>
     <div id="v11-main-menu" className={`v11-menu ${open ? 'is-open' : ''}`} aria-hidden={!open}>
       <div>
         <span>NAVEGAÇÃO</span>
-        {[['01','Projetos','#work'],['02','Sites','#sites'],['03','Empresas','#companies'],['04','O que fazemos','#capabilities'],['05','Como trabalhamos','#method'],['06','Creative Lab','#lab'],['07','Rede','#partners'],['08','Contato','#contact']].map(([n,label,href]) => <a key={href} href={href} onClick={()=>setOpen(false)}><small>{n}</small><strong>{label}</strong><i>↘</i></a>)}
+        {[['01','Projetos','#work'],['02','Sites & sistemas','#sites'],['03','Empresas','#companies'],['04','O que fazemos','#capabilities'],['05','Como trabalhamos','#method'],['06','Creative Lab','#lab'],['07','Rede','#partners'],['08','Contato','#contact']].map(([n,label,href]) => <a key={href} href={href} onClick={()=>setOpen(false)}><small>{n}</small><strong>{label}</strong><i>↘</i></a>)}
         <button onClick={() => {setOpen(false); onBrief()}}>Tenho um projeto em mente <span>↗</span></button>
       </div>
     </div>
@@ -741,12 +762,20 @@ function FeaturedWork({ projects = [], clients = [], behance = [], onOpen, prior
 }
 
 function LiveSites({ segment = '' }) {
-  const sitePriority = { food:['caprichae','starprint','insights'], institucional:['insights','starprint','caprichae'], pet:['insights','caprichae','starprint'], b2b:['starprint','insights','caprichae'], web:['caprichae','starprint','insights'], eventos:['starprint','caprichae','insights'], nightlife:['caprichae','starprint','insights'] }
+  const sitePriority = {
+    food:['caprichae','starprint','team-management','sind-ai','insights'],
+    institucional:['team-management','insights','sind-ai','starprint','caprichae'],
+    pet:['team-management','insights','sind-ai','caprichae','starprint'],
+    b2b:['team-management','sind-ai','insights','starprint','caprichae'],
+    web:['sind-ai','team-management','caprichae','starprint','insights'],
+    eventos:['team-management','starprint','caprichae','insights','sind-ai'],
+    nightlife:['caprichae','team-management','starprint','insights','sind-ai']
+  }
   const sites = prioritizeRows(liveSiteShowcases, sitePriority[segment] || [], site=>site.id)
   return <section className="v11-sites" id="sites" data-header-theme="light">
-    <div className="v11-sites-head"><span>05 / SITES NO AR</span><h2>SITES QUE JÁ<br/><em>COLOCAMOS NO MUNDO.</em></h2><p>Alguns projetos pedem mais que layout bonito: precisam de navegação clara, conversão, dados e operação funcionando em produção.</p></div>
+    <div className="v11-sites-head"><span>05 / PRODUTOS DIGITAIS NO AR</span><h2>SITES E SISTEMAS<br/><em>QUE JÁ COLOCAMOS NO MUNDO.</em></h2><p>Alguns projetos pedem mais que layout bonito: precisam de navegação clara, conversão, dados, automação e operação funcionando em produção.</p></div>
     <div className="v11-sites-grid">
-      {sites.map((site, index) => <article key={site.id} className="v11-site-card" style={{'--accent':site.accent}}><div className="v11-site-browser"><div className="v11-site-browser-bar"><i/><i/><i/><span>{readableHost(site.url)}</span><a href={site.url} target="_blank" rel="noreferrer" onClick={()=>track('live_site_opened',{site:site.id})}>ABRIR ↗</a></div><div className="v11-site-browser-stage"><iframe src={site.url} title={`Preview ${site.name}`} loading="lazy" referrerPolicy="no-referrer"/><div className="v11-site-browser-shade"/></div></div><div className="v11-site-copy"><small>0{index+1} / {site.label}</small><h3>{site.name}</h3><strong>{site.headline}</strong><p>{site.summary}</p><div>{site.stack.map(tag => <span key={tag}>{tag}</span>)}</div></div></article>)}
+      {sites.map((site, index) => <article key={site.id} className="v11-site-card" style={{'--accent':site.accent}}><div className="v11-site-browser"><div className="v11-site-browser-bar"><i/><i/><i/><span>{readableHost(site.url)}</span><a href={site.url} target="_blank" rel="noreferrer" onClick={()=>track('live_site_opened',{site:site.id})}>ABRIR ↗</a></div><div className="v11-site-browser-stage">{site.embed===false?<div className="v11-site-fallback v11-site-fallback-ai" aria-label={`Prévia visual de ${site.name}`}><span>PERSONAL GPT / LOCAL-FIRST</span><div><i/><i/><strong>✦</strong></div><h4>Seu assistente.<br/>No seu dispositivo.</h4><p>MODELOS · MEMÓRIA · ARQUIVOS · FERRAMENTAS</p><small>IA LOCAL / AUTOMAÇÃO DO COMPUTADOR</small></div>:<iframe src={site.url} title={`Preview ${site.name}`} loading="lazy" referrerPolicy="no-referrer"/>}<div className="v11-site-browser-shade"/></div></div><div className="v11-site-copy"><small>0{index+1} / {site.label}</small><h3>{site.name}</h3><strong>{site.headline}</strong><p>{site.summary}</p><div>{site.stack.map(tag => <span key={tag}>{tag}</span>)}</div></div></article>)}
     </div>
   </section>
 }
